@@ -7,6 +7,16 @@ function showPage(pageId) {
     if (activePage) {
         activePage.classList.add('active');
     }
+    // Очистка сообщений при смене страницы
+    clearMessages();
+}
+
+// Функция для очистки сообщений
+function clearMessages() {
+    const messages = document.querySelectorAll('.message-area');
+    messages.forEach(msg => {
+        msg.textContent = '';
+    });
 }
 
 // Функция для вывода сообщений пользователю

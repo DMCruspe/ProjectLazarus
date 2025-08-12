@@ -9,6 +9,8 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
+    "express-rate-limit": "^8.0.1",
+    "helmet": "^8.1.0",
     "mongodb": "^6.18.0",
     "mongold": "^0.5.12",
     "mongoose": "^5.9.10"

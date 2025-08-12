@@ -1,41 +1,62 @@
-// This is a simple object acting as a "database"
-const usersDB = {};
-
 function showPage(pageId) {
-    // Hide all pages
     const pages = document.querySelectorAll('.page-container');
     pages.forEach(page => page.classList.remove('active'));
-
-    // Show the desired page
     const activePage = document.getElementById(pageId);
     if (activePage) {
         activePage.classList.add('active');
     }
 }
 
-function checkLogin() {
+async function checkLogin() {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
 
-    if (usersDB[username] && usersDB[username] === password) {
-        // User exists and password matches
-        window.location.href = 'site2.html';
-    } else {
-        alert('Неверный логин или пароль.');
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert('Вход успешен! Перенаправление на сайт2.');
+            window.location.href = 'site2.html';
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        alert('Ошибка при авторизации.');
     }
 }
 
-function checkRegister() {
+async function checkRegister() {
     const username = document.getElementById('register-username').value;
     const password = document.getElementById('register-password').value;
 
     if (username.trim() !== '' && password.trim() !== '') {
-        if (usersDB[username]) {
-            alert('Пользователь с таким именем уже существует.');
-        } else {
-            // "Save" the user to the "database"
-            usersDB[username] = password;
-            showPage('success-page');
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Регистрация прошла успешно! Теперь войдите в систему.');
+                showPage('login-page');
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            alert('Ошибка при регистрации.');
         }
     } else {
         alert('Пожалуйста, введите логин и пароль для регистрации.');

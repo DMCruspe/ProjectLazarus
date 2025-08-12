@@ -51,12 +51,13 @@ async function checkRegister() {
 
             if (response.ok) {
                 alert('Регистрация прошла успешно! Теперь войдите в систему.');
+                // Возможно, здесь должна быть функция для перехода на страницу входа
                 showPage('login-page');
             } else {
                 alert(result.message);
             }
         } catch (error) {
-            alert('Ошибка при регистрации.');
+            alert('Ошибка при регистрации: ' + error.message);
         }
     } else {
         alert('Пожалуйста, введите логин и пароль для регистрации.');

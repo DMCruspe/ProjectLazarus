@@ -3,20 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Второй сайт</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Название</title>
+    <link rel="stylesheet" href="style2.css">
 </head>
 <body>
-    <div class="page-container active">
-        <h1 class="site-title">Это второй сайт</h1>
-        <div class="content-box">
-            <p>Это страница-заглушка. Здесь пока нет контента.</p>
-            <button class="btn-back" onclick="window.location.href='index.html'">Назад</button>
-        </div>
-        <div class="footer">
-            <p>Powered by Follow Me</p>
-            <p>Version alpha 0.1</p>
-        </div>
+    <header>
+        <h1>Название</h1>
+    </header>
+    <div class="container">
+        <aside class="left-panel">
+            <h2>Навигация</h2>
+            <nav>
+                <button class="nav-button">Лаборатория</button>
+                <button class="nav-button">База Данных</button>
+                <button class="nav-button">Склад</button>
+                <button class="nav-button">Выйти</button>
+            </nav>
+        </aside>
+        <main class="center-panel">
+            <h2 id="welcome-message">Добро пожаловать</h2>
+            <div id="login-form">
+                </div>
+            <div class="balance">300 R</div>
+            <footer class="site-footer">
+                <p>Powered by Follow Me</p>
+                <p>Version alpha 0.3</p>
+            </footer>
+        </main>
+        <aside class="right-panel">
+            <h2>Задания</h2>
+            <div class="task-list">
+                <div class="task-card">
+                    <h3>Название</h3>
+                    <p>Описание</p>
+                    <p>Награда: 100</p>
+                </div>
+                <div class="task-card">
+                    <h3>Название</h3>
+                    <p>Описание</p>
+                    <p>Награда: 100</p>
+                </div>
+            </div>
+        </aside>
     </div>
+    <script src="script.js"></script>
 </body>
 </html>

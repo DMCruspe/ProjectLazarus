@@ -40,21 +40,24 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
+        
+        // Находим пользователя в базе данных
         const user = await User.findOne({ username });
-
         if (!user) {
-            return res.status(400).json({ message: 'Неверный логин или пароль' });
+            return res.status(401).json({ message: 'Неверный логин или пароль.' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.passwordHash);
-
+        // Сравниваем хешированный пароль
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Неверный логин или пароль' });
+            return res.status(401).json({ message: 'Неверный логин или пароль.' });
         }
 
-        res.status(200).json({ message: 'Вход успешен' });
+        // Если все успешно, отправляем имя пользователя
+        res.status(200).json({ message: 'Вход успешен!', username: user.username });
+
     } catch (err) {
-        res.status(500).json({ message: 'Ошибка авторизации', error: err.message });
+        res.status(500).json({ message: 'Ошибка входа', error: err.message });
     }
 });
 

@@ -11,25 +11,34 @@ async function checkLogin() {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
 
-    try {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
+    if (username.trim() !== '' && password.trim() !== '') {
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
 
-        const result = await response.json();
+            const result = await response.json();
 
-        if (response.ok) {
-            alert('Вход успешен! Перенаправление на сайт2.');
-            window.location.href = 'site2.html';
-        } else {
-            alert(result.message);
+            if (response.ok) {
+                // Если вход успешен, отображаем имя пользователя на странице
+                const welcomeMessage = document.getElementById('welcome-message');
+                welcomeMessage.innerHTML = `Добро пожаловать, ${result.username}`;
+
+                // Можно также скрыть форму входа и показать остальной контент
+                document.getElementById('login-form').style.display = 'none';
+                
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            alert('Ошибка при входе: ' + error.message);
         }
-    } catch (error) {
-        alert('Ошибка при авторизации.');
+    } else {
+        alert('Пожалуйста, введите логин и пароль.');
     }
 }
 

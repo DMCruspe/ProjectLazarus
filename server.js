@@ -70,28 +70,28 @@ app.post('/api/register', authLimiter, async (req, res) => {
 });
 
 // Роут для авторизации
-app.post('/api/login', authLimiter, async (req, res) => {
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+
     try {
-        const { username, password } = req.body;
-
-        if (!username || !password) {
-            return res.status(400).json({ message: 'Необходимо ввести логин и пароль' });
-        }
-
         const user = await User.findOne({ username });
+
+        // Добавьте эту проверку
         if (!user) {
-            return res.status(401).json({ message: 'Неверный логин или пароль.' });
+            return res.status(401).json({ message: 'Неверный логин или пароль' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Неверный логин или пароль.' });
-        }
+        // Теперь, когда мы знаем, что пользователь существует, можно сравнивать пароли
+        const isPasswordValid = await bcrypt.compare(password, user.password);
 
-        res.status(200).json({ message: 'Вход успешен!', username: user.username });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Произошла ошибка при входе.' });
+        if (isPasswordValid) {
+            res.status(200).json({ message: 'Вход выполнен успешно', username: user.username });
+        } else {
+            res.status(401).json({ message: 'Неверный логин или пароль' });
+        }
+    } catch (error) {
+        console.error('Ошибка входа:', error);
+        res.status(500).json({ message: 'Произошла ошибка на сервере' });
     }
 });
 

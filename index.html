@@ -3,63 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Алхимия</title>
+    <title>Название сайта</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <header>
-        <a href="index.html">Играть</a>
-        <a href="tree.html">Древо открытий</a>
-        <button id="admin-mode-btn">Admin</button>
-    </header>
-
-    <main>
-        <h1>Алхимия 🧪</h1>
-
-        <section class="elements-container">
-            <h2>Доступные элементы</h2>
-            <div id="available-elements" class="available-elements-container">
-                </div>
-        </section>
-
-        <section class="workbench">
-            <h2>Рабочая область</h2>
-            <p>Перетащите два элемента в зону ниже и нажмите "Смешать"</p>
-            <div id="crafting-area" class="crafting-area">
-                <div id="slot1" class="element-slot"></div>
-                <div id="slot2" class="element-slot"></div>
-            </div>
-            <button id="craft-button" class="craft-button">Смешать</button>
-        </section>
-        
-        <div id="message-area" class="message-area"></div>
-
-        <section class="elements-container">
-            <h2>Открытые элементы (<span id="discovered-count">0</span>)</h2>
-            <div id="discovered-elements" class="available-elements-container">
-                </div>
-        </section>
-
-    </main>
-    
-    <div id="admin-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Режим администратора</h2>
-            <input type="password" id="admin-pin-input" placeholder="Введите пин-код">
-            <button id="admin-pin-submit">Войти</button>
-            <div id="admin-buttons" style="display: none;">
-                <p>Добро пожаловать, админ!</p>
-                <a href="constructor.html">
-                    <button id="constructor-link-btn">Перейти в Конструктор</button>
-                </a>
-                <button id="reset-progress-btn">Сбросить прогресс</button>
-            </div>
-            <p id="admin-error-message" class="error-message"></p>
+    <div id="main-page" class="page-container active">
+        <h1 class="site-title">Название сайта</h1>
+        <div class="content-box">
+            <button class="btn" onclick="showPage('login-page')">Войти в систему</button>
+            <button class="btn" onclick="showPage('register-page')">Присоединиться</button>
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <div id="login-page" class="page-container">
+        <h1 class="site-title">Войти в систему</h1>
+        <div class="content-box">
+            <div class="form-group">
+                <label for="login-username">Логин</label>
+                <input type="text" id="login-username" placeholder="Пример данных для ввода">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Пароль</label>
+                <input type="password" id="login-password" placeholder="Пример данных для ввода">
+            </div>
+            <button class="btn-primary">Авторизоваться</button>
+            <button class="btn-back" onclick="showPage('main-page')">Назад</button>
+        </div>
+    </div>
+
+    <div id="register-page" class="page-container">
+        <h1 class="site-title">Регистрация</h1>
+        <div class="content-box">
+            <div class="form-group">
+                <label for="register-username">Логин</label>
+                <input type="text" id="register-username" placeholder="Пример данных для ввода">
+            </div>
+            <div class="form-group">
+                <label for="register-password">Пароль</label>
+                <input type="password" id="register-password" placeholder="Пример данных для ввода">
+            </div>
+            <button class="btn-primary">Присоединиться</button>
+            <button class="btn-back" onclick="showPage('main-page')">Назад</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

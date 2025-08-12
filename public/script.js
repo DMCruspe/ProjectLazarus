@@ -7,8 +7,6 @@ function showPage(pageId) {
     if (activePage) {
         activePage.classList.add('active');
     }
-    // Очистка сообщений при смене страницы
-    clearMessages();
 }
 
 // Функция для очистки сообщений
@@ -93,3 +91,21 @@ async function checkRegister() {
         showMessage('register-page', 'Ошибка при регистрации. Попробуйте ещё раз.', true);
     }
 }
+
+// Добавляем обработчики событий после загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+    // Главная страница
+    document.getElementById('login-btn').addEventListener('click', () => showPage('login-page'));
+    document.getElementById('register-btn').addEventListener('click', () => showPage('register-page'));
+
+    // Страница входа
+    document.getElementById('login-submit-btn').addEventListener('click', checkLogin);
+    document.getElementById('login-back-btn').addEventListener('click', () => showPage('main-page'));
+
+    // Страница регистрации
+    document.getElementById('register-submit-btn').addEventListener('click', checkRegister);
+    document.getElementById('register-back-btn').addEventListener('click', () => showPage('main-page'));
+
+    // Страница успеха
+    document.getElementById('success-to-login-btn').addEventListener('click', () => showPage('login-page'));
+});

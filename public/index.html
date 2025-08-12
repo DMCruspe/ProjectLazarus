@@ -10,8 +10,8 @@
     <div id="main-page" class="page-container active">
         <h1 class="site-title">Название сайта</h1>
         <div class="content-box">
-            <button class="btn" onclick="showPage('login-page')">Войти в систему</button>
-            <button class="btn" onclick="showPage('register-page')">Присоединиться</button>
+            <button id="login-btn" class="btn">Войти в систему</button>
+            <button id="register-btn" class="btn">Присоединиться</button>
         </div>
         <div class="footer">
             <p>Powered by Follow Me</p>
@@ -31,8 +31,8 @@
                 <label for="login-password">Пароль</label>
                 <input type="password" id="login-password" placeholder="Пример данных для ввода">
             </div>
-            <button class="btn-primary" onclick="checkLogin()">Авторизоваться</button>
-            <button class="btn-back" onclick="showPage('main-page')">Назад</button>
+            <button id="login-submit-btn" class="btn-primary">Авторизоваться</button>
+            <button id="login-back-btn" class="btn-back">Назад</button>
         </div>
         <div class="footer">
             <p>Powered by Follow Me</p>
@@ -52,8 +52,8 @@
                 <label for="register-password">Пароль</label>
                 <input type="password" id="register-password" placeholder="Пример данных для ввода">
             </div>
-            <button class="btn-primary" onclick="checkRegister()">Присоединиться</button>
-            <button class="btn-back" onclick="showPage('main-page')">Назад</button>
+            <button id="register-submit-btn" class="btn-primary">Присоединиться</button>
+            <button id="register-back-btn" class="btn-back">Назад</button>
         </div>
         <div class="footer">
             <p>Powered by Follow Me</p>
@@ -65,7 +65,7 @@
         <div class="content-box">
             <h2>Вы успешно зарегистрировались!</h2>
             <p>Теперь войдите в систему.</p>
-            <button class="btn-primary" onclick="showPage('login-page')">Перейти к входу</button>
+            <button id="success-to-login-btn" class="btn-primary">Перейти к входу</button>
         </div>
         <div class="footer">
             <p>Powered by Follow Me</p>

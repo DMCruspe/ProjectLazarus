@@ -11,3 +11,7 @@
     "mongoose": "^5.9.10"
   }
 }
+
+"scripts": {
+  "start": "node server.js"
+}

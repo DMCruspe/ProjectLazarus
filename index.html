@@ -13,6 +13,10 @@
             <button class="btn" onclick="showPage('login-page')">Войти в систему</button>
             <button class="btn" onclick="showPage('register-page')">Присоединиться</button>
         </div>
+        <div class="footer">
+            <p>Powered by Follow Me</p>
+            <p>Version alpha 0.1</p>
+        </div>
     </div>
 
     <div id="login-page" class="page-container">
@@ -26,8 +30,12 @@
                 <label for="login-password">Пароль</label>
                 <input type="password" id="login-password" placeholder="Пример данных для ввода">
             </div>
-            <button class="btn-primary">Авторизоваться</button>
+            <button class="btn-primary" onclick="checkLogin()">Авторизоваться</button>
             <button class="btn-back" onclick="showPage('main-page')">Назад</button>
+        </div>
+        <div class="footer">
+            <p>Powered by Follow Me</p>
+            <p>Version alpha 0.1</p>
         </div>
     </div>
 
@@ -42,8 +50,24 @@
                 <label for="register-password">Пароль</label>
                 <input type="password" id="register-password" placeholder="Пример данных для ввода">
             </div>
-            <button class="btn-primary">Присоединиться</button>
+            <button class="btn-primary" onclick="checkRegister()">Присоединиться</button>
             <button class="btn-back" onclick="showPage('main-page')">Назад</button>
+        </div>
+        <div class="footer">
+            <p>Powered by Follow Me</p>
+            <p>Version alpha 0.1</p>
+        </div>
+    </div>
+
+    <div id="success-page" class="page-container">
+        <div class="content-box">
+            <h2>Вы успешно зарегистрировались!</h2>
+            <p>Теперь войдите в систему.</p>
+            <button class="btn-primary" onclick="showPage('main-page')">Вернуться на главную</button>
+        </div>
+        <div class="footer">
+            <p>Powered by Follow Me</p>
+            <p>Version alpha 0.1</p>
         </div>
     </div>
 

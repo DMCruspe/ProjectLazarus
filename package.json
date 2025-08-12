@@ -1,0 +1,13 @@
+{
+  "name": "projectlazarus",
+  "version": "0.0.1",
+  "description": "My first Heroku app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.9.10"
+  }
+}

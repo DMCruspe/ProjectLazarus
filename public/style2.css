@@ -13,30 +13,18 @@ body {
     border-bottom: 1px solid #ccc;
 }
 
-.drag-drop-area {
-    display: flex;
-    align-items: center;
-}
-
-.drag-drop-area input {
+.header-credits {
+    padding: 10px 20px;
     border: 1px solid #ccc;
-    padding: 8px;
-    border-radius: 4px;
-    margin-right: 5px;
-}
-
-.drag-drop-area button {
-    width: 30px;
-    height: 30px;
+    border-radius: 5px;
     background-color: #eee;
-    border: 1px solid #ccc;
-    border-radius: 4px;
 }
 
 .container {
     display: flex;
     padding: 20px;
     gap: 20px;
+    height: calc(100vh - 70px); /* Вычисляем высоту, чтобы избежать прокрутки */
 }
 
 .left-panel, .center-panel, .right-panel {
@@ -44,10 +32,11 @@ body {
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 20px;
+    box-sizing: border-box; /* Чтобы padding не увеличивал ширину */
 }
 
-.left-panel {
-    width: 250px;
+.left-panel, .right-panel {
+    width: 25%; /* Делаем боковые панели шире, как на макете */
     flex-shrink: 0;
 }
 
@@ -58,11 +47,6 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-.right-panel {
-    width: 250px; /* Фиксированная ширина, как на макете */
-    flex-shrink: 0;
 }
 
 .nav-button {
@@ -80,13 +64,6 @@ body {
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
-}
-
-.balance {
-    padding: 10px 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin: 20px 0;
 }
 
 .footer-info {

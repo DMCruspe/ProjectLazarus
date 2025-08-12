@@ -24,9 +24,10 @@ async function checkLogin() {
             const result = await response.json();
 
             if (response.ok) {
-                // Если вход успешен, отображаем имя пользователя на странице
-                const welcomeMessage = document.getElementById('welcome-message');
-                welcomeMessage.innerHTML = `Добро пожаловать, ${result.username}`;
+                // Если вход успешен, сохраняем имя пользователя и перенаправляем
+                localStorage.setItem('username', result.username);
+                window.location.href = 'site2.html';
+            }
 
                 // Можно также скрыть форму входа и показать остальной контент
                 document.getElementById('login-form').style.display = 'none';

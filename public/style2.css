@@ -1,45 +1,68 @@
 body {
-    font-family: sans-serif;
+    font-family: Arial, sans-serif;
     margin: 0;
-    background-color: #f4f4f4;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+    background-color: #f0f2f5;
 }
 
-header {
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
     background-color: #fff;
-    padding: 20px;
-    text-align: center;
     border-bottom: 1px solid #ccc;
+}
+
+.drag-drop-area {
+    display: flex;
+    align-items: center;
+}
+
+.drag-drop-area input {
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.drag-drop-area button {
+    width: 30px;
+    height: 30px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 .container {
     display: flex;
-    flex-grow: 1;
     padding: 20px;
     gap: 20px;
 }
 
-.left-panel, .right-panel {
+.left-panel, .center-panel, .right-panel {
     background-color: #fff;
-    padding: 20px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    min-width: 200px;
+    padding: 20px;
+}
+
+.left-panel {
+    width: 250px;
+    flex-shrink: 0;
 }
 
 .center-panel {
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
     flex-grow: 1;
+    text-align: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    text-align: center;
+    align-items: center;
+}
+
+.right-panel {
+    width: 250px; /* Фиксированная ширина, как на макете */
+    flex-shrink: 0;
 }
 
 .nav-button {
@@ -50,11 +73,6 @@ header {
     border-radius: 5px;
     background-color: #eee;
     cursor: pointer;
-    font-size: 16px;
-}
-
-.nav-button:hover {
-    background-color: #ddd;
 }
 
 .task-card {
@@ -64,15 +82,13 @@ header {
     border-radius: 5px;
 }
 
-.site-footer {
-    margin-top: auto;
-    padding-top: 20px;
-}
-
 .balance {
-    background-color: #eee;
+    padding: 10px 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    padding: 10px 20px;
-    margin-top: 20px;
+    margin: 20px 0;
+}
+
+.footer-info {
+    margin-top: auto;
 }

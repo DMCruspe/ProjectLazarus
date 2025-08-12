@@ -24,7 +24,7 @@ body {
     display: flex;
     padding: 20px;
     gap: 20px;
-    height: calc(100vh - 70px); /* Вычисляем высоту, чтобы избежать прокрутки */
+    height: calc(100vh - 70px);
 }
 
 .left-panel, .center-panel, .right-panel {
@@ -32,11 +32,11 @@ body {
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 20px;
-    box-sizing: border-box; /* Чтобы padding не увеличивал ширину */
+    box-sizing: border-box;
 }
 
 .left-panel, .right-panel {
-    width: 25%; /* Делаем боковые панели шире, как на макете */
+    width: 25%;
     flex-shrink: 0;
 }
 
@@ -57,6 +57,11 @@ body {
     border-radius: 5px;
     background-color: #eee;
     cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.nav-button:hover {
+    background-color: #ddd;
 }
 
 .task-card {

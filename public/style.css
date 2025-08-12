@@ -104,3 +104,8 @@ body {
     color: #777;
     line-height: 1.5;
 }
+
+.message-area {
+    margin-bottom: 15px;
+    font-weight: bold;
+}

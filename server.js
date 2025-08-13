@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Определяем номер версии
-const appVersion = '0.2.27.0';
+const appVersion = '0.3.2.0';
 
 // Подключение к базе данных MongoDB
 mongoose.connect(process.env.MONGODB_URI, {

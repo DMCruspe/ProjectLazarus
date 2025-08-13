@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (constructorButton) {
             constructorButton.style.display = 'block';
+
+            constructorButton.addEventListener('click', () => {
+                window.location.href = 'constructor.html';
+            });
         }
     }
     

@@ -41,7 +41,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ['user', 'admin', 'superadmin'],
         default: 'user'
-    }
+    },
     credits: {
         type: Number,
         default: 100 

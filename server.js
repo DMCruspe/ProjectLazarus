@@ -105,5 +105,11 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// Определяем номер версии
+const appVersion = '0.2.25';
+
+app.get('/api/version', (req, res) => {
+    res.json({ version: appVersion });
+
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

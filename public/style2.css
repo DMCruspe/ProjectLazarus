@@ -116,3 +116,9 @@ body {
 .footer-info {
     margin-top: auto;
 }
+
+#tasks-list-container {
+    height: 80%; /* Задайте фиксированную высоту */
+    overflow-y: auto; /* Добавляет вертикальную прокрутку */
+    /* ... другие стили ... */
+}

@@ -1,11 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     const role = localStorage.getItem('role');
+    const credits = localStorage.getItem('credits');
     const welcomeMessageElement = document.getElementById('welcome-message');
+    const creditsElement = document.getElementById('credits');
 
     if (username) {
         // ИЗМЕНЕНО: теперь сообщение не содержит роль
         welcomeMessageElement.textContent = `Добро пожаловать, ${username}!`;
+        if (creditsElement) {
+            creditsElement.textContent = `${credits} R`;
+        }
     } else {
         window.location.href = 'index.html';
     }

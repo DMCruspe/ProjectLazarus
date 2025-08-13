@@ -42,6 +42,10 @@ const UserSchema = new mongoose.Schema({
         enum: ['user', 'admin', 'superadmin'],
         default: 'user'
     }
+    credits: {
+        type: Number,
+        default: 100 
+    }
 });
 const User = mongoose.model('User', UserSchema);
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -95,7 +99,7 @@ app.post('/api/login', async (req, res) => {
 
         if (isPasswordValid) {
             // ИЗМЕНЕНА ЭТА СТРОКА: теперь в ответе есть role
-            res.status(200).json({ message: 'Вход выполнен успешно', username: user.username, role: user.role });
+            res.status(200).json({ message: 'Вход выполнен успешно', username: user.username, role: user.role,  credits: user.credits });
         } else {
             res.status(401).json({ message: 'Неверный логин или пароль' });
         }

@@ -2,8 +2,8 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const helmet = require('helmet'); // Добавляем helmet для безопасности
-const rateLimit = require('express-rate-limit'); // Добавляем rate-limit для защиты от брутфорса
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,17 +15,16 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => {
     console.log('Подключение к MongoDB успешно');
-    // Запускаем сервер только после успешного подключения к БД
     app.listen(PORT, () => {
         console.log(`Сервер запущен на порту ${PORT}`);
     });
 })
 .catch(err => {
     console.error('Ошибка подключения к MongoDB', err);
-    // Выход из процесса, если подключение к БД не удалось
-    process.exit(1); 
+    process.exit(1);
 });
 
+// >>>>> ОСТАВЬТЕ ТОЛЬКО ЭТУ ЧАСТЬ МОДЕЛИ, ДРУГУЮ УДАЛИТЕ <<<<<
 // Создание схемы и модели пользователя
 const UserSchema = new mongoose.Schema({
     username: {
@@ -44,19 +43,16 @@ const UserSchema = new mongoose.Schema({
         default: 'user'
     }
 });
-
 const User = mongoose.model('User', UserSchema);
-
-const User = mongoose.model('User', UserSchema);
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Middleware для безопасности
 app.use(helmet());
 app.use(express.json());
 
-// Ограничение скорости для защиты от брутфорса
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 минут
-    max: 100, // Максимум 100 запросов с одного IP
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: "Слишком много запросов с вашего IP, попробуйте позже."
 });
 
@@ -91,12 +87,10 @@ app.post('/api/login', async (req, res) => {
     try {
         const user = await User.findOne({ username });
 
-        // Добавьте эту проверку
         if (!user) {
             return res.status(401).json({ message: 'Неверный логин или пароль' });
         }
 
-        // Теперь, когда мы знаем, что пользователь существует, можно сравнивать пароли
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (isPasswordValid) {
@@ -114,10 +108,8 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/create-superadmin', async (req, res) => {
     const { username, password } = req.body;
 
-    // Хешируем пароль
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Создаем пользователя с ролью 'super admin'
     const superUser = new User({
         username,
         password: hashedPassword,

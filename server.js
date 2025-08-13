@@ -115,5 +115,35 @@ const appVersion = '0.2.25.3';
 app.get('/api/version', (req, res) => {
     res.json({ version: appVersion });
 });
+
+// Роут для добавления кредитов (доступен только для superadmin)
+app.post('/api/add-credits', async (req, res) => {
+    const { username, amount } = req.body;
+
+    try {
+        // Найдите пользователя, который делает запрос (пока это упрощённая проверка)
+        // В реальном приложении здесь должна быть проверка авторизации
+        const superAdminUser = await User.findOne({ username });
+        if (!superAdminUser || superAdminUser.role !== 'superadmin') {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+
+        // Найдите пользователя, которому нужно добавить кредиты
+        const targetUser = await User.findOne({ username });
+        if (!targetUser) {
+            return res.status(404).json({ message: 'Пользователь не найден' });
+        }
+
+        // Обновляем баланс
+        targetUser.credits += amount;
+        await targetUser.save();
+
+        res.status(200).json({ message: `Баланс пользователя ${username} обновлен. Новый баланс: ${targetUser.credits}` });
+    } catch (error) {
+        console.error('Ошибка добавления кредитов:', error);
+        res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

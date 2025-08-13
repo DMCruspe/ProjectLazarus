@@ -48,6 +48,70 @@ const UserSchema = new mongoose.Schema({
     }
 });
 const User = mongoose.model('User', UserSchema);
+// Новая схема для болезней
+const DiseaseSchema = new mongoose.Schema({
+    // Основные параметры
+    name: { 
+        type: String, 
+        required: true, 
+        unique: true 
+    },
+    description: { 
+        type: String 
+    },
+    
+    // ДОБАВЛЕННЫЕ ПАРАМЕТРЫ
+    type: { 
+        type: String,
+        enum: ['Вирус', 'Бактерия', 'Грибок'], // Пример возможных типов
+        default: 'Вирус'
+    },
+    symptoms: [String], // Массив строк для симптомов
+    resistance: { // Устойчивость
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
+    vulnerabilities: [String], // Массив строк для уязвимостей
+    treatmentMethod: { // Способ лечения
+        type: String
+    }
+});
+const Disease = mongoose.model('Disease', DiseaseSchema);
+// Новая схема для вакцин
+const VaccineSchema = new mongoose.Schema({
+    // Основные параметры
+    name: { 
+        type: String, 
+        required: true, 
+        unique: true 
+    },
+    disease: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Disease' 
+    }, 
+    efficiency: { 
+        type: Number, 
+        default: 0.8 
+    },
+    cost: { 
+        type: Number, 
+        default: 50 
+    },
+    
+    // ДОБАВЛЕННЫЕ ПАРАМЕТРЫ
+    duration: { // Время действия (в днях)
+        type: Number,
+        default: 30
+    },
+    dosage: { // Дозировка
+        type: String,
+        default: '1 ml'
+    },
+    sideEffects: [String] // Массив строк для побочных эффектов
+});
+const Vaccine = mongoose.model('Vaccine', VaccineSchema);
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Middleware для безопасности

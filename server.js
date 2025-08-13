@@ -51,6 +51,19 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
+// Новая схема для заданий с полем title и createdAt
+const TaskSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    taskType: { type: String, required: true },
+    description: { type: String, required: true },
+    reward: { type: Number, required: true, min: 0 },
+    performer: { type: String, required: true },
+    createdBy: { type: String, required: true },
+    status: { type: String, enum: ['active', 'in_progress', 'completed'], default: 'active' },
+    createdAt: { type: Date, default: Date.now }
+});
+const Task = mongoose.model('Task', TaskSchema);
+
 // Middleware для безопасности
 app.use(helmet());
 app.use(express.json());
@@ -118,15 +131,6 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
     }
 });
-const TaskSchema = new mongoose.Schema({
-    taskType: { type: String, required: true },
-    description: { type: String, required: true },
-    reward: { type: Number, required: true, min: 0 },
-    performer: { type: String, required: true }, // Может быть "All" или имя пользователя
-    createdBy: { type: String, required: true },
-    status: { type: String, enum: ['active', 'completed'], default: 'active' }
-});
-const Task = mongoose.model('Task', TaskSchema);
 
 // Роут для добавления кредитов себе (доступен только для superadmin)
 app.post('/api/add-credits', async (req, res) => {
@@ -238,7 +242,7 @@ app.post('/api/players/delete', async (req, res) => {
 
 // Роут для создания нового задания (доступен только для admin и superadmin)
 app.post('/api/tasks/create', async (req, res) => {
-    const { requesterUsername, taskType, description, reward, performer } = req.body;
+    const { requesterUsername, title, taskType, description, reward, performer } = req.body;
     try {
         const requester = await User.findOne({ username: requesterUsername });
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
@@ -246,6 +250,7 @@ app.post('/api/tasks/create', async (req, res) => {
         }
         
         const newTask = new Task({
+            title,
             taskType,
             description,
             reward,
@@ -255,17 +260,34 @@ app.post('/api/tasks/create', async (req, res) => {
         await newTask.save();
         res.status(201).json({ message: 'Задание успешно создано.' });
     } catch (error) {
+        console.error('Ошибка при создании задания:', error);
         res.status(500).json({ message: 'Ошибка при создании задания' });
     }
 });
 
-// Роут для получения списка заданий для отображения
+// Роут для получения списка заданий для отображения на site2.html
 app.post('/api/tasks', async (req, res) => {
     const { username } = req.body;
     try {
         const tasks = await Task.find({ 
+            status: 'active',
             $or: [{ performer: 'All' }, { performer: username }] 
         });
+        res.status(200).json(tasks);
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при получении списка заданий' });
+    }
+});
+
+// Роут для получения ВСЕХ заданий (для страницы Список заданий)
+app.post('/api/tasks/list', async (req, res) => {
+    const { requesterUsername } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        const tasks = await Task.find({});
         res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ message: 'Ошибка при получении списка заданий' });
@@ -277,21 +299,12 @@ app.post('/api/tasks/accept', async (req, res) => {
     const { taskId, username } = req.body;
     try {
         const task = await Task.findById(taskId);
-
-        if (!task) {
-            return res.status(404).json({ message: 'Задание не найдено' });
+        if (!task || task.status !== 'active' || (task.performer !== 'All' && task.performer !== username)) {
+            return res.status(400).json({ message: 'Задание недоступно для принятия' });
         }
-        
-        // Проверяем, что задание еще никем не взято
-        if (task.performer !== 'All' && task.performer !== username) {
-            return res.status(400).json({ message: 'Это задание уже принято другим пользователем' });
-        }
-
-        // Обновляем исполнителя и статус задания
         task.performer = username;
-        task.status = 'in_progress'; // Новый статус
+        task.status = 'in_progress';
         await task.save();
-        
         res.status(200).json({ message: 'Задание успешно принято' });
     } catch (error) {
         console.error('Ошибка при принятии задания:', error);
@@ -299,26 +312,70 @@ app.post('/api/tasks/accept', async (req, res) => {
     }
 });
 
-// Роут для отклонения задания (просто удаление)
-app.post('/api/tasks/decline', async (req, res) => {
-    const { taskId, username } = req.body;
+// Роут для выполнения задания (для admin/superadmin)
+app.post('/api/tasks/complete', async (req, res) => {
+    const { taskId, requesterUsername } = req.body;
     try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        
         const task = await Task.findById(taskId);
-
         if (!task) {
             return res.status(404).json({ message: 'Задание не найдено' });
         }
-
-        // Проверка, что отклоняет тот, кому оно адресовано или общее
-        if (task.performer !== 'All' && task.performer !== username) {
-            return res.status(403).json({ message: 'Вы не можете отклонить это задание' });
+        
+        const performer = await User.findOne({ username: task.performer });
+        if (!performer) {
+            return res.status(404).json({ message: 'Исполнитель не найден' });
         }
-
+        
+        performer.credits += task.reward;
+        await performer.save();
         await Task.deleteOne({ _id: taskId });
         
-        res.status(200).json({ message: 'Задание успешно отклонено' });
+        res.status(200).json({ message: `Задание выполнено. ${task.reward} R начислено пользователю ${performer.username}.` });
     } catch (error) {
-        console.error('Ошибка при отклонении задания:', error);
+        console.error('Ошибка при выполнении задания:', error);
+        res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
+// Роут для удаления задания (для admin/superadmin)
+app.post('/api/tasks/delete', async (req, res) => {
+    const { taskId, requesterUsername } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        await Task.deleteOne({ _id: taskId });
+        res.status(200).json({ message: 'Задание успешно удалено.' });
+    } catch (error) {
+        console.error('Ошибка при удалении задания:', error);
+        res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
+// Роут для смены исполнителя (для admin/superadmin)
+app.post('/api/tasks/change-performer', async (req, res) => {
+    const { taskId, newPerformer, requesterUsername } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        const task = await Task.findById(taskId);
+        if (!task) {
+            return res.status(404).json({ message: 'Задание не найдено' });
+        }
+        task.performer = newPerformer;
+        task.status = 'active'; // Возвращаем статус в active
+        await task.save();
+        res.status(200).json({ message: `Исполнитель задания успешно изменен на ${newPerformer}.` });
+    } catch (error) {
+        console.error('Ошибка при смене исполнителя:', error);
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
     }
 });

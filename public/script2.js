@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const creditsElement = document.getElementById('credits');
     const addCreditsButton = document.getElementById('add-credits-btn');
     const tasksContainer = document.getElementById('tasks-list-container');
+    const tasksListButton = document.getElementById('tasks-list-button'); // Добавлена новая кнопка
 
     if (username) {
         welcomeMessageElement.textContent = `Добро пожаловать, ${username}!`;
@@ -40,6 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
             constructorButton.style.display = 'block';
             constructorButton.addEventListener('click', () => {
                 window.location.href = 'constructor.html';
+            });
+        }
+        // ДОБАВЛЕНО: Обработчик для кнопки "Список заданий"
+        if (tasksListButton) {
+            tasksListButton.style.display = 'block';
+            tasksListButton.addEventListener('click', () => {
+                window.location.href = 'tasks-list.html';
             });
         }
     }
@@ -118,16 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Кнопки отображаются только если задание еще не принято
                     // или если оно предназначено конкретному пользователю
                     if (task.status === 'active' && (task.performer === 'All' || task.performer === username)) {
-                         buttonsHtml = `
-                             <div class="task-actions">
-                                 <button class="accept-btn" data-id="${task._id}">Принять</button>
-                                 <button class="decline-btn" data-id="${task._id}">Отклонить</button>
-                             </div>
-                         `;
+                        buttonsHtml = `
+                            <div class="task-actions">
+                                <button class="accept-btn" data-id="${task._id}">Принять</button>
+                            </div>
+                        `;
                     }
                     
                     taskCard.innerHTML = `
-                        <h3>${task.taskType}</h3>
+                        <h3>${task.title}</h3>
                         <p>${task.description}</p>
                         <p>Награда: ${task.reward} R</p>
                         ${buttonsHtml}
@@ -146,11 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('accept-btn')) {
             const taskId = e.target.dataset.id;
             await handleTaskAction('accept', taskId);
-        } else if (e.target.classList.contains('decline-btn')) {
-            const taskId = e.target.dataset.id;
-            if (confirm('Вы уверены, что хотите отклонить это задание?')) {
-                await handleTaskAction('decline', taskId);
-            }
         }
     });
     

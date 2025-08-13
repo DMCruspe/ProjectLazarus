@@ -41,10 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 options += `<option value="${p.username}">${p.username}</option>`;
             });
 
-            // Форма создания задания
+            // Форма создания задания с новым полем "Название задания"
             mainPanel.innerHTML = `
                 <h2>Создание нового задания</h2>
                 <form id="create-task-form">
+                    <label for="title">Название задания:</label>
+                    <input type="text" id="title" name="title" required>
+                    
                     <label for="taskType">Вид задания:</label>
                     <input type="text" id="taskType" name="taskType" required>
                     
@@ -70,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData(e.target);
                 const taskData = {
                     requesterUsername: username,
+                    title: formData.get('title'), // Сохраняем новое поле "title"
                     taskType: formData.get('taskType'),
                     description: formData.get('description'),
                     reward: parseInt(formData.get('reward')),
@@ -87,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (res.ok) {
                         alert(result.message);
                         e.target.reset(); // Очищаем форму
-                        // Можно перенаправить на главную страницу или показать успех
                     } else {
                         alert('Ошибка: ' + result.message);
                     }

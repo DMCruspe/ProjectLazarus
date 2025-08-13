@@ -104,29 +104,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Временный маршрут для создания суперпользователя
-app.post('/api/create-superadmin', async (req, res) => {
-    const { username, password } = req.body;
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    const superUser = new User({
-        username,
-        password: hashedPassword,
-        role: 'super admin'
-    });
-
-    try {
-        await superUser.save();
-        res.status(201).json({ message: 'Суперпользователь успешно создан' });
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(409).json({ message: 'Пользователь с таким логином уже существует' });
-        }
-        console.error('Ошибка создания суперпользователя:', error);
-        res.status(500).json({ message: 'Произошла ошибка на сервере' });
-    }
-});
 
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

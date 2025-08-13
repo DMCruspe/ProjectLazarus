@@ -32,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (role === 'admin' || role === 'superadmin') {
         if (playersButton) {
             playersButton.style.display = 'block';
+
+             playersButton.addEventListener('click', () => {
+                window.location.href = 'players.html';
+            });
         }
         if (constructorButton) {
             constructorButton.style.display = 'block';

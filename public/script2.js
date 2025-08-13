@@ -1,25 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Получаем имя пользователя из localStorage
+    // Получаем имя пользователя и роль из localStorage
     const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role');
     const welcomeMessageElement = document.getElementById('welcome-message');
 
-    // Если имя пользователя найдено, отображаем приветственное сообщение
     if (username) {
-        welcomeMessageElement.textContent = `Добро пожаловать, ${username}!`;
+        welcomeMessageElement.textContent = `Добро пожаловать, ${username}! Ваша роль: ${role}`;
     } else {
-        // Если имя пользователя не найдено (т.е. пользователь не авторизован),
-        // перенаправляем его на главную страницу
         window.location.href = 'index.html';
     }
 
+    // Проверяем роль и показываем кнопку "Игроки"
+    const playersButton = document.getElementById('players-button');
+    if (playersButton && (role === 'admin' || role === 'superadmin')) {
+        playersButton.style.display = 'block'; // Показываем кнопку
+    }
+    
     // Обработчик события для кнопки "Выйти"
     const logoutButton = document.getElementById('logout-button');
     if (logoutButton) {
         logoutButton.addEventListener('click', () => {
-            // 1. Очищаем данные из localStorage
+            // Очищаем данные из localStorage
             localStorage.removeItem('username');
+            localStorage.removeItem('role');
             
-            // 2. Перенаправляем пользователя на index.html
+            // Перенаправляем пользователя на index.html
             window.location.href = 'index.html';
         });
     }

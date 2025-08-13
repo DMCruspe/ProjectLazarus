@@ -49,6 +49,8 @@ async function checkLogin() {
 
         if (response.ok) {
             localStorage.setItem('username', result.username);
+            // ДОБАВЛЕНА ЭТА СТРОКА: сохраняем роль пользователя
+            localStorage.setItem('role', result.role);
             window.location.href = 'site2.html';
         } else {
             showMessage('login-page', result.message, true);

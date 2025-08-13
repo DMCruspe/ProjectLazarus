@@ -94,7 +94,8 @@ app.post('/api/login', async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (isPasswordValid) {
-            res.status(200).json({ message: 'Вход выполнен успешно', username: user.username });
+            // ИЗМЕНЕНА ЭТА СТРОКА: теперь в ответе есть role
+            res.status(200).json({ message: 'Вход выполнен успешно', username: user.username, role: user.role });
         } else {
             res.status(401).json({ message: 'Неверный логин или пароль' });
         }
@@ -103,7 +104,6 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
     }
 });
-
 
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

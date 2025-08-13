@@ -106,7 +106,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Определяем номер версии
-const appVersion = '0.2.25';
+const appVersion = '0.2.25.2';
 
 app.get('/api/version', (req, res) => {
     res.json({ version: appVersion });

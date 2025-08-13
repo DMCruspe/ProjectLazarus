@@ -270,10 +270,13 @@ app.post('/api/tasks', async (req, res) => {
     const { username } = req.body;
     try {
         const tasks = await Task.find({ 
-            status: 'active',
-            $or: [{ performer: 'All' }, { performer: username }] 
+            $or: [
+                { status: 'active', performer: 'All' },
+                { performer: username },
+                { status: 'in_progress', performer: username } // ВАЖНО: нужно добавить эту строку
+            ]
         });
-        res.status(200).json(tasks);
+        res.json(tasks);
     } catch (error) {
         res.status(500).json({ message: 'Ошибка при получении списка заданий' });
     }

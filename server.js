@@ -118,6 +118,15 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
     }
 });
+const TaskSchema = new mongoose.Schema({
+    taskType: { type: String, required: true },
+    description: { type: String, required: true },
+    reward: { type: Number, required: true, min: 0 },
+    performer: { type: String, required: true }, // Может быть "All" или имя пользователя
+    createdBy: { type: String, required: true },
+    status: { type: String, enum: ['active', 'completed'], default: 'active' }
+});
+const Task = mongoose.model('Task', TaskSchema);
 
 // Роут для добавления кредитов себе (доступен только для superadmin)
 app.post('/api/add-credits', async (req, res) => {
@@ -224,6 +233,42 @@ app.post('/api/players/delete', async (req, res) => {
         res.status(200).json({ message: `Аккаунт ${targetUsername} успешно удалён.` });
     } catch (error) {
         res.status(500).json({ message: 'Ошибка при удалении аккаунта' });
+    }
+});
+
+// Роут для создания нового задания (доступен только для admin и superadmin)
+app.post('/api/tasks/create', async (req, res) => {
+    const { requesterUsername, taskType, description, reward, performer } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        
+        const newTask = new Task({
+            taskType,
+            description,
+            reward,
+            performer,
+            createdBy: requesterUsername
+        });
+        await newTask.save();
+        res.status(201).json({ message: 'Задание успешно создано.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при создании задания' });
+    }
+});
+
+// Роут для получения списка заданий для отображения
+app.post('/api/tasks', async (req, res) => {
+    const { username } = req.body;
+    try {
+        const tasks = await Task.find({ 
+            $or: [{ performer: 'All' }, { performer: username }] 
+        });
+        res.status(200).json(tasks);
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при получении списка заданий' });
     }
 });
 

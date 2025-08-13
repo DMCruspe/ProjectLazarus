@@ -91,4 +91,43 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
         });
     }
+    const tasksContainer = document.getElementById('tasks-list-container');
+    if (tasksContainer) {
+        fetchAndDisplayTasks();
+    }
+    
+    async function fetchAndDisplayTasks() {
+        try {
+            const response = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username })
+            });
+
+            if (!response.ok) {
+                throw new Error('Не удалось загрузить задания');
+            }
+
+            const tasks = await response.json();
+            tasksContainer.innerHTML = ''; // Очищаем контейнер
+
+            if (tasks.length === 0) {
+                tasksContainer.innerHTML = '<p>Нет доступных заданий.</p>';
+            } else {
+                tasks.forEach(task => {
+                    const taskCard = document.createElement('div');
+                    taskCard.classList.add('task-card');
+                    taskCard.innerHTML = `
+                        <h3>${task.taskType}</h3>
+                        <p>${task.description}</p>
+                        <p>Награда: ${task.reward} R</p>
+                    `;
+                    tasksContainer.appendChild(taskCard);
+                });
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке заданий:', error);
+            tasksContainer.innerHTML = '<p>Ошибка при загрузке заданий.</p>';
+        }
+    }
 });

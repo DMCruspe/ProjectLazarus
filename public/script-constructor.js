@@ -3,7 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const role = localStorage.getItem('role');
     const credits = localStorage.getItem('credits');
     const creditsElement = document.getElementById('credits');
-
+    const mainPanel = document.getElementById('constructor-main-panel');
+    const createTaskBtn = document.getElementById('create-task-btn');
+    const createVaccineBtn = document.getElementById('create-vaccine-btn');
+    
     if (creditsElement) {
         creditsElement.textContent = `${credits} R`;
     }
@@ -15,31 +18,99 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Здесь будет логика для кнопок "Создать задание" и "Создать вакцину"
-    const createTaskBtn = document.getElementById('create-task-btn');
-    const createVaccineBtn = document.getElementById('create-vaccine-btn');
-    const mainPanel = document.querySelector('.constructor-panel');
-    const welcomeMessage = document.getElementById('constructor-welcome-message');
-
-    if (createTaskBtn) {
-        createTaskBtn.addEventListener('click', () => {
-            // Загрузка формы создания задания
-            welcomeMessage.textContent = 'Создание нового задания';
-            mainPanel.innerHTML = '<h2>Создание нового задания</h2><p>...Форма здесь...</p>';
-        });
-    }
-    
-    if (createVaccineBtn) {
-        createVaccineBtn.addEventListener('click', () => {
-            // Загрузка формы создания вакцины
-            welcomeMessage.textContent = 'Создание новой вакцины';
-            mainPanel.innerHTML = '<h2>Создание новой вакцины</h2><p>...Форма здесь...</p>';
-        });
-    }
-
     // Проверка прав доступа
     if (role !== 'admin' && role !== 'superadmin') {
         alert('Доступ запрещён.');
         window.location.href = 'site2.html';
+        return;
+    }
+
+    async function loadCreateTaskForm() {
+        try {
+            // Получаем список игроков для выпадающего списка
+            const response = await fetch('/api/players', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requesterUsername: username })
+            });
+            const players = await response.json();
+            
+            // Формируем опции для выпадающего списка
+            let options = '<option value="All">Все</option>';
+            players.forEach(p => {
+                options += `<option value="${p.username}">${p.username}</option>`;
+            });
+
+            // Форма создания задания
+            mainPanel.innerHTML = `
+                <h2>Создание нового задания</h2>
+                <form id="create-task-form">
+                    <label for="taskType">Вид задания:</label>
+                    <input type="text" id="taskType" name="taskType" required>
+                    
+                    <label for="description">Описание:</label>
+                    <textarea id="description" name="description" required></textarea>
+                    
+                    <label for="reward">Награда (R):</label>
+                    <input type="number" id="reward" name="reward" min="0" required>
+                    
+                    <label for="performer">Исполнитель:</label>
+                    <select id="performer" name="performer">
+                        ${options}
+                    </select>
+                    
+                    <button type="submit" class="nav-button">Создать</button>
+                </form>
+            `;
+            
+            // Обработчик отправки формы
+            document.getElementById('create-task-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const taskData = {
+                    requesterUsername: username,
+                    taskType: formData.get('taskType'),
+                    description: formData.get('description'),
+                    reward: parseInt(formData.get('reward')),
+                    performer: formData.get('performer')
+                };
+
+                try {
+                    const res = await fetch('/api/tasks/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(taskData)
+                    });
+                    
+                    const result = await res.json();
+                    if (res.ok) {
+                        alert(result.message);
+                        e.target.reset(); // Очищаем форму
+                        // Можно перенаправить на главную страницу или показать успех
+                    } else {
+                        alert('Ошибка: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Ошибка при создании задания:', error);
+                    alert('Произошла ошибка при создании задания.');
+                }
+            });
+
+        } catch (error) {
+            console.error('Ошибка при загрузке формы:', error);
+            mainPanel.innerHTML = '<p>Ошибка при загрузке формы. Попробуйте снова.</p>';
+        }
+    }
+
+    if (createTaskBtn) {
+        createTaskBtn.addEventListener('click', loadCreateTaskForm);
+    }
+    
+    if (createVaccineBtn) {
+        createVaccineBtn.addEventListener('click', () => {
+            // Логика для создания вакцины
+            mainPanel.innerHTML = '<h2>Создание новой вакцины</h2><p>...Форма здесь...</p>';
+        });
     }
 });

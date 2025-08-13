@@ -1,5 +1,3 @@
-/* style2.css */
-
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -45,10 +43,10 @@ body {
     display: flex;
     padding: 20px;
     gap: 20px;
-    height: calc(100vh - 70px); /* Adjust height to fill viewport */
+    height: calc(100vh - 70px);
 }
 
-.left-panel, .center-panel {
+.left-panel, .center-panel, .right-panel {
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -56,15 +54,14 @@ body {
     box-sizing: border-box;
 }
 
-.left-panel {
-    /* Fixed width for the navigation panel */
-    width: 250px; 
-    flex-shrink: 0; /* Prevents it from shrinking */
+.left-panel, .right-panel {
+    width: 25%;
+    flex-shrink: 0;
 }
 
 .center-panel {
-    /* Use flex-grow to make it fill all available space */
-    flex-grow: 1; 
+    flex-grow: 1;
+    text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;

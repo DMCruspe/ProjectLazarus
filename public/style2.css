@@ -83,11 +83,34 @@ body {
     background-color: #ddd;
 }
 
-.task-card {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
+.task-card .task-actions {
+    margin-top: 10px;
+}
+
+.task-card .task-actions button {
+    padding: 5px 10px;
+    border: none;
     border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.task-card .accept-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.task-card .accept-btn:hover {
+    background-color: #218838;
+}
+
+.task-card .decline-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.task-card .decline-btn:hover {
+    background-color: #c82333;
 }
 
 .footer-info {

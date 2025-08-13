@@ -272,5 +272,56 @@ app.post('/api/tasks', async (req, res) => {
     }
 });
 
+// Роут для принятия задания
+app.post('/api/tasks/accept', async (req, res) => {
+    const { taskId, username } = req.body;
+    try {
+        const task = await Task.findById(taskId);
+
+        if (!task) {
+            return res.status(404).json({ message: 'Задание не найдено' });
+        }
+        
+        // Проверяем, что задание еще никем не взято
+        if (task.performer !== 'All' && task.performer !== username) {
+            return res.status(400).json({ message: 'Это задание уже принято другим пользователем' });
+        }
+
+        // Обновляем исполнителя и статус задания
+        task.performer = username;
+        task.status = 'in_progress'; // Новый статус
+        await task.save();
+        
+        res.status(200).json({ message: 'Задание успешно принято' });
+    } catch (error) {
+        console.error('Ошибка при принятии задания:', error);
+        res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
+// Роут для отклонения задания (просто удаление)
+app.post('/api/tasks/decline', async (req, res) => {
+    const { taskId, username } = req.body;
+    try {
+        const task = await Task.findById(taskId);
+
+        if (!task) {
+            return res.status(404).json({ message: 'Задание не найдено' });
+        }
+
+        // Проверка, что отклоняет тот, кому оно адресовано или общее
+        if (task.performer !== 'All' && task.performer !== username) {
+            return res.status(403).json({ message: 'Вы не можете отклонить это задание' });
+        }
+
+        await Task.deleteOne({ _id: taskId });
+        
+        res.status(200).json({ message: 'Задание успешно отклонено' });
+    } catch (error) {
+        console.error('Ошибка при отклонении задания:', error);
+        res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

@@ -121,6 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3>${task.taskType}</h3>
                         <p>${task.description}</p>
                         <p>Награда: ${task.reward} R</p>
+                        <div class="task-actions">
+                            <button class="accept-btn" data-id="${task._id}">Принять</button>
+                            <button class="decline-btn" data-id="${task._id}">Отклонить</button>
+                        </div>
                     `;
                     tasksContainer.appendChild(taskCard);
                 });
@@ -130,4 +134,37 @@ document.addEventListener('DOMContentLoaded', () => {
             tasksContainer.innerHTML = '<p>Ошибка при загрузке заданий.</p>';
         }
     }
-});
+
+    // ДОБАВЛЕНО: Обработчики для кнопок
+    tasksContainer.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('accept-btn')) {
+            const taskId = e.target.dataset.id;
+            await handleTaskAction('accept', taskId);
+        } else if (e.target.classList.contains('decline-btn')) {
+            const taskId = e.target.dataset.id;
+            if (confirm('Вы уверены, что хотите отклонить это задание?')) {
+                await handleTaskAction('decline', taskId);
+            }
+        }
+    });
+    async function handleTaskAction(action, taskId) {
+    try {
+        const response = await fetch(`/api/tasks/${action}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskId: taskId, username: username })
+        });
+
+        const result = await response.json();
+        
+        if (!response.ok) {
+            alert('Ошибка: ' + result.message);
+        } else {
+            alert(result.message);
+            fetchAndDisplayTasks(); // Перезагружаем список
+        }
+    } catch (error) {
+        console.error(`Ошибка при ${action} задания:`, error);
+        alert('Произошла ошибка.');
+    }
+}

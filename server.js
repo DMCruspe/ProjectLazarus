@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Определяем номер версии
-const appVersion = '0.4';
+const appVersion = '0.2.27.0';
 
 // Подключение к базе данных MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
@@ -27,7 +27,7 @@ mongoose.connect(process.env.MONGODB_URI, {
     process.exit(1);
 });
 
-// Создание схем и моделей
+// Создание схемы и модели пользователя
 const UserSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -51,64 +51,6 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
-const DiseaseSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    description: {
-        type: String
-    },
-    type: {
-        type: String,
-        enum: ['Вирус', 'Бактерия', 'Грибок'],
-        default: 'Вирус'
-    },
-    symptoms: [String],
-    resistance: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 100
-    },
-    vulnerabilities: [String],
-    treatmentMethod: {
-        type: String
-    }
-});
-const Disease = mongoose.model('Disease', DiseaseSchema);
-
-const VaccineSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    disease: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Disease'
-    },
-    efficiency: {
-        type: Number,
-        default: 0.8
-    },
-    cost: {
-        type: Number,
-        default: 50
-    },
-    duration: {
-        type: Number,
-        default: 30
-    },
-    dosage: {
-        type: String,
-        default: '1 ml'
-    },
-    sideEffects: [String]
-});
-const Vaccine = mongoose.model('Vaccine', VaccineSchema);
-
 // Middleware для безопасности
 app.use(helmet());
 app.use(express.json());
@@ -117,6 +59,11 @@ const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
     message: "Слишком много запросов с вашего IP, попробуйте позже."
+});
+
+// Роут для получения номера версии
+app.get('/api/version', (req, res) => {
+    res.json({ version: appVersion });
 });
 
 // Роут для регистрации
@@ -172,7 +119,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Роут для добавления кредитов (доступен только для superadmin)
+// Роут для добавления кредитов себе (доступен только для superadmin)
 app.post('/api/add-credits', async (req, res) => {
     const { username, amount } = req.body;
 
@@ -185,21 +132,22 @@ app.post('/api/add-credits', async (req, res) => {
         superAdminUser.credits += amount;
         await superAdminUser.save();
 
-        res.status(200).json({ message: `Баланс пользователя ${username} обновлен. Новый баланс: ${superAdminUser.credits}` });
+        res.status(200).json({ message: `Ваш баланс обновлен. Новый баланс: ${superAdminUser.credits}`, newCredits: superAdminUser.credits });
     } catch (error) {
         console.error('Ошибка добавления кредитов:', error);
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
     }
 });
 
-
-// ---- НОВЫЕ МАРШРУТЫ ДЛЯ СТРАНИЦЫ ИГРОКОВ ----
-
 // Роут для получения списка всех игроков (доступен для admin и superadmin)
-app.get('/api/players', async (req, res) => {
-    // В реальном проекте здесь будет проверка токена авторизации
-    // А пока будем считать, что запрос приходит от авторизованного админа
+app.post('/api/players', async (req, res) => {
+    const { requesterUsername } = req.body;
     try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        
         const users = await User.find({}, 'username role credits');
         res.status(200).json(users);
     } catch (error) {

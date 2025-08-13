@@ -1,0 +1,23 @@
+/* style-players.css */
+
+.players-panel {
+    overflow-x: auto;
+    width: 100%;
+}
+
+#players-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#players-table th, #players-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#players-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}

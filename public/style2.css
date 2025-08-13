@@ -122,3 +122,33 @@ body {
     overflow-y: auto; /* Добавляет вертикальную прокрутку */
     /* ... другие стили ... */
 }
+
+/* style-accepted-tasks.css */
+#accepted-tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.accepted-task-card {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    min-height: 120px; /* Фиксированная высота для визуальной симметрии */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.accepted-task-card h3 {
+    margin-top: 0;
+}
+
+.placeholder-text {
+    color: #888;
+    font-style: italic;
+}

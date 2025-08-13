@@ -8,6 +8,7 @@
     justify-content: flex-start;
     align-items: flex-start;
     padding: 20px;
+    overflow-y: auto; /* Добавлено для прокрутки контента */
 }
 
 .constructor-panel h2 {

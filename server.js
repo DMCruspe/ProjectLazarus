@@ -299,12 +299,22 @@ app.post('/api/tasks/accept', async (req, res) => {
     const { taskId, username } = req.body;
     try {
         const task = await Task.findById(taskId);
+
         if (!task || task.status !== 'active' || (task.performer !== 'All' && task.performer !== username)) {
             return res.status(400).json({ message: 'Задание недоступно для принятия' });
         }
+        
+        // --- ДОБАВЛЕНА НОВАЯ ПРОВЕРКА ---
+        const acceptedTasksCount = await Task.countDocuments({ performer: username, status: 'in_progress' });
+        if (acceptedTasksCount >= 2) {
+            return res.status(400).json({ message: 'Вы не можете принять больше двух заданий.' });
+        }
+        // -------------------------------
+        
         task.performer = username;
         task.status = 'in_progress';
         await task.save();
+        
         res.status(200).json({ message: 'Задание успешно принято' });
     } catch (error) {
         console.error('Ошибка при принятии задания:', error);

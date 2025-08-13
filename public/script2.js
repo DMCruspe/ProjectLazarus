@@ -15,6 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         window.location.href = 'index.html';
     }
+    
+      // ДОБАВЛЕНО: Обработчик для кнопки "Лаборатория"
+    const labButton = document.getElementById('lab-button');
+    if (labButton) {
+        labButton.addEventListener('click', () => {
+            window.location.href = 'lab.html';
+        });
+    }
+
 
     // Показываем кнопки для администраторов
     const playersButton = document.getElementById('players-button');

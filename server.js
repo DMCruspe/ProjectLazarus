@@ -110,7 +110,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Определяем номер версии
-const appVersion = '0.2.25.3';
+const appVersion = '0.2.27.0';
 
 app.get('/api/version', (req, res) => {
     res.json({ version: appVersion });

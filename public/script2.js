@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addCreditsButton = document.getElementById('add-credits-btn');
     const tasksContainer = document.getElementById('tasks-list-container');
     const tasksListButton = document.getElementById('tasks-list-button');
+    const databaseButton = document.getElementById('database-button');
     
     // Новые элементы для принятых заданий
     const acceptedTask1 = document.getElementById('accepted-task-1');
@@ -53,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'tasks-list.html';
             });
         }
+        if (databaseButton) {
+            databaseButton.style.display = 'block';
     }
     
     // Показываем кнопку "+" только для superadmin
@@ -99,6 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (tasksContainer) {
         fetchAndDisplayTasks();
+    }
+
+    if (databaseButton) {
+        databaseButton.addEventListener('click', () => {
+            window.location.href = 'database.html';
+        });
     }
     
     async function fetchAndDisplayTasks() {

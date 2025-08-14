@@ -435,7 +435,31 @@ app.post('/api/disease/create', async (req, res) => {
     }
 });
 
+// Роут для получения списка всех болезней
+app.post('/api/diseases/list', async (req, res) => {
+    try {
+        const diseases = await Disease.find({});
+        res.status(200).json(diseases);
+    } catch (error) {
+        console.error('Ошибка при получении списка болезней:', error);
+        res.status(500).json({ message: 'Ошибка при получении списка болезней' });
+    }
+});
 
+app.post('/api/disease/delete', async (req, res) => {
+    const { diseaseId, requesterUsername } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        await Disease.deleteOne({ _id: diseaseId });
+        res.status(200).json({ message: 'Болезнь успешно удалена.' });
+    } catch (error) {
+        console.error('Ошибка при удалении болезни:', error);
+        res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
 
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

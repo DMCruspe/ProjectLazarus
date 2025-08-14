@@ -67,9 +67,12 @@ const Task = mongoose.model('Task', TaskSchema);
 // НОВАЯ СХЕМА ДЛЯ БОЛЕЗНЕЙ
 const diseaseSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    description: { type: String, required: true },
-    spreadFactor: { type: Number, required: true, min: 0, max: 100 },
-    lethality: { type: Number, required: true, min: 0, max: 100 },
+    type: { type: String, required: true },
+    symptoms: { type: String, required: true },
+    spread: { type: String, required: true },
+    resistance: { type: String, required: true },
+    vulnerabilities: { type: String, required: true },
+    treatment: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
 });
 const Disease = mongoose.model('Disease', diseaseSchema);
@@ -406,19 +409,22 @@ app.post('/api/tasks/change-performer', async (req, res) => {
 
 // НОВЫЙ РОУТ ДЛЯ СОЗДАНИЯ БОЛЕЗНИ
 app.post('/api/disease/create', async (req, res) => {
-    const { name, description, spreadFactor, lethality } = req.body;
+    const { name, type, symptoms, spread, resistance, vulnerabilities, treatment } = req.body;
 
     // Простая валидация
-    if (!name || !description || spreadFactor === undefined || lethality === undefined) {
+    if (!name || !type || !symptoms || !spread || !resistance || !vulnerabilities || !treatment) {
         return res.status(400).json({ message: 'Заполните все поля.' });
     }
 
     try {
         const newDisease = new Disease({
             name,
-            description,
-            spreadFactor,
-            lethality,
+            type,
+            symptoms,
+            spread,
+            resistance,
+            vulnerabilities,
+            treatment
         });
         await newDisease.save();
         res.status(201).json({ message: 'Болезнь успешно создана!' });
@@ -427,6 +433,7 @@ app.post('/api/disease/create', async (req, res) => {
         res.status(500).json({ message: 'Ошибка при создании болезни' });
     }
 });
+
 
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

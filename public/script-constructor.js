@@ -108,21 +108,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Новая функция для создания формы болезни
-    function loadCreateDiseaseForm() {
+   function loadCreateDiseaseForm() {
         mainPanel.innerHTML = `
             <h2>Создание новой болезни</h2>
             <form id="create-disease-form">
                 <label for="name">Название:</label>
                 <input type="text" id="name" name="name" required>
                 
-                <label for="description">Описание:</label>
-                <textarea id="description" name="description" required></textarea>
+                <label for="type">Тип:</label>
+                <input type="text" id="type" name="type" required>
                 
-                <label for="spreadFactor">Коэффициент распространения:</label>
-                <input type="number" id="spreadFactor" name="spreadFactor" min="0" step="0.1" required>
+                <label for="symptoms">Симптомы:</label>
+                <textarea id="symptoms" name="symptoms" required></textarea>
                 
-                <label for="lethality">Летальность (%):</label>
-                <input type="number" id="lethality" name="lethality" min="0" max="100" required>
+                <label for="spread">Распространение:</label>
+                <input type="text" id="spread" name="spread" required>
+                
+                <label for="resistance">Устойчивость:</label>
+                <textarea id="resistance" name="resistance" required></textarea>
+                
+                <label for="vulnerabilities">Уязвимости:</label>
+                <textarea id="vulnerabilities" name="vulnerabilities" required></textarea>
+                
+                <label for="treatment">Лечение:</label>
+                <textarea id="treatment" name="treatment" required></textarea>
                 
                 <button type="submit" class="nav-button">Создать</button>
             </form>
@@ -134,9 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(e.target);
             const diseaseData = {
                 name: formData.get('name'),
-                description: formData.get('description'),
-                spreadFactor: parseFloat(formData.get('spreadFactor')),
-                lethality: parseInt(formData.get('lethality'))
+                type: formData.get('type'),
+                symptoms: formData.get('symptoms'),
+                spread: formData.get('spread'),
+                resistance: formData.get('resistance'),
+                vulnerabilities: formData.get('vulnerabilities'),
+                treatment: formData.get('treatment')
             };
 
             try {

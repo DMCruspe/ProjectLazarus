@@ -17,3 +17,84 @@
 .right-panel {
     display: none;
 }
+
+/* Стили для мини-игры */
+.game-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+#timer-display {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 10px;
+    color: #007bff;
+}
+
+#symptoms-result {
+    margin-top: 20px;
+    text-align: left;
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+}
+
+#symptoms-result h4 {
+    margin: 0 0 10px 0;
+}
+
+#symptoms-result ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#symptoms-result li {
+    background-color: #e9ecef;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+#user-input-section {
+    margin-top: 20px;
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+}
+
+#symptom-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.symptom-btn {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.symptom-btn:hover {
+    background-color: #ced4da;
+}
+
+.symptom-btn.selected {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+#game-feedback {
+    margin-top: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+}

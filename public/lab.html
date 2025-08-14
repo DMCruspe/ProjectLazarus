@@ -1,3 +1,12 @@
+<main class="center-panel lab-panel">
+    <h2 id="lab-welcome-message"></h2>
+</main>
+</aside> ```
+
+### Внедрение кода мини-игры (`lab.html`)
+Чтобы интегрировать мини-игру, которую я предоставлял ранее, вам нужно добавить HTML-код игры в блок `<main class="center-panel lab-panel">`.
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -26,8 +35,27 @@
         </aside>
         <main class="center-panel lab-panel">
             <h2 id="lab-welcome-message"></h2>
+
+            <div class="game-card">
+                <h3>Мини-игра: Исследование симптомов</h3>
+                <p>Нажмите "Начать исследование", чтобы найти три случайных симптома.</p>
+                <div id="game-controls">
+                    <button id="start-research-btn" class="nav-button">Начать исследование</button>
+                    <div id="timer-display"></div>
+                </div>
+                <div id="symptoms-result">
+                    </div>
+                <div id="user-input-section" style="display: none;">
+                    <h4>Выберите правильные симптомы</h4>
+                    <div id="symptom-selection">
+                        </div>
+                    <button id="check-symptoms-btn" class="nav-button">Проверить</button>
+                </div>
+                <div id="game-feedback">
+                    </div>
+                <button id="repeat-research-btn" class="nav-button" style="display: none;">Повторить исследование</button>
+            </div>
             </main>
-        </aside>
     </div>
 
     <div class="footer">

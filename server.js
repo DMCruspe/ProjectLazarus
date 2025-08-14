@@ -644,5 +644,47 @@ app.post('/api/symptom/delete', async (req, res) => {
     }
 });
 
+app.post('/api/tasks/create', async (req, res) => {
+    const { requesterUsername, title, taskType, description, reward, performer } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        
+        // Создание нового задания
+        const newTask = new Task({
+            title,
+            taskType,
+            description,
+            reward,
+            performer,
+            createdBy: requesterUsername
+        });
+
+        // НОВАЯ ЛОГИКА: если тип задания - "исследование вируса", создать новый вирус
+        if (taskType === 'Вирус') {
+            const newDisease = new Disease({
+                name: title,
+                type: 'Вирус', 
+                symptoms: 'Неизвестно',
+                spread: 'Неизвестно',
+                resistance: 'Неизвестно',
+                vulnerabilities: 'Неизвестно',
+                treatment: 'Неизвестно',
+                vaccine: 'Нет'
+            });
+            await newDisease.save();
+        }
+
+        await newTask.save();
+        res.status(201).json({ message: 'Задание успешно создано.' });
+    } catch (error) {
+        console.error('Ошибка при создании задания:', error);
+        res.status(500).json({ message: 'Ошибка при создании задания' });
+    }
+});
+
+
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

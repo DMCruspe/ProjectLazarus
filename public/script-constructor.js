@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Новая функция для создания формы болезни
-   function loadCreateDiseaseForm() {
+    function loadCreateDiseaseForm() {
         mainPanel.innerHTML = `
             <h2>Создание новой болезни</h2>
             <form id="create-disease-form">
@@ -133,6 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <label for="treatment">Лечение:</label>
                 <textarea id="treatment" name="treatment" required></textarea>
                 
+                <label for="vaccine">Вакцина:</label>
+                <input type="text" id="vaccine" name="vaccine">
+                
                 <button type="submit" class="nav-button">Создать</button>
             </form>
         `;
@@ -148,7 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 spread: formData.get('spread'),
                 resistance: formData.get('resistance'),
                 vulnerabilities: formData.get('vulnerabilities'),
-                treatment: formData.get('treatment')
+                treatment: formData.get('treatment'),
+                vaccine: formData.get('vaccine') // Добавлено новое поле
             };
 
             try {

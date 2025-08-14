@@ -73,10 +73,10 @@ const diseaseSchema = new mongoose.Schema({
     resistance: { type: String, required: true },
     vulnerabilities: { type: String, required: true },
     treatment: { type: String, required: true },
+    vaccine: { type: String }, // Добавлено новое поле
     createdAt: { type: Date, default: Date.now }
 });
 const Disease = mongoose.model('Disease', diseaseSchema);
-
 
 // Middleware для безопасности
 app.use(helmet());
@@ -409,11 +409,11 @@ app.post('/api/tasks/change-performer', async (req, res) => {
 
 // НОВЫЙ РОУТ ДЛЯ СОЗДАНИЯ БОЛЕЗНИ
 app.post('/api/disease/create', async (req, res) => {
-    const { name, type, symptoms, spread, resistance, vulnerabilities, treatment } = req.body;
+    const { name, type, symptoms, spread, resistance, vulnerabilities, treatment, vaccine } = req.body;
 
-    // Простая валидация
+    // Простая валидация (vaccine не обязателен)
     if (!name || !type || !symptoms || !spread || !resistance || !vulnerabilities || !treatment) {
-        return res.status(400).json({ message: 'Заполните все поля.' });
+        return res.status(400).json({ message: 'Заполните все обязательные поля.' });
     }
 
     try {
@@ -424,7 +424,8 @@ app.post('/api/disease/create', async (req, res) => {
             spread,
             resistance,
             vulnerabilities,
-            treatment
+            treatment,
+            vaccine // Сохраняем новое поле
         });
         await newDisease.save();
         res.status(201).json({ message: 'Болезнь успешно создана!' });
@@ -433,6 +434,7 @@ app.post('/api/disease/create', async (req, res) => {
         res.status(500).json({ message: 'Ошибка при создании болезни' });
     }
 });
+
 
 
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'

@@ -138,12 +138,19 @@
     padding-top: 20px;
 }
 
-#symptom-input {
-    width: 100%;
-    box-sizing: border-box;
+#symptom-input-fields {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.symptom-input {
+    flex-grow: 1;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 10px;
     font-size: 1em;
+    box-sizing: border-box;
 }
+
+/* ... (остальные стили) */

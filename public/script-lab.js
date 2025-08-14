@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startResearchBtn = document.getElementById('start-research-btn');
     const researchResultsContainer = document.getElementById('research-results-container');
     const userInputSection = document.getElementById('user-input-section');
-    const symptomInput = document.getElementById('symptom-input');
+    const symptomInputFields = document.querySelectorAll('.symptom-input');
     const checkSymptomsBtn = document.getElementById('check-symptoms-btn');
     const gameFeedback = document.getElementById('game-feedback');
     const repeatResearchBtn = document.getElementById('repeat-research-btn');
@@ -45,19 +45,19 @@ document.addEventListener('DOMContentLoaded', () => {
             gameFeedback.innerHTML = '';
             userInputSection.style.display = 'none';
             repeatResearchBtn.style.display = 'none';
+            symptomInputFields.forEach(input => input.value = ''); // Очищаем поля ввода
             
-            // Запускаем 3 исследования с интервалом
             let researchCount = 0;
             const interval = setInterval(() => {
                 researchCount++;
-                const newSymptoms = generateSymptomsForResearch();
+                const newSymptoms = generateSymptomsForResearch(researchCount);
                 displayResearchResult(researchCount, newSymptoms);
                 
-                if (researchCount >= 3) { // Проводим 3 исследования
+                if (researchCount >= 3) {
                     clearInterval(interval);
                     userInputSection.style.display = 'block';
                 }
-            }, 5000); // Интервал в 5 секунд
+            }, 5000);
         });
     }
 
@@ -68,23 +68,28 @@ document.addEventListener('DOMContentLoaded', () => {
             researchResultsContainer.innerHTML = '';
             userInputSection.style.display = 'none';
             gameFeedback.innerHTML = '';
-            symptomInput.value = '';
-            correctSymptoms = getCorrectSymptoms(); // Генерируем новый правильный набор
+            symptomInputFields.forEach(input => input.value = '');
+            correctSymptoms = getCorrectSymptoms();
         });
     }
     
     if (checkSymptomsBtn) {
         checkSymptomsBtn.addEventListener('click', () => {
-            const userSymptoms = symptomInput.value.split(',').map(s => s.trim()).filter(s => s);
+            // Собираем введенные симптомы, убирая пустые значения
+            const userSymptoms = Array.from(symptomInputFields)
+                                    .map(input => input.value.trim())
+                                    .filter(value => value);
             
-            if (userSymptoms.length !== 3) {
-                gameFeedback.innerHTML = `<p style="color:red;">Пожалуйста, введите ровно 3 симптома через запятую.</p>`;
+            if (userSymptoms.length < 2 || userSymptoms.length > 3) {
+                gameFeedback.innerHTML = `<p style="color:red;">Пожалуйста, введите от 2 до 3 симптомов.</p>`;
                 return;
             }
 
             const correctNames = correctSymptoms.map(s => s.name);
-            const isCorrect = userSymptoms.every(name => correctNames.includes(name)) && 
-                              userSymptoms.length === correctNames.length;
+
+            // Проверка, что введенные симптомы совпадают по количеству и по значению
+            const isCorrect = userSymptoms.length === correctNames.length && 
+                              userSymptoms.every(name => correctNames.includes(name));
             
             if (isCorrect) {
                 gameFeedback.innerHTML = `<p style="color:green;">Правильные симптомы обнаружены!</p>`;
@@ -96,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Случайно выбирает 3 симптома из одной подгруппы для "правильного" ответа
+    // Случайно выбирает от 2 до 3 симптомов из одной подгруппы
     function getCorrectSymptoms() {
         if (allSymptoms.length === 0) {
             return [];
@@ -110,12 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const randomSubgroup = subgroups[Math.floor(Math.random() * subgroups.length)];
         const symptomsInSubgroup = allSymptoms.filter(s => s.subgroup === randomSubgroup);
         
-        if (symptomsInSubgroup.length < 3) {
-            return symptomsInSubgroup;
-        }
+        // Определяем, сколько правильных симптомов будет (2 или 3)
+        const count = Math.random() < 0.5 && symptomsInSubgroup.length >= 2 ? 2 : 3;
 
         const shuffled = symptomsInSubgroup.sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, 3);
+        return shuffled.slice(0, count);
     }
 
     // Генерирует список симптомов для одного исследования
@@ -129,14 +133,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const randomIndex = Math.floor(Math.random() * allSymptoms.length);
             const randomSymptom = allSymptoms[randomIndex];
             
-            // Избегаем дубликатов в одном исследовании
             const isSymptomAlreadyInResearch = researchSymptoms.some(s => s.name === randomSymptom.name);
             if (!isSymptomAlreadyInResearch) {
                 researchSymptoms.push(randomSymptom);
             }
         }
         
-        researchSymptoms.sort(() => 0.5 - Math.random()); // Перемешиваем
+        researchSymptoms.sort(() => 0.5 - Math.random());
         return researchSymptoms;
     }
     

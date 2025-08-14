@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const credits = localStorage.getItem('credits');
+    const role = localStorage.getItem('role'); // Получаем роль пользователя
     const creditsElement = document.getElementById('credits');
     const backButton = document.getElementById('back-to-main');
     
@@ -12,6 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameFeedback = document.getElementById('game-feedback');
     const repeatResearchBtn = document.getElementById('repeat-research-btn');
     
+    // Элемент для отображения правильного ответа
+    const correctAnswerDisplay = document.createElement('div');
+    correctAnswerDisplay.id = 'correct-answer-display';
+    correctAnswerDisplay.style.display = 'none';
+    correctAnswerDisplay.style.marginTop = '20px';
+    correctAnswerDisplay.style.borderTop = '1px solid #dee2e6';
+    correctAnswerDisplay.style.paddingTop = '20px';
+    
     let allSymptoms = [];
     let correctSymptoms = [];
     
@@ -19,8 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/api/symptoms/list');
             allSymptoms = await response.json();
-            // Заранее определяем "правильные" симптомы
             correctSymptoms = getCorrectSymptoms();
+            
+            // Если пользователь - superadmin, показываем правильный ответ
+            if (role === 'superadmin') {
+                displayCorrectAnswer();
+            }
         } catch (error) {
             console.error('Ошибка при загрузке симптомов:', error);
         }
@@ -38,6 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Добавляем элемент для отображения правильного ответа в DOM
+    userInputSection.parentNode.insertBefore(correctAnswerDisplay, userInputSection.nextSibling);
+
     if (startResearchBtn) {
         startResearchBtn.addEventListener('click', () => {
             startResearchBtn.disabled = true;
@@ -45,12 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
             gameFeedback.innerHTML = '';
             userInputSection.style.display = 'none';
             repeatResearchBtn.style.display = 'none';
-            symptomInputFields.forEach(input => input.value = ''); // Очищаем поля ввода
+            symptomInputFields.forEach(input => input.value = '');
+
+            // Обновляем отображение правильного ответа, если это superadmin
+            if (role === 'superadmin') {
+                correctAnswerDisplay.style.display = 'block';
+                displayCorrectAnswer();
+            }
             
             let researchCount = 0;
             const interval = setInterval(() => {
                 researchCount++;
-                const newSymptoms = generateSymptomsForResearch(researchCount);
+                const newSymptoms = generateSymptomsForResearch();
                 displayResearchResult(researchCount, newSymptoms);
                 
                 if (researchCount >= 3) {
@@ -70,12 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
             gameFeedback.innerHTML = '';
             symptomInputFields.forEach(input => input.value = '');
             correctSymptoms = getCorrectSymptoms();
+            
+            if (role === 'superadmin') {
+                displayCorrectAnswer();
+            } else {
+                correctAnswerDisplay.style.display = 'none';
+            }
         });
     }
     
     if (checkSymptomsBtn) {
         checkSymptomsBtn.addEventListener('click', () => {
-            // Собираем введенные симптомы, убирая пустые значения
             const userSymptoms = Array.from(symptomInputFields)
                                     .map(input => input.value.trim())
                                     .filter(value => value);
@@ -87,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const correctNames = correctSymptoms.map(s => s.name);
 
-            // Проверка, что введенные симптомы совпадают по количеству и по значению
             const isCorrect = userSymptoms.length === correctNames.length && 
                               userSymptoms.every(name => correctNames.includes(name));
             
@@ -101,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Случайно выбирает от 2 до 3 симптомов из одной подгруппы
     function getCorrectSymptoms() {
         if (allSymptoms.length === 0) {
             return [];
@@ -115,14 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const randomSubgroup = subgroups[Math.floor(Math.random() * subgroups.length)];
         const symptomsInSubgroup = allSymptoms.filter(s => s.subgroup === randomSubgroup);
         
-        // Определяем, сколько правильных симптомов будет (2 или 3)
         const count = Math.random() < 0.5 && symptomsInSubgroup.length >= 2 ? 2 : 3;
-
         const shuffled = symptomsInSubgroup.sort(() => 0.5 - Math.random());
         return shuffled.slice(0, count);
     }
 
-    // Генерирует список симптомов для одного исследования
     function generateSymptomsForResearch() {
         if (allSymptoms.length === 0) {
             return [];
@@ -151,5 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <ul>${symptoms.map(s => `<li>${s.name}</li>`).join('')}</ul>
         `;
         researchResultsContainer.appendChild(resultCard);
+    }
+
+    function displayCorrectAnswer() {
+        correctAnswerDisplay.innerHTML = `
+            <h4>Правильные симптомы (только для Superadmin):</h4>
+            <ul>${correctSymptoms.map(s => `<li>${s.name}</li>`).join('')}</ul>
+        `;
     }
 });

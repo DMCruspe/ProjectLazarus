@@ -30,7 +30,7 @@
 
             <div class="game-card">
                 <h3>Мини-игра: Исследование симптомов</h3>
-                <p>Нажмите "Начать исследование", чтобы провести серию исследований. Ваша задача — найти три симптома, которые чаще всего повторяются в результатах.</p>
+                <p>Нажмите "Начать исследование", чтобы провести серию исследований. Ваша задача — найти повторяющиеся симптомы. Их может быть от 2 до 3.</p>
                 
                 <div id="game-controls">
                     <button id="start-research-btn" class="nav-button">Начать исследование</button>
@@ -40,16 +40,20 @@
                     </div>
                 
                 <div id="user-input-section" style="display: none;">
-                    <h4>Введите три повторяющихся симптома (через запятую):</h4>
-                    <textarea id="symptom-input" rows="3" placeholder="Симптом 1, Симптом 2, Симптом 3"></textarea>
+                    <h4>Введите найденные симптомы:</h4>
+                    <div id="symptom-input-fields">
+                        <input type="text" class="symptom-input" placeholder="Симптом 1">
+                        <input type="text" class="symptom-input" placeholder="Симптом 2">
+                        <input type="text" class="symptom-input" placeholder="Симптом 3">
+                    </div>
                     <button id="check-symptoms-btn" class="nav-button">Проверить</button>
                 </div>
-                
-                <div id="game-feedback">
-                    </div>
+    
+    <div id="game-feedback">
+        </div>
 
-                <button id="repeat-research-btn" class="nav-button" style="display: none;">Повторить исследование</button>
-            </div>
+    <button id="repeat-research-btn" class="nav-button" style="display: none;">Повторить исследование</button>
+</div>
             </main>
     </div>
 

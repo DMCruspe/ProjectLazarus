@@ -9,12 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const showSpreadGameBtn = document.getElementById('show-spread-game-btn');
     const showVulnerabilityGameBtn = document.getElementById('show-vulnerability-game-btn');
     const showVaccineGameBtn = document.getElementById('show-vaccine-game-btn');
+    const showIdentifyTypeGameBtn = document.getElementById('show-identify-type-game-btn'); // Новая кнопка
 
     // Контейнеры игр
     const symptomsGameCard = document.getElementById('symptoms-game-card');
     const spreadGameCard = document.getElementById('spread-game-card');
     const vulnerabilityGameCard = document.getElementById('vulnerability-game-card');
     const vaccineGameCard = document.getElementById('vaccine-game-card');
+    const identifyTypeGameCard = document.getElementById('identify-type-game-card'); // Новый контейнер
 
     let allSymptoms = [];
     let correctSymptoms = [];
@@ -31,47 +33,113 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function hideAllGameCards() {
+        symptomsGameCard.style.display = 'none';
+        spreadGameCard.style.display = 'none';
+        vulnerabilityGameCard.style.display = 'none';
+        vaccineGameCard.style.display = 'none';
+        identifyTypeGameCard.style.display = 'none';
+    }
+
     // Обработчики для кнопок навигации
     if (showSymptomsGameBtn) {
         showSymptomsGameBtn.addEventListener('click', () => {
+            hideAllGameCards();
             symptomsGameCard.style.display = 'block';
-            spreadGameCard.style.display = 'none';
-            vulnerabilityGameCard.style.display = 'none';
-            vaccineGameCard.style.display = 'none';
             initializeSymptomsGameLogic();
         });
     }
 
     if (showSpreadGameBtn) {
         showSpreadGameBtn.addEventListener('click', () => {
+            hideAllGameCards();
             spreadGameCard.style.display = 'block';
-            symptomsGameCard.style.display = 'none';
-            vulnerabilityGameCard.style.display = 'none';
-            vaccineGameCard.style.display = 'none';
             initializeSpreadGameLogic();
         });
     }
     
     if (showVulnerabilityGameBtn) {
         showVulnerabilityGameBtn.addEventListener('click', () => {
+            hideAllGameCards();
             vulnerabilityGameCard.style.display = 'block';
-            symptomsGameCard.style.display = 'none';
-            spreadGameCard.style.display = 'none';
-            vaccineGameCard.style.display = 'none';
             initializeVulnerabilityGameLogic();
         });
     }
 
     if (showVaccineGameBtn) {
         showVaccineGameBtn.addEventListener('click', () => {
+            hideAllGameCards();
             vaccineGameCard.style.display = 'block';
-            symptomsGameCard.style.display = 'none';
-            spreadGameCard.style.display = 'none';
-            vulnerabilityGameCard.style.display = 'none';
             initializeVaccineGameLogic();
         });
     }
+
+    if (showIdentifyTypeGameBtn) {
+        showIdentifyTypeGameBtn.addEventListener('click', () => {
+            hideAllGameCards();
+            identifyTypeGameCard.style.display = 'block';
+            loadMinigameIdentifyType();
+        });
+    }
     
+    // === ЛОГИКА НОВОЙ ИГРЫ (ОПРЕДЕЛИТЬ ТИП) ===
+    const gameContentIdentifyType = document.getElementById('game-content-identify-type');
+    const nextIdentifyTypeGameBtn = document.getElementById('next-identify-type-game-btn');
+
+    async function loadMinigameIdentifyType() {
+        gameContentIdentifyType.innerHTML = `<p>Загрузка...</p>`;
+        nextIdentifyTypeGameBtn.style.display = 'none';
+        await fetchGameData();
+    }
+
+    async function fetchGameData() {
+        try {
+            const response = await fetch('/api/minigame/identify-type');
+            const data = await response.json();
+
+            if (!response.ok) {
+                gameContentIdentifyType.innerHTML = `<p>${data.message}</p>`;
+                return;
+            }
+
+            const { imageUrl, answers, correctAnswer } = data;
+
+            gameContentIdentifyType.innerHTML = `
+                <div class="game-card-content">
+                    <img src="${imageUrl}" alt="Изображение болезни">
+                    <div class="answer-buttons">
+                        ${answers.map(answer => `<button class="nav-button" onclick="checkAnswer('${answer}', '${correctAnswer}')">${answer}</button>`).join('')}
+                    </div>
+                    <div id="game-feedback-identify-type" class="game-feedback"></div>
+                </div>
+            `;
+            
+            // Назначаем обработчик для кнопки "Следующая игра" после загрузки
+            nextIdentifyTypeGameBtn.onclick = fetchGameData;
+            nextIdentifyTypeGameBtn.textContent = 'Следующая игра';
+
+        } catch (error) {
+            console.error('Ошибка при загрузке игры:', error);
+            gameContentIdentifyType.innerHTML = `<p>Произошла ошибка при загрузке игры.</p>`;
+        }
+    }
+
+    window.checkAnswer = function(selectedAnswer, correctAnswer) {
+        const feedback = document.getElementById('game-feedback-identify-type');
+        if (selectedAnswer === correctAnswer) {
+            feedback.textContent = 'Верно! 🎉';
+            feedback.style.color = 'green';
+        } else {
+            feedback.textContent = `Неверно. Правильный ответ: ${correctAnswer}.`;
+            feedback.style.color = 'red';
+        }
+        // Отключаем кнопки, чтобы нельзя было ответить еще раз
+        document.querySelectorAll('#game-content-identify-type .answer-buttons button').forEach(button => {
+            button.disabled = true;
+        });
+        nextIdentifyTypeGameBtn.style.display = 'block';
+    }
+
     // === ЛОГИКА ПЕРВОЙ ИГРЫ (СИМПТОМЫ) ===
     async function fetchAllSymptoms() {
         try {
@@ -156,8 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (checkSymptomsBtn) {
             checkSymptomsBtn.addEventListener('click', () => {
                 const userSymptoms = Array.from(symptomInputFields)
-                                        .map(input => input.value.trim())
-                                        .filter(value => value);
+                                             .map(input => input.value.trim())
+                                             .filter(value => value);
                 
                 if (userSymptoms.length < 2 || userSymptoms.length > 3) {
                     gameFeedback.innerHTML = `<p style="color:red;">Пожалуйста, введите от 2 до 3 симптомов.</p>`;
@@ -167,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const correctNames = correctSymptoms.map(s => s.name);
 
                 const isCorrect = userSymptoms.length === correctNames.length && 
-                                  userSymptoms.every(name => correctNames.includes(name));
+                                          userSymptoms.every(name => correctNames.includes(name));
                 
                 if (isCorrect) {
                     gameFeedback.innerHTML = `<p style="color:green;">Правильные симптомы обнаружены!</p>`;
@@ -435,10 +503,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userResistant = resistantFactorsInput.value.split(',').map(f => f.trim()).filter(f => f);
 
                 const isVulnerableCorrect = userVulnerable.length === correctVulnerabilities.vulnerable.length &&
-                                            userVulnerable.every(f => correctVulnerabilities.vulnerable.includes(f));
+                                             userVulnerable.every(f => correctVulnerabilities.vulnerable.includes(f));
 
                 const isResistantCorrect = userResistant.length === correctVulnerabilities.resistant.length &&
-                                           userResistant.every(f => correctVulnerabilities.resistant.includes(f));
+                                             userResistant.every(f => correctVulnerabilities.resistant.includes(f));
                 
                 if (isVulnerableCorrect && isResistantCorrect) {
                     gameFeedback.innerHTML = `<p style="color:green;">Верно! Вы правильно определили уязвимые и устойчивые факторы.</p>`;

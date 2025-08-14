@@ -338,21 +338,21 @@ app.post('/api/players/delete', async (req, res) => {
 
 // ОБЪЕДИНЕННЫЙ И ИСПРАВЛЕННЫЙ РОУТ ДЛЯ СОЗДАНИЯ НОВОГО ЗАДАНИЯ
 app.post('/api/tasks/create', async (req, res) => {
-    const { requesterUsername, title, taskType, description, reward, performer } = req.body;
+    const { requesterUsername, title, taskType, description, reward, intendedPerformer } = req.body;
     try {
         const requester = await User.findOne({ username: requesterUsername });
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
         
-        // Создание нового задания
         const newTask = new Task({
             title,
             taskType,
             description,
             reward,
-            performer,
-            createdBy: requesterUsername
+            intendedPerformer, // Use the new field
+            createdBy: requesterUsername,
+            status: 'active'
         });
 
         await newTask.save();
@@ -369,9 +369,9 @@ app.post('/api/tasks', async (req, res) => {
     try {
         const tasks = await Task.find({
             $or: [
-                { status: 'active', performer: 'All' },
-                { performer: username },
-                { status: 'in_progress', performer: username }
+                { intendedPerformer: 'All', status: 'active' },
+                { intendedPerformer: username, status: 'active' },
+                { performer: username, status: 'in_progress' }
             ]
         });
         res.json(tasks);
@@ -400,7 +400,7 @@ app.post('/api/tasks/accept', async (req, res) => {
     const { taskId, username } = req.body;
     try {
         const task = await Task.findById(taskId);
-        if (!task || task.status !== 'active' || (task.performer !== 'All' && task.performer !== username)) {
+        if (!task || task.status !== 'active' || (task.intendedPerformer !== 'All' && task.intendedPerformer !== username)) {
             return res.status(400).json({ message: 'Задание недоступно для принятия' });
         }
         const acceptedTasksCount = await Task.countDocuments({ performer: username, status: 'in_progress' });
@@ -408,7 +408,6 @@ app.post('/api/tasks/accept', async (req, res) => {
             return res.status(400).json({ message: 'Вы не можете принять больше двух заданий.' });
         }
 
-        // ИСПРАВЛЕНО: Теперь условие проверяет 'Изучение болезни'
         if (task.taskType === 'Изучение болезни') {
             const existingDisease = await Disease.findOne({ name: task.title });
             if (!existingDisease) {

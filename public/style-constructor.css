@@ -19,3 +19,44 @@
 .right-panel {
     display: none;
 }
+
+#symptoms-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.symptom-card {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.symptom-card h4 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.symptom-card p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.delete-symptom-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.delete-symptom-btn:hover {
+    background-color: #c82333;
+}

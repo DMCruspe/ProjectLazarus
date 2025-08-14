@@ -88,6 +88,13 @@ const vaccineSchema = new mongoose.Schema({
 });
 const Vaccine = mongoose.model('Vaccine', vaccineSchema);
 
+const symptomSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    subgroup: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
+const Symptom = mongoose.model('Symptom', symptomSchema);
+
 // Middleware для безопасности
 app.use(helmet());
 app.use(express.json());
@@ -507,6 +514,42 @@ app.post('/api/vaccine/info', async (req, res) => {
     } catch (error) {
         console.error('Ошибка при получении информации о вакцине:', error);
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
+app.get('/api/symptoms/list', async (req, res) => {
+    try {
+        const symptoms = await Symptom.find({});
+        res.status(200).json(symptoms);
+    } catch (error) {
+        console.error('Ошибка при получении списка симптомов:', error);
+        res.status(500).json({ message: 'Ошибка при получении списка симптомов' });
+    }
+});
+
+app.post('/api/symptom/add', async (req, res) => {
+    const { name, subgroup } = req.body;
+    if (!name || !subgroup) {
+        return res.status(400).json({ message: 'Заполните все поля.' });
+    }
+    try {
+        const newSymptom = new Symptom({ name, subgroup });
+        await newSymptom.save();
+        res.status(201).json({ message: 'Симптом успешно добавлен!' });
+    } catch (error) {
+        console.error('Ошибка при добавлении симптома:', error);
+        res.status(500).json({ message: 'Ошибка при добавлении симптома' });
+    }
+});
+
+app.post('/api/symptom/delete', async (req, res) => {
+    const { id } = req.body;
+    try {
+        await Symptom.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Симптом успешно удален.' });
+    } catch (error) {
+        console.error('Ошибка при удалении симптома:', error);
+        res.status(500).json({ message: 'Ошибка при удалении симптома' });
     }
 });
 

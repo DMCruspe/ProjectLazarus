@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainPanel = document.getElementById('constructor-main-panel');
     const createTaskBtn = document.getElementById('create-task-btn');
     const createVaccineBtn = document.getElementById('create-vaccine-btn');
+    const symptomsBtn = document.getElementById('symptoms-btn');
     const createDiseaseBtn = document.getElementById('create-disease-btn'); // Новая кнопка
     
     if (creditsElement) {
@@ -21,6 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (createVaccineBtn) {
         createVaccineBtn.addEventListener('click', loadCreateVaccineForm);
+    }
+
+    if (symptomsBtn) {
+        symptomsBtn.addEventListener('click', loadSymptomsPanel); // НОВЫЙ ОБРАБОТЧИК
     }
 
     // Проверка прав доступа
@@ -235,6 +240,105 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+    async function loadSymptomsPanel() {
+        mainPanel.innerHTML = `
+            <h2>Управление симптомами</h2>
+            <div id="symptoms-list-container">
+                </div>
+            <h3>Добавить новый симптом</h3>
+            <form id="add-symptom-form">
+                <label for="symptom-name">Название симптома:</label>
+                <input type="text" id="symptom-name" name="symptomName" required>
+                
+                <label for="symptom-group">Подгруппа:</label>
+                <input type="text" id="symptom-group" name="symptomGroup" required>
+                
+                <button type="submit" class="nav-button">Добавить</button>
+            </form>
+        `;
+
+        fetchAndDisplaySymptoms();
+
+        document.getElementById('add-symptom-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const symptomName = form['symptomName'].value;
+            const symptomGroup = form['symptomGroup'].value;
+
+            try {
+                const response = await fetch('/api/symptom/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: symptomName, subgroup: symptomGroup })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    form.reset();
+                    fetchAndDisplaySymptoms(); // Обновляем список
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Ошибка при добавлении симптома:', error);
+                alert('Произошла ошибка при добавлении симптома.');
+            }
+        });
+        
+        mainPanel.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-symptom-btn')) {
+                const symptomId = e.target.dataset.id;
+                if (confirm('Вы уверены, что хотите удалить этот симптом?')) {
+                    try {
+                        const response = await fetch('/api/symptom/delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: symptomId })
+                        });
+                        const result = await response.json();
+                        if (response.ok) {
+                            alert(result.message);
+                            fetchAndDisplaySymptoms(); // Обновляем список
+                        } else {
+                            alert('Ошибка: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Ошибка при удалении симптома:', error);
+                        alert('Произошла ошибка при удалении.');
+                    }
+                }
+            }
+        });
+    }
+
+    async function fetchAndDisplaySymptoms() {
+        const symptomsListContainer = document.getElementById('symptoms-list-container');
+        try {
+            const response = await fetch('/api/symptoms/list');
+            const symptoms = await response.json();
+            symptomsListContainer.innerHTML = '';
+            if (symptoms.length === 0) {
+                symptomsListContainer.innerHTML = '<p>Список симптомов пуст.</p>';
+            } else {
+                symptoms.forEach(symptom => {
+                    const symptomCard = document.createElement('div');
+                    symptomCard.classList.add('symptom-card');
+                    symptomCard.innerHTML = `
+                        <h4>${symptom.name}</h4>
+                        <p>Подгруппа: ${symptom.subgroup}</p>
+                        <button class="delete-symptom-btn" data-id="${symptom._id}">Удалить</button>
+                    `;
+                    symptomsListContainer.appendChild(symptomCard);
+                });
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке списка симптомов:', error);
+            symptomsListContainer.innerHTML = '<p>Ошибка при загрузке списка симптомов.</p>';
+        }
+    }
+});
+
     if (createTaskBtn) {
         createTaskBtn.addEventListener('click', loadCreateTaskForm);
     }

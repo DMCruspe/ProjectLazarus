@@ -240,9 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (createVaccineBtn) {
-        createVaccineBtn.addEventListener('click', () => {
-            mainPanel.innerHTML = '<h2>Создание новой вакцины</h2><p>...Форма здесь...</p>';
-        });
+        createVaccineBtn.addEventListener('click', loadCreateVaccineForm);
     }
 
     // Добавляем обработчик для новой кнопки

@@ -56,8 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (databaseButton) {
             databaseButton.style.display = 'block';
-    }
-    
+        }
+    } // ЗДЕСЬ БЫЛА НЕДОСТАЮЩАЯ СКОБКА
+
     // Показываем кнопку "+" только для superadmin
     if (role === 'superadmin' && addCreditsButton) {
         addCreditsButton.style.display = 'block';

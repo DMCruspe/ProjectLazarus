@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const role = localStorage.getItem('role');
     const creditsElement = document.getElementById('credits');
     const backButton = document.getElementById('back-to-main');
-    const showSymptomsGameBtn = document.getElementById('show-symptoms-game-btn'); // Кнопка для запуска игры
-    const gameContainer = document.getElementById('game-container'); // Контейнер для игры
+    const showSymptomsGameBtn = document.getElementById('show-symptoms-game-btn');
+    const symptomsGameCard = document.getElementById('symptoms-game-card');
 
     let allSymptoms = [];
     let correctSymptoms = [];
@@ -19,9 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Обработчик для кнопки "Узнать симптомы"
     if (showSymptomsGameBtn) {
-        showSymptomsGameBtn.addEventListener('click', loadSymptomsGame);
+        showSymptomsGameBtn.addEventListener('click', () => {
+            symptomsGameCard.style.display = 'block';
+            initializeGameLogic();
+        });
     }
 
     async function fetchAllSymptoms() {
@@ -33,43 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Функция, которая загружает и запускает игру
-    async function loadSymptomsGame() {
-        await fetchAllSymptoms(); // Загружаем симптомы перед началом
-        gameContainer.innerHTML = `
-            <div class="game-card">
-                <h3>Мини-игра: Исследование симптомов</h3>
-                <p>Нажмите "Начать исследование", чтобы провести серию исследований. Ваша задача — найти повторяющиеся симптомы. Их может быть от 2 до 3.</p>
-                
-                <div id="game-controls">
-                    <button id="start-research-btn" class="nav-button">Начать исследование</button>
-                </div>
+    // Вся игровая логика вынесена в отдельную функцию
+    async function initializeGameLogic() {
+        await fetchAllSymptoms();
 
-                <div id="research-results-container">
-                    </div>
-                
-                <div id="user-input-section" style="display: none;">
-                    <h4>Введите найденные симптомы:</h4>
-                    <div id="symptom-input-fields">
-                        <input type="text" class="symptom-input" placeholder="Симптом 1">
-                        <input type="text" class="symptom-input" placeholder="Симптом 2">
-                        <input type="text" class="symptom-input" placeholder="Симптом 3">
-                    </div>
-                    <button id="check-symptoms-btn" class="nav-button">Проверить</button>
-                </div>
-                
-                <div id="game-feedback">
-                    </div>
-
-                <button id="repeat-research-btn" class="nav-button" style="display: none;">Повторить исследование</button>
-            </div>
-        `;
-        
-        // Теперь, когда HTML загружен, инициализируем всю игровую логику
-        initializeGameLogic();
-    }
-
-    function initializeGameLogic() {
         const startResearchBtn = document.getElementById('start-research-btn');
         const researchResultsContainer = document.getElementById('research-results-container');
         const userInputSection = document.getElementById('user-input-section');
@@ -84,7 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
         correctAnswerDisplay.style.marginTop = '20px';
         correctAnswerDisplay.style.borderTop = '1px solid #dee2e6';
         correctAnswerDisplay.style.paddingTop = '20px';
-        userInputSection.parentNode.insertBefore(correctAnswerDisplay, userInputSection.nextSibling);
+        if (userInputSection) {
+             userInputSection.parentNode.insertBefore(correctAnswerDisplay, userInputSection.nextSibling);
+        }
 
         if (role === 'superadmin') {
             correctAnswerDisplay.style.display = 'block';
@@ -220,14 +191,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h4>Исследование #${count}</h4>
                 <ul>${symptoms.map(s => `<li>${s.name}</li>`).join('')}</ul>
             `;
-            researchResultsContainer.appendChild(resultCard);
+            if (researchResultsContainer) {
+                researchResultsContainer.appendChild(resultCard);
+            }
         }
 
         function displayCorrectAnswer() {
-            correctAnswerDisplay.innerHTML = `
-                <h4>Правильные симптомы (только для Superadmin):</h4>
-                <ul>${correctSymptoms.map(s => `<li>${s.name}</li>`).join('')}</ul>
-            `;
+            if (correctAnswerDisplay) {
+                correctAnswerDisplay.innerHTML = `
+                    <h4>Правильные симптомы (только для Superadmin):</h4>
+                    <ul>${correctSymptoms.map(s => `<li>${s.name}</li>`).join('')}</ul>
+                `;
+            }
         }
     }
 });

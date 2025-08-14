@@ -360,8 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function generateCorrectVulnerabilities() {
             const vulnerableCount = Math.floor(Math.random() * 2) + 1;
-            const resistantCount = 3 - vulnerableCount;
-
+            const resistantCount = 4 - vulnerableCount;
+            
             const shuffledFactors = factors.sort(() => 0.5 - Math.random());
             const vulnerable = shuffledFactors.slice(0, vulnerableCount);
             const resistant = shuffledFactors.slice(vulnerableCount, vulnerableCount + resistantCount);
@@ -382,13 +382,12 @@ document.addEventListener('DOMContentLoaded', () => {
             startVulnerabilityResearchBtn.addEventListener('click', () => {
                 const selectedFactor = vulnerabilityFactorSelect.value;
                 const isVulnerable = correctVulnerabilities.vulnerable.includes(selectedFactor);
-                const isResistant = correctVulnerabilities.resistant.includes(selectedFactor);
                 
                 let resultPercentage;
                 if (isVulnerable) {
-                    resultPercentage = Math.floor(Math.random() * 10) + 1;
+                    resultPercentage = Math.floor(Math.random() * 10) + 1; // 1-10% (уязвимость)
                 } else {
-                    resultPercentage = Math.floor(Math.random() * 11) + 90;
+                    resultPercentage = Math.floor(Math.random() * 11) + 90; // 90-100% (устойчивость)
                 }
 
                 vulnerabilityResearchResultsContainer.innerHTML = `

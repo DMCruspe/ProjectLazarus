@@ -356,7 +356,7 @@ app.post('/api/tasks/create', async (req, res) => {
         });
 
         // НОВАЯ ЛОГИКА: если тип задания - "исследование болезни", создать новую болезнь
-        if (taskType === 'Болезнь') {
+        if (taskType === 'Изучение болезни') {
             const newDisease = new Disease({
                 name: title,
                 type: 'Неизвестно', 

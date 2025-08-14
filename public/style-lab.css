@@ -154,4 +154,39 @@
     box-sizing: border-box;
 }
 
-/* ... (остальные стили) */
+#spread-game-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#spread-game-controls select {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+
+#spread-research-results-container {
+    margin-top: 20px;
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+}
+
+#spread-research-results-container h4 {
+    margin: 0 0 10px 0;
+}
+
+#spread-research-results-container ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#spread-research-results-container li {
+    background-color: #e9ecef;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}

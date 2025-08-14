@@ -3,11 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const role = localStorage.getItem('role');
     const creditsElement = document.getElementById('credits');
     const backButton = document.getElementById('back-to-main');
+    
+    // Кнопки для запуска игр
     const showSymptomsGameBtn = document.getElementById('show-symptoms-game-btn');
+    const showSpreadGameBtn = document.getElementById('show-spread-game-btn');
+
+    // Контейнеры игр
     const symptomsGameCard = document.getElementById('symptoms-game-card');
+    const spreadGameCard = document.getElementById('spread-game-card');
 
     let allSymptoms = [];
     let correctSymptoms = [];
+    let correctSpreadPath = '';
     
     if (creditsElement) {
         creditsElement.textContent = `${credits} R`;
@@ -19,10 +26,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Обработчики для кнопок навигации
     if (showSymptomsGameBtn) {
         showSymptomsGameBtn.addEventListener('click', () => {
             symptomsGameCard.style.display = 'block';
-            initializeGameLogic();
+            spreadGameCard.style.display = 'none'; // Скрываем другую игру
+            initializeSymptomsGameLogic();
+        });
+    }
+
+    if (showSpreadGameBtn) {
+        showSpreadGameBtn.addEventListener('click', () => {
+            spreadGameCard.style.display = 'block';
+            symptomsGameCard.style.display = 'none'; // Скрываем другую игру
+            initializeSpreadGameLogic();
         });
     }
 
@@ -34,9 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Ошибка при загрузке симптомов:', error);
         }
     }
-    
-    // Вся игровая логика вынесена в отдельную функцию
-    async function initializeGameLogic() {
+
+    async function initializeSymptomsGameLogic() {
         await fetchAllSymptoms();
 
         const startResearchBtn = document.getElementById('start-research-btn');
@@ -44,11 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const userInputSection = document.getElementById('user-input-section');
         const symptomInputFields = document.querySelectorAll('.symptom-input');
         const checkSymptomsBtn = document.getElementById('check-symptoms-btn');
-        const gameFeedback = document.getElementById('game-feedback');
+        const gameFeedback = document.getElementById('game-feedback-symptoms');
         const repeatResearchBtn = document.getElementById('repeat-research-btn');
         
         const correctAnswerDisplay = document.createElement('div');
-        correctAnswerDisplay.id = 'correct-answer-display';
+        correctAnswerDisplay.id = 'correct-answer-display-symptoms';
         correctAnswerDisplay.style.display = 'none';
         correctAnswerDisplay.style.marginTop = '20px';
         correctAnswerDisplay.style.borderTop = '1px solid #dee2e6';
@@ -73,14 +89,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 symptomInputFields.forEach(input => input.value = '');
 
                 if (role === 'superadmin') {
-                    displayCorrectAnswer();
+                    displayCorrectAnswerSymptoms();
                 }
                 
                 let researchCount = 0;
                 const interval = setInterval(() => {
                     researchCount++;
                     const newSymptoms = generateSymptomsForResearch();
-                    displayResearchResult(researchCount, newSymptoms);
+                    displayResearchResultSymptoms(researchCount, newSymptoms);
                     
                     if (researchCount >= 3) {
                         clearInterval(interval);
@@ -101,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 correctSymptoms = getCorrectSymptoms();
                 
                 if (role === 'superadmin') {
-                    displayCorrectAnswer();
+                    displayCorrectAnswerSymptoms();
                 } else {
                     correctAnswerDisplay.style.display = 'none';
                 }
@@ -184,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return researchSymptoms;
         }
         
-        function displayResearchResult(count, symptoms) {
+        function displayResearchResultSymptoms(count, symptoms) {
             const resultCard = document.createElement('div');
             resultCard.classList.add('research-card');
             resultCard.innerHTML = `
@@ -196,11 +212,112 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function displayCorrectAnswer() {
+        function displayCorrectAnswerSymptoms() {
             if (correctAnswerDisplay) {
                 correctAnswerDisplay.innerHTML = `
                     <h4>Правильные симптомы (только для Superadmin):</h4>
                     <ul>${correctSymptoms.map(s => `<li>${s.name}</li>`).join('')}</ul>
+                `;
+            }
+        }
+    }
+
+    // Логика для второй мини-игры
+    async function initializeSpreadGameLogic() {
+        // Здесь можно было бы загрузить пути передачи, но для примера они захардкодены
+        const spreadPaths = ['воздушно-капельный', 'контактный', 'через-воду', 'через-пищу'];
+        correctSpreadPath = spreadPaths[Math.floor(Math.random() * spreadPaths.length)];
+
+        const startSpreadResearchBtn = document.getElementById('start-spread-research-btn');
+        const spreadPathSelect = document.getElementById('spread-path-select');
+        const spreadResearchResultsContainer = document.getElementById('spread-research-results-container');
+        const spreadPathConfirmation = document.getElementById('spread-path-confirmation');
+        const confirmSpreadPathBtn = document.getElementById('confirm-spread-path-btn');
+        const gameFeedbackSpread = document.getElementById('game-feedback-spread');
+        const repeatSpreadResearchBtn = document.getElementById('repeat-spread-research-btn');
+        
+        // Элемент для отображения правильного ответа
+        const correctAnswerDisplay = document.createElement('div');
+        correctAnswerDisplay.id = 'correct-answer-display-spread';
+        correctAnswerDisplay.style.display = 'none';
+        correctAnswerDisplay.style.marginTop = '20px';
+        correctAnswerDisplay.style.borderTop = '1px solid #dee2e6';
+        correctAnswerDisplay.style.paddingTop = '20px';
+        spreadPathConfirmation.parentNode.insertBefore(correctAnswerDisplay, spreadPathConfirmation.nextSibling);
+
+        if (role === 'superadmin') {
+            correctAnswerDisplay.style.display = 'block';
+            displayCorrectAnswerSpread();
+        }
+
+        if (startSpreadResearchBtn) {
+            startSpreadResearchBtn.addEventListener('click', () => {
+                const selectedPath = spreadPathSelect.value;
+                const isCorrectPath = selectedPath === correctSpreadPath;
+
+                let percentages = [];
+                for (let i = 0; i < 3; i++) {
+                    percentages.push(generatePercentage(isCorrectPath));
+                }
+
+                displaySpreadResults(selectedPath, percentages);
+                spreadPathConfirmation.style.display = 'block';
+            });
+        }
+        
+        if (confirmSpreadPathBtn) {
+            confirmSpreadPathBtn.addEventListener('click', () => {
+                const selectedPath = spreadPathSelect.value;
+                if (selectedPath === correctSpreadPath) {
+                    gameFeedbackSpread.innerHTML = `<p style="color:green;">Верно! Вы нашли основной путь распространения: ${correctSpreadPath}.</p>`;
+                } else {
+                    gameFeedbackSpread.innerHTML = `<p style="color:red;">К сожалению, это не основной путь распространения. Попробуйте еще раз.</p>`;
+                }
+                repeatSpreadResearchBtn.style.display = 'block';
+            });
+        }
+        
+        if (repeatSpreadResearchBtn) {
+            repeatSpreadResearchBtn.addEventListener('click', () => {
+                gameFeedbackSpread.innerHTML = '';
+                spreadResearchResultsContainer.innerHTML = '';
+                spreadPathConfirmation.style.display = 'none';
+                repeatSpreadResearchBtn.style.display = 'none';
+                correctSpreadPath = spreadPaths[Math.floor(Math.random() * spreadPaths.length)];
+                if (role === 'superadmin') {
+                    displayCorrectAnswerSpread();
+                } else {
+                    correctAnswerDisplay.style.display = 'none';
+                }
+            });
+        }
+        
+        function generatePercentage(isCorrect) {
+            if (isCorrect) {
+                // Высокий процент (70-99%)
+                return Math.floor(Math.random() * (99 - 70 + 1)) + 70;
+            } else {
+                // Низкий процент (10-30%)
+                return Math.floor(Math.random() * (30 - 10 + 1)) + 10;
+            }
+        }
+
+        function displaySpreadResults(path, percentages) {
+            spreadResearchResultsContainer.innerHTML = `
+                <h4>Результаты исследования "${path}":</h4>
+                <ul>
+                    <li>Результат 1: ${percentages[0]}%</li>
+                    <li>Результат 2: ${percentages[1]}%</li>
+                    <li>Результат 3: ${percentages[2]}%</li>
+                </ul>
+            `;
+        }
+
+        function displayCorrectAnswerSpread() {
+             if (correctAnswerDisplay) {
+                correctAnswerDisplay.innerHTML = `
+                    <h4>Правильный путь (только для Superadmin):</h4>
+                    <p>${correctSpreadPath}</p>
                 `;
             }
         }

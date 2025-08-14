@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const createVaccineBtn = document.getElementById('create-vaccine-btn');
     if (createVaccineBtn) {
         createVaccineBtn.addEventListener('click', loadCreateVaccineForm);
     }

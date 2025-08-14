@@ -82,15 +82,15 @@ const TaskSchema = new mongoose.Schema({
 });
 const Task = mongoose.model('Task', TaskSchema);
 
-// СХЕМА ДЛЯ БОЛЕЗНЕЙ
+// ИСПРАВЛЕННАЯ СХЕМА ДЛЯ БОЛЕЗНЕЙ
 const diseaseSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    type: { type: String, required: true },
-    symptoms: { type: String, required: true },
-    spread: { type: String, required: true },
-    resistance: { type: String, required: true },
-    vulnerabilities: { type: String, required: true },
-    treatment: { type: String, required: true },
+    type: { type: String },
+    symptoms: { type: String },
+    spread: { type: String },
+    resistance: { type: String },
+    vulnerabilities: { type: String },
+    treatment: { type: String },
     vaccine: { type: String },
     createdAt: { type: Date, default: Date.now }
 });
@@ -405,7 +405,6 @@ app.post('/api/tasks/accept', async (req, res) => {
         if (acceptedTasksCount >= 2) {
             return res.status(400).json({ message: 'Вы не можете принять больше двух заданий.' });
         }
-        // Логика создания болезни при принятии задания удалена
         task.performer = username;
         task.status = 'in_progress';
         await task.save();
@@ -483,9 +482,15 @@ app.post('/api/tasks/change-performer', async (req, res) => {
 // РОУТ ДЛЯ СОЗДАНИЯ БОЛЕЗНИ
 app.post('/api/disease/create', async (req, res) => {
     const { name, type, symptoms, spread, resistance, vulnerabilities, treatment, vaccine } = req.body;
+
+    // Проверка обязательного поля 'name'
+    if (!name) {
+        return res.status(400).json({ message: 'Поле "name" является обязательным.' });
+    }
+
     try {
         const newDisease = new Disease({
-            name: name || 'Неизвестно',
+            name: name,
             type: type || 'Неизвестно',
             symptoms: symptoms || 'Неизвестно',
             spread: spread || 'Неизвестно',

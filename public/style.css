@@ -8,26 +8,26 @@ body {
     margin: 0;
 }
 
-/* Обобщенный стиль для всех контейнеров страниц */
+/* Обновленный стиль для контейнера страниц */
 .page-container {
-    display: none;
+    position: absolute; /* Позиционирует все страницы в одном месте */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 400px; /* Ограничивает ширину для аккуратного отображения */
+    display: none; /* Скрывает все страницы по умолчанию */
     text-align: center;
 }
 
+/* Этот класс будет отображать только одну страницу */
 .page-container.active {
     display: block;
 }
 
-#main-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px; /* Увеличиваем расстояние между блоками */
-}
-
 .site-title {
     color: #333;
-    margin-bottom: 0; /* Убираем лишний отступ */
+    margin-bottom: 30px;
 }
 
 .content-box {
@@ -48,10 +48,6 @@ body {
     background-color: transparent;
     border-radius: 5px;
     transition: background-color 0.3s, color 0.3s;
-    text-decoration: none; /* Убираем подчеркивание у ссылки */
-    color: #333; /* Делаем текст чёрным, чтобы он выглядел как кнопка */
-    display: block; /* Делаем ссылку блочным элементом */
-    text-align: center;
 }
 
 .btn:hover {
@@ -115,7 +111,6 @@ body {
     font-size: 12px;
     color: #777;
     line-height: 1.5;
-    text-align: center;
 }
 
 .message-area {

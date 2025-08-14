@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const createVaccineBtn = document.getElementById('create-vaccine-btn');
+    if (createVaccineBtn) {
+        createVaccineBtn.addEventListener('click', loadCreateVaccineForm);
+    }
+
     // Проверка прав доступа
     if (role !== 'admin' && role !== 'superadmin') {
         alert('Доступ запрещён.');
@@ -176,6 +181,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function loadCreateVaccineForm() {
+            mainPanel.innerHTML = `
+                <h2>Создание новой вакцины</h2>
+                <form id="create-vaccine-form">
+                    <label for="name">Название:</label>
+                    <input type="text" id="name" name="name" required>
+                    
+                    <label for="diseaseName">Название Болезни:</label>
+                    <input type="text" id="diseaseName" name="diseaseName" required>
+                    
+                    <label for="dosage">Дозировка:</label>
+                    <input type="text" id="dosage" name="dosage" required>
+                    
+                    <label for="effectiveness">Эффективность (%):</label>
+                    <input type="number" id="effectiveness" name="effectiveness" min="0" max="100" required>
+                    
+                    <label for="sideEffects">Побочные эффекты:</label>
+                    <textarea id="sideEffects" name="sideEffects"></textarea>
+                    
+                    <button type="submit" class="nav-button">Создать</button>
+                </form>
+            `;
+
+            document.getElementById('create-vaccine-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const vaccineData = {
+                    name: formData.get('name'),
+                    diseaseName: formData.get('diseaseName'),
+                    dosage: formData.get('dosage'),
+                    effectiveness: formData.get('effectiveness'),
+                    sideEffects: formData.get('sideEffects')
+                };
+
+                try {
+                    const res = await fetch('/api/vaccine/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(vaccineData)
+                    });
+                    
+                    const result = await res.json();
+                    if (res.ok) {
+                        alert(result.message);
+                        e.target.reset();
+                    } else {
+                        alert('Ошибка: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Ошибка при создании вакцины:', error);
+                    alert('Произошла ошибка при создании вакцины.');
+                }
+            });
+        }
     if (createTaskBtn) {
         createTaskBtn.addEventListener('click', loadCreateTaskForm);
     }

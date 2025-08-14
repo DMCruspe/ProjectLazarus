@@ -78,6 +78,16 @@ const diseaseSchema = new mongoose.Schema({
 });
 const Disease = mongoose.model('Disease', diseaseSchema);
 
+const vaccineSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    diseaseName: { type: String, required: true },
+    dosage: { type: String, required: true },
+    effectiveness: { type: Number, required: true, min: 0, max: 100 },
+    sideEffects: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
+const Vaccine = mongoose.model('Vaccine', vaccineSchema);
+
 // Middleware для безопасности
 app.use(helmet());
 app.use(express.json());
@@ -458,6 +468,30 @@ app.post('/api/disease/delete', async (req, res) => {
     } catch (error) {
         console.error('Ошибка при удалении болезни:', error);
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
+app.post('/api/vaccine/create', async (req, res) => {
+    const { name, diseaseName, dosage, effectiveness, sideEffects } = req.body;
+
+    // Простая валидация
+    if (!name || !diseaseName || !dosage || effectiveness === undefined) {
+        return res.status(400).json({ message: 'Заполните все обязательные поля.' });
+    }
+
+    try {
+        const newVaccine = new Vaccine({
+            name,
+            diseaseName,
+            dosage,
+            effectiveness,
+            sideEffects
+        });
+        await newVaccine.save();
+        res.status(201).json({ message: 'Вакцина успешно создана!' });
+    } catch (error) {
+        console.error('Ошибка при создании вакцины:', error);
+        res.status(500).json({ message: 'Ошибка при создании вакцины' });
     }
 });
 

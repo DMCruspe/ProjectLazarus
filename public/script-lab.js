@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function initializeSymptomsGameLogic() {
         await fetchAllSymptoms();
-        // ... (весь код первой игры без изменений) ...
         const startResearchBtn = document.getElementById('start-research-btn');
         const researchResultsContainer = document.getElementById('research-results-container');
         const userInputSection = document.getElementById('user-input-section');
@@ -239,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === ЛОГИКА ВТОРОЙ ИГРЫ (РАСПРОСТРАНЕНИЕ) ===
     async function initializeSpreadGameLogic() {
-        // ... (весь код второй игры без изменений) ...
         const spreadPaths = ['воздушно-капельный', 'контактный', 'через-воду', 'через-пищу'];
         correctSpreadPath = spreadPaths[Math.floor(Math.random() * spreadPaths.length)];
 
@@ -285,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmSpreadPathBtn.addEventListener('click', () => {
                 const selectedPath = spreadPathSelect.value;
                 if (selectedPath === correctSpreadPath) {
-                    gameFeedbackSpread.innerHTML = `<p style="color:green;">Верно! Вы нашли основной путь распространения: ${correctSpreadPath}.</p>`;
+                    gameFeedbackSpread.innerHTML = `<p style="color:green;">Верно! Вы нашли основной путь распространения: ${selectedPath}.</p>`;
                 } else {
                     gameFeedbackSpread.innerHTML = `<p style="color:red;">К сожалению, это не основной путь распространения. Попробуйте еще раз.</p>`;
                 }
@@ -340,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // === ЛОГИКА ТРЕТЬЕЙ ИГРЫ (УЯЗВИМОСТИ) ===
     async function initializeVulnerabilityGameLogic() {
         const factors = ['влажность', 'свет', 'радиация', 'температура'];
-        const vulnerabilityGameControls = document.getElementById('vulnerability-game-controls');
         const vulnerabilityFactorSelect = document.getElementById('vulnerability-factor-select');
         const startVulnerabilityResearchBtn = document.getElementById('start-vulnerability-research-btn');
         const vulnerabilityResearchResultsContainer = document.getElementById('vulnerability-research-results-container');
@@ -362,8 +359,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function generateCorrectVulnerabilities() {
-            const vulnerableCount = Math.floor(Math.random() * 2) + 1; // 1-2 уязвимых
-            const resistantCount = 3 - vulnerableCount; // Остальные устойчивые
+            const vulnerableCount = Math.floor(Math.random() * 2) + 1;
+            const resistantCount = 3 - vulnerableCount;
 
             const shuffledFactors = factors.sort(() => 0.5 - Math.random());
             const vulnerable = shuffledFactors.slice(0, vulnerableCount);
@@ -377,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         generateCorrectVulnerabilities();
         if (role === 'superadmin') {
+            correctAnswerDisplay.style.display = 'block';
             displayCorrectAnswerVulnerability();
         }
 
@@ -388,11 +386,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 let resultPercentage;
                 if (isVulnerable) {
-                    resultPercentage = Math.floor(Math.random() * 10) + 1; // 1-10%
-                } else if (isResistant) {
-                    resultPercentage = Math.floor(Math.random() * 11) + 90; // 90-100%
+                    resultPercentage = Math.floor(Math.random() * 10) + 1;
                 } else {
-                    resultPercentage = Math.floor(Math.random() * (90 - 10 + 1)) + 10; // 10-90%
+                    resultPercentage = Math.floor(Math.random() * 11) + 90;
                 }
 
                 vulnerabilityResearchResultsContainer.innerHTML = `

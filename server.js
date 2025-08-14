@@ -662,11 +662,11 @@ app.post('/api/tasks/create', async (req, res) => {
             createdBy: requesterUsername
         });
 
-        // НОВАЯ ЛОГИКА: если тип задания - "исследование вируса", создать новый вирус
-        if (taskType === 'Вирус') {
+        // НОВАЯ ЛОГИКА: если тип задания - "исследование болезни", создать новую болезнь
+        if (taskType === 'Болезнь') {
             const newDisease = new Disease({
                 name: title,
-                type: 'Вирус', 
+                type: 'Неизвестно', 
                 symptoms: 'Неизвестно',
                 spread: 'Неизвестно',
                 resistance: 'Неизвестно',

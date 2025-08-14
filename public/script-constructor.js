@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="form-row">
                         <label for="taskType">Вид задания:</label>
                         <select id="taskType" name="taskType" required>
-                            <option value="изучение болезни">Изучение вируса</option>
+                            <option value="изучение болезни">Изучение болезни</option>
                             <option value="изучение территории">Изучение территории</option>
                         </select>
                     </div>

@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 15px;
     width: 100%;
+    overflow-y: auto;
 }
 
 .task-card { /* Переиспользуем стиль, если он вам подходит */

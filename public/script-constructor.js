@@ -44,94 +44,94 @@ document.addEventListener('DOMContentLoaded', () => {
         createDiseaseBtn.addEventListener('click', loadCreateDiseaseForm);
     }
 
-    async function loadCreateTaskForm() {
-    try {
-        const response = await fetch('/api/players', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ requesterUsername: username })
-        });
-        const players = await response.json();
-        
-        let options = '<option value="All">Все</option>';
-        players.forEach(p => {
-            options += `<option value="${p.username}">${p.username}</option>`;
-        });
-
-        mainPanel.innerHTML = `
-            <h2>Создание нового задания</h2>
-            <form id="create-task-form">
-                <div class="form-row">
-                    <label for="title">Название задания:</label>
-                    <input type="text" id="title" name="title" required>
-                </div>
-                
-                <div class="form-row">
-                    <label for="taskType">Вид задания:</label>
-                    <select id="taskType" name="taskType" required>
-                        <option value="изучение вируса">Изучение вируса</option>
-                        <option value="изучение территории">Изучение территории</option>
-                    </select>
-                </div>
-                
-                <div class="form-row">
-                    <label for="description">Описание:</label>
-                    <textarea id="description" name="description" required></textarea>
-                </div>
-                
-                <div class="form-row">
-                    <label for="reward">Награда (R):</label>
-                    <input type="number" id="reward" name="reward" min="0" required>
-                </div>
-                
-                <div class="form-row">
-                    <label for="performer">Исполнитель:</label>
-                    <select id="performer" name="performer">
-                        ${options}
-                    </select>
-                </div>
-                
-                <button type="submit" class="nav-button">Создать</button>
-            </form>
-        `;
-        
-        document.getElementById('create-task-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    function loadCreateDiseaseForm() {
+    mainPanel.innerHTML = `
+        <h2>Создание новой болезни</h2>
+        <form id="create-disease-form">
+            <div class="form-row">
+                <label for="name">Название:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
             
-            const formData = new FormData(e.target);
-            const taskData = {
-                requesterUsername: username,
-                title: formData.get('title'),
-                taskType: formData.get('taskType'),
-                description: formData.get('description'),
-                reward: parseInt(formData.get('reward')),
-                performer: formData.get('performer')
-            };
+            <div class="form-row">
+                <label for="type">Тип:</label>
+                <select id="type" name="type" required>
+                    <option value="вирус">Вирус</option>
+                    <option value="бактерия">Бактерия</option>
+                    <option value="грибок">Грибок</option>
+                    <option value="паразит">Паразит</option>
+                    <option value="прион">Прион</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <label for="symptoms">Симптомы:</label>
+                <textarea id="symptoms" name="symptoms" required></textarea>
+            </div>
+            
+            <div class="form-row">
+                <label for="spread">Распространение:</label>
+                <input type="text" id="spread" name="spread" required>
+            </div>
+            
+            <div class="form-row">
+                <label for="resistance">Устойчивость:</label>
+                <textarea id="resistance" name="resistance" required></textarea>
+            </div>
+            
+            <div class="form-row">
+                <label for="vulnerabilities">Уязвимости:</label>
+                <textarea id="vulnerabilities" name="vulnerabilities" required></textarea>
+            </div>
+            
+            <div class="form-row">
+                <label for="treatment">Лечение:</label>
+                <textarea id="treatment" name="treatment" required></textarea>
+            </div>
+            
+            <div class="form-row">
+                <label for="vaccine">Вакцина:</label>
+                <input type="text" id="vaccine" name="vaccine">
+            </div>
+            
+            <button type="submit" class="nav-button">Создать</button>
+        </form>
+    `;
 
-            try {
-                const res = await fetch('/api/tasks/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(taskData)
-                });
-                
-                const result = await res.json();
-                if (res.ok) {
-                    alert(result.message);
-                    e.target.reset();
-                } else {
-                    alert('Ошибка: ' + result.message);
-                }
-            } catch (error) {
-                console.error('Ошибка при создании задания:', error);
-                alert('Произошла ошибка при создании задания.');
+    document.getElementById('create-disease-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const diseaseData = {
+            name: formData.get('name'),
+            type: formData.get('type'),
+            symptoms: formData.get('symptoms'),
+            spread: formData.get('spread'),
+            resistance: formData.get('resistance'),
+            vulnerabilities: formData.get('vulnerabilities'),
+            treatment: formData.get('treatment'),
+            vaccine: formData.get('vaccine')
+        };
+
+        try {
+            const res = await fetch('/api/disease/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(diseaseData)
+            });
+            
+            const result = await res.json();
+            if (res.ok) {
+                alert(result.message);
+                e.target.reset();
+            } else {
+                alert('Ошибка: ' + result.message);
             }
-        });
-
-    } catch (error) {
-        console.error('Ошибка при загрузке формы:', error);
-        mainPanel.innerHTML = '<p>Ошибка при загрузке формы. Попробуйте снова.</p>';
-    }
+        } catch (error) {
+            console.error('Ошибка при создании болезни:', error);
+            alert('Произошла ошибка при создании болезни.');
+        }
+    });
 }
 
 

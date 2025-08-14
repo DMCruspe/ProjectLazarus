@@ -16,10 +16,13 @@
 }
 
 /* Стили для формы создания задания */
-#create-task-form {
+#create-task-form,
+#create-disease-form,
+#create-vaccine-form,
+#add-symptom-form {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Расстояние между элементами формы */
+    gap: 15px;
     width: 100%;
     max-width: 500px;
 }
@@ -45,7 +48,7 @@
     color: #f8f9fa;
     font-size: 1em;
     width: 100%;
-    box-sizing: border-box; /* Важно для корректного отображения ширины */
+    box-sizing: border-box;
 }
 
 .form-row textarea {
@@ -53,9 +56,12 @@
     min-height: 100px;
 }
 
-#create-task-form button {
+#create-task-form button,
+#create-disease-form button,
+#create-vaccine-form button,
+#add-symptom-form button {
     margin-top: 10px;
-    align-self: flex-start; /* Кнопка будет выровнена по левому краю */
+    align-self: flex-start;
 }
 
 /* Убедимся, что на странице constructor.html нет правой панели */

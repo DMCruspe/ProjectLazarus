@@ -376,18 +376,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/symptoms/list');
             const symptoms = await response.json();
             symptomsListContainer.innerHTML = '';
+            
             if (symptoms.length === 0) {
                 symptomsListContainer.innerHTML = '<p>Список симптомов пуст.</p>';
             } else {
-                symptoms.forEach(symptom => {
-                    const symptomCard = document.createElement('div');
-                    symptomCard.classList.add('symptom-card');
-                    symptomCard.innerHTML = `
-                        <h4>${symptom.name}</h4>
-                        <p>Подгруппа: ${symptom.subgroup}</p>
-                        <button class="delete-symptom-btn" data-id="${symptom._id}">Удалить</button>
-                    `;
-                    symptomsListContainer.appendChild(symptomCard);
+                // 1. Группируем симптомы по подгруппам
+                const groupedSymptoms = symptoms.reduce((groups, symptom) => {
+                    const group = symptom.subgroup || 'Без подгруппы';
+                    if (!groups[group]) {
+                        groups[group] = [];
+                    }
+                    groups[group].push(symptom);
+                    return groups;
+                }, {});
+
+                // 2. Получаем отсортированные названия подгрупп
+                const sortedGroups = Object.keys(groupedSymptoms).sort();
+
+                // 3. Отображаем симптомы по отсортированным подгруппам
+                sortedGroups.forEach(groupName => {
+                    // Создаем заголовок для подгруппы
+                    const groupTitle = document.createElement('h3');
+                    groupTitle.textContent = groupName;
+                    symptomsListContainer.appendChild(groupTitle);
+                    
+                    // Сортируем симптомы внутри подгруппы по названию
+                    const sortedGroupSymptoms = groupedSymptoms[groupName].sort((a, b) => a.name.localeCompare(b.name));
+
+                    // Создаем и добавляем карточки симптомов
+                    sortedGroupSymptoms.forEach(symptom => {
+                        const symptomCard = document.createElement('div');
+                        symptomCard.classList.add('symptom-card');
+                        symptomCard.innerHTML = `
+                            <h4>${symptom.name}</h4>
+                            <p>Подгруппа: ${symptom.subgroup}</p>
+                            <button class="delete-symptom-btn" data-id="${symptom._id}">Удалить</button>
+                        `;
+                        symptomsListContainer.appendChild(symptomCard);
+                    });
                 });
             }
         } catch (error) {

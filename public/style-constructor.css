@@ -69,11 +69,12 @@
     display: none;
 }
 
-#symptoms-list-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
+#symptoms-list-container h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
 }
 
 .symptom-card {

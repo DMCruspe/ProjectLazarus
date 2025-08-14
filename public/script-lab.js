@@ -5,23 +5,22 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Элементы игры
     const startResearchBtn = document.getElementById('start-research-btn');
-    const timerDisplay = document.getElementById('timer-display');
-    const symptomsResult = document.getElementById('symptoms-result');
+    const researchResultsContainer = document.getElementById('research-results-container');
     const userInputSection = document.getElementById('user-input-section');
-    const symptomSelection = document.getElementById('symptom-selection');
+    const symptomInput = document.getElementById('symptom-input');
     const checkSymptomsBtn = document.getElementById('check-symptoms-btn');
     const gameFeedback = document.getElementById('game-feedback');
     const repeatResearchBtn = document.getElementById('repeat-research-btn');
     
     let allSymptoms = [];
     let correctSymptoms = [];
-    let selectedSymptoms = [];
-
-    // Загрузка всех симптомов из базы данных при запуске
+    
     async function fetchAllSymptoms() {
         try {
             const response = await fetch('/api/symptoms/list');
             allSymptoms = await response.json();
+            // Заранее определяем "правильные" симптомы
+            correctSymptoms = getCorrectSymptoms();
         } catch (error) {
             console.error('Ошибка при загрузке симптомов:', error);
         }
@@ -42,45 +41,72 @@ document.addEventListener('DOMContentLoaded', () => {
     if (startResearchBtn) {
         startResearchBtn.addEventListener('click', () => {
             startResearchBtn.disabled = true;
-            symptomsResult.innerHTML = '';
+            researchResultsContainer.innerHTML = '';
             gameFeedback.innerHTML = '';
             userInputSection.style.display = 'none';
             repeatResearchBtn.style.display = 'none';
-
-            let timeLeft = 5;
-            timerDisplay.textContent = `Таймер: ${timeLeft} сек`;
             
-            correctSymptoms = getCorrectSymptoms();
-            
-            const timer = setInterval(() => {
-                timeLeft--;
-                timerDisplay.textContent = `Таймер: ${timeLeft} сек`;
+            // Запускаем 3 исследования с интервалом
+            let researchCount = 0;
+            const interval = setInterval(() => {
+                researchCount++;
+                const newSymptoms = generateSymptomsForResearch();
+                displayResearchResult(researchCount, newSymptoms);
                 
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    timerDisplay.textContent = `Исследование завершено!`;
-                    showSymptoms();
+                if (researchCount >= 3) { // Проводим 3 исследования
+                    clearInterval(interval);
+                    userInputSection.style.display = 'block';
                 }
-            }, 1000);
+            }, 5000); // Интервал в 5 секунд
         });
     }
-    
+
     if (repeatResearchBtn) {
         repeatResearchBtn.addEventListener('click', () => {
             startResearchBtn.disabled = false;
             repeatResearchBtn.style.display = 'none';
-            symptomsResult.innerHTML = '';
+            researchResultsContainer.innerHTML = '';
             userInputSection.style.display = 'none';
             gameFeedback.innerHTML = '';
+            symptomInput.value = '';
+            correctSymptoms = getCorrectSymptoms(); // Генерируем новый правильный набор
+        });
+    }
+    
+    if (checkSymptomsBtn) {
+        checkSymptomsBtn.addEventListener('click', () => {
+            const userSymptoms = symptomInput.value.split(',').map(s => s.trim()).filter(s => s);
+            
+            if (userSymptoms.length !== 3) {
+                gameFeedback.innerHTML = `<p style="color:red;">Пожалуйста, введите ровно 3 симптома через запятую.</p>`;
+                return;
+            }
+
+            const correctNames = correctSymptoms.map(s => s.name);
+            const isCorrect = userSymptoms.every(name => correctNames.includes(name)) && 
+                              userSymptoms.length === correctNames.length;
+            
+            if (isCorrect) {
+                gameFeedback.innerHTML = `<p style="color:green;">Правильные симптомы обнаружены!</p>`;
+            } else {
+                gameFeedback.innerHTML = `<p style="color:red;">Неверный набор симптомов. Попробуйте еще раз.</p>`;
+            }
+
+            repeatResearchBtn.style.display = 'block';
         });
     }
 
+    // Случайно выбирает 3 симптома из одной подгруппы для "правильного" ответа
     function getCorrectSymptoms() {
         if (allSymptoms.length === 0) {
             return [];
         }
         
         const subgroups = [...new Set(allSymptoms.map(s => s.subgroup))];
+        if (subgroups.length === 0) {
+            return [];
+        }
+
         const randomSubgroup = subgroups[Math.floor(Math.random() * subgroups.length)];
         const symptomsInSubgroup = allSymptoms.filter(s => s.subgroup === randomSubgroup);
         
@@ -91,66 +117,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const shuffled = symptomsInSubgroup.sort(() => 0.5 - Math.random());
         return shuffled.slice(0, 3);
     }
-    
-    function showSymptoms() {
-        const allPossibleSymptoms = [...allSymptoms];
-        const symptomsToShow = [...correctSymptoms];
-        
-        while (symptomsToShow.length < 3) {
-            const randomIndex = Math.floor(Math.random() * allPossibleSymptoms.length);
-            const randomSymptom = allPossibleSymptoms[randomIndex];
+
+    // Генерирует список симптомов для одного исследования
+    function generateSymptomsForResearch() {
+        if (allSymptoms.length === 0) {
+            return [];
+        }
+
+        const researchSymptoms = [...correctSymptoms];
+        while (researchSymptoms.length < 3) {
+            const randomIndex = Math.floor(Math.random() * allSymptoms.length);
+            const randomSymptom = allSymptoms[randomIndex];
             
-            // Проверяем, чтобы симптом не был уже в списке
-            const isSymptomAlreadyShown = symptomsToShow.some(s => s.name === randomSymptom.name);
-            const isSymptomCorrect = correctSymptoms.some(s => s.name === randomSymptom.name);
-            
-            if (!isSymptomAlreadyShown && !isSymptomCorrect) {
-                symptomsToShow.push(randomSymptom);
+            // Избегаем дубликатов в одном исследовании
+            const isSymptomAlreadyInResearch = researchSymptoms.some(s => s.name === randomSymptom.name);
+            if (!isSymptomAlreadyInResearch) {
+                researchSymptoms.push(randomSymptom);
             }
         }
         
-        symptomsToShow.sort(() => 0.5 - Math.random());
-        
-        symptomsResult.innerHTML = `<h4>Найденные симптомы:</h4><ul>${symptomsToShow.map(s => `<li>${s.name}</li>`).join('')}</ul>`;
-        
-        userInputSection.style.display = 'block';
-        symptomSelection.innerHTML = symptomsToShow.map(s => `<button class="symptom-btn" data-symptom-name="${s.name}">${s.name}</button>`).join('');
-
-        selectedSymptoms = [];
-        const symptomButtons = symptomSelection.querySelectorAll('.symptom-btn');
-        symptomButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (button.classList.contains('selected')) {
-                    button.classList.remove('selected');
-                    selectedSymptoms = selectedSymptoms.filter(name => name !== button.dataset.symptomName);
-                } else {
-                    if (selectedSymptoms.length < 3) {
-                        button.classList.add('selected');
-                        selectedSymptoms.push(button.dataset.symptomName);
-                    }
-                }
-            });
-        });
+        researchSymptoms.sort(() => 0.5 - Math.random()); // Перемешиваем
+        return researchSymptoms;
     }
-
-    if (checkSymptomsBtn) {
-        checkSymptomsBtn.addEventListener('click', () => {
-            if (selectedSymptoms.length === 0) {
-                gameFeedback.innerHTML = `<p style="color:red;">Пожалуйста, выберите хотя бы один симптом.</p>`;
-                return;
-            }
-            
-            const correctNames = correctSymptoms.map(s => s.name);
-            const isCorrect = selectedSymptoms.every(name => correctNames.includes(name)) && 
-                              selectedSymptoms.length === correctNames.length;
-            
-            if (isCorrect) {
-                gameFeedback.innerHTML = `<p style="color:green;">Правильные симптомы обнаружены!</p>`;
-            } else {
-                gameFeedback.innerHTML = `<p style="color:red;">Неверный набор симптомов. Попробуйте еще раз.</p>`;
-            }
-
-            repeatResearchBtn.style.display = 'block';
-        });
+    
+    function displayResearchResult(count, symptoms) {
+        const resultCard = document.createElement('div');
+        resultCard.classList.add('research-card');
+        resultCard.innerHTML = `
+            <h4>Исследование #${count}</h4>
+            <ul>${symptoms.map(s => `<li>${s.name}</li>`).join('')}</ul>
+        `;
+        researchResultsContainer.appendChild(resultCard);
     }
 });

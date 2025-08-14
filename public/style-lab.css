@@ -98,3 +98,52 @@
     font-size: 1.2em;
     font-weight: bold;
 }
+
+#research-results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.research-card {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: left;
+}
+
+.research-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+}
+
+.research-card ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.research-card li {
+    background-color: #e9ecef;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+#user-input-section {
+    margin-top: 20px;
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+}
+
+#symptom-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 1em;
+}

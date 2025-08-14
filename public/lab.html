@@ -69,9 +69,9 @@
                 <button id="repeat-spread-research-btn" class="nav-button" style="display: none;">Повторить исследование</button>
             </div>
 
-            <div id="vulnerability-game-card" class="game-card" style="display: none;">
+<div id="vulnerability-game-card" class="game-card" style="display: none;">
                 <h3>Мини-игра: Поиск уязвимостей</h3>
-                <p>Выберите фактор, чтобы узнать, насколько вирус к нему уязвим или устойчив.</p>
+                <p>Выберите фактор и укажите его процентное значение, чтобы определить, к чему вирус уязвим или устойчив.</p>
                 
                 <div id="vulnerability-game-controls">
                     <label for="vulnerability-factor-select">Выберите фактор для исследования:</label>
@@ -81,7 +81,7 @@
                         <option value="радиация">Реакция на радиацию</option>
                         <option value="температура">Реакция на температуру</option>
                     </select>
-                    <div id="concentration-input" style="display: none;">
+                    <div id="concentration-input">
                         <label for="factor-percentage">Укажите процент фактора (от 1 до 100):</label>
                         <input type="number" id="factor-percentage" min="1" max="100" value="50">
                     </div>

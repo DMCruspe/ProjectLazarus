@@ -347,6 +347,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const checkVulnerabilityBtn = document.getElementById('check-vulnerability-btn');
         const gameFeedback = document.getElementById('game-feedback-vulnerability');
         const repeatVulnerabilityResearchBtn = document.getElementById('repeat-vulnerability-research-btn');
+        const concentrationInput = document.getElementById('concentration-input');
+        const factorPercentageInput = document.getElementById('factor-percentage');
         
         const correctAnswerDisplay = document.createElement('div');
         correctAnswerDisplay.id = 'correct-answer-display-vulnerability';
@@ -358,19 +360,22 @@ document.addEventListener('DOMContentLoaded', () => {
             vulnerabilityUserInputSection.parentNode.insertBefore(correctAnswerDisplay, vulnerabilityUserInputSection.nextSibling);
         }
 
-        function generateCorrectVulnerabilities() {
-            const vulnerableCount = Math.floor(Math.random() * 2) + 1;
-            const resistantCount = Math.floor(Math.random() * 2) + 1;
-            
-            const shuffledFactors = factors.sort(() => 0.5 - Math.random());
-            const vulnerable = shuffledFactors.slice(0, vulnerableCount);
-            const resistant = shuffledFactors.slice(vulnerableCount, vulnerableCount + resistantCount);
+        // Объект для хранения пороговых значений (смертельная доза) для уязвимых факторов
+        let thresholds = {};
 
+        function generateCorrectVulnerabilities() {
+            const vulnerableCount = Math.floor(Math.random() * 2) + 1; // 1-2 уязвимых
+            const shuffledFactors = factors.sort(() => 0.5 - Math.random());
+            
             correctVulnerabilities = {
-                vulnerable: vulnerable,
-                resistant: resistant,
-                neutral: shuffledFactors.slice(vulnerableCount + resistantCount)
+                vulnerable: shuffledFactors.slice(0, vulnerableCount),
+                resistant: shuffledFactors.slice(vulnerableCount)
             };
+            
+            // Генерируем случайный порог для каждого уязвимого фактора
+            correctVulnerabilities.vulnerable.forEach(factor => {
+                thresholds[factor] = Math.floor(Math.random() * (70 - 40 + 1)) + 40;
+            });
         }
         
         generateCorrectVulnerabilities();
@@ -379,24 +384,34 @@ document.addEventListener('DOMContentLoaded', () => {
             displayCorrectAnswerVulnerability();
         }
 
+        // Показываем/скрываем поле ввода процента в зависимости от выбора фактора
+        vulnerabilityFactorSelect.addEventListener('change', () => {
+            concentrationInput.style.display = 'block';
+        });
+
         if (startVulnerabilityResearchBtn) {
             startVulnerabilityResearchBtn.addEventListener('click', () => {
                 const selectedFactor = vulnerabilityFactorSelect.value;
+                const factorPercentage = parseInt(factorPercentageInput.value);
+                
                 const isVulnerable = correctVulnerabilities.vulnerable.includes(selectedFactor);
-                const isResistant = correctVulnerabilities.resistant.includes(selectedFactor);
-                const isNeutral = correctVulnerabilities.neutral.includes(selectedFactor);
                 
                 let resultPercentage;
                 if (isVulnerable) {
-                    resultPercentage = Math.floor(Math.random() * 10) + 1; // 1-10% (уязвимость)
-                } else if (isResistant) {
-                    resultPercentage = Math.floor(Math.random() * 11) + 90; // 90-100% (устойчивость)
-                } else if (isNeutral) {
-                     resultPercentage = Math.floor(Math.random() * (90 - 11 + 1)) + 11; // 11-90% (нейтрально)
+                    if (factorPercentage >= thresholds[selectedFactor]) {
+                        resultPercentage = 0; // Полностью погибает
+                    } else {
+                        // Выживаемость линейно уменьшается
+                        resultPercentage = 100 - (factorPercentage / thresholds[selectedFactor]) * 100;
+                        if (resultPercentage < 10) resultPercentage = 10; // Минимальная выживаемость, чтобы не выдавать 0% случайно
+                    }
+                    resultPercentage = Math.round(resultPercentage);
+                } else { // Устойчивый фактор
+                    resultPercentage = Math.floor(Math.random() * (100 - 90 + 1)) + 90; // Высокая выживаемость 90-100%
                 }
 
                 vulnerabilityResearchResultsContainer.innerHTML = `
-                    <h4>Результат для "${selectedFactor}":</h4>
+                    <h4>Результат для "${selectedFactor}" при ${factorPercentage}%:</h4>
                     <p>Процент выживших бактерий: <strong>${resultPercentage}%</strong></p>
                 `;
                 vulnerabilityUserInputSection.style.display = 'block';
@@ -432,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 repeatVulnerabilityResearchBtn.style.display = 'none';
                 vulnerableFactorsInput.value = '';
                 resistantFactorsInput.value = '';
+                concentrationInput.style.display = 'none';
                 generateCorrectVulnerabilities();
                  if (role === 'superadmin') {
                     displayCorrectAnswerVulnerability();
@@ -443,10 +459,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         function displayCorrectAnswerVulnerability() {
             if (correctAnswerDisplay) {
+                let thresholdsInfo = correctVulnerabilities.vulnerable.map(f => `${f}: >${thresholds[f]}% - погибает`).join('<br>');
                 correctAnswerDisplay.innerHTML = `
                     <h4>Правильные факторы (только для Superadmin):</h4>
                     <p><strong>Уязвимые:</strong> ${correctVulnerabilities.vulnerable.join(', ')}</p>
                     <p><strong>Устойчивые:</strong> ${correctVulnerabilities.resistant.join(', ')}</p>
+                    <p><strong>Пороги (для уязвимых):</strong><br>${thresholdsInfo}</p>
                 `;
             }
         }

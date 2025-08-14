@@ -355,21 +355,6 @@ app.post('/api/tasks/create', async (req, res) => {
             createdBy: requesterUsername
         });
 
-        // ИСПРАВЛЕНО: Теперь условие проверяет 'Болезнь'
-        if (taskType === 'Болезнь') {
-            const newDisease = new Disease({
-                name: title,
-                type: 'Неизвестно', 
-                symptoms: 'Неизвестно',
-                spread: 'Неизвестно',
-                resistance: 'Неизвестно',
-                vulnerabilities: 'Неизвестно',
-                treatment: 'Неизвестно',
-                vaccine: 'Нет'
-            });
-            await newDisease.save();
-        }
-
         await newTask.save();
         res.status(201).json({ message: 'Задание успешно создано.' });
     } catch (error) {

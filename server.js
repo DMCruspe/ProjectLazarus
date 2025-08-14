@@ -64,6 +64,17 @@ const TaskSchema = new mongoose.Schema({
 });
 const Task = mongoose.model('Task', TaskSchema);
 
+// НОВАЯ СХЕМА ДЛЯ БОЛЕЗНЕЙ
+const diseaseSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    spreadFactor: { type: Number, required: true, min: 0, max: 100 },
+    lethality: { type: Number, required: true, min: 0, max: 100 },
+    createdAt: { type: Date, default: Date.now }
+});
+const Disease = mongoose.model('Disease', diseaseSchema);
+
+
 // Middleware для безопасности
 app.use(helmet());
 app.use(express.json());
@@ -273,7 +284,7 @@ app.post('/api/tasks', async (req, res) => {
             $or: [
                 { status: 'active', performer: 'All' },
                 { performer: username },
-                { status: 'in_progress', performer: username } // ВАЖНО: нужно добавить эту строку
+                { status: 'in_progress', performer: username }
             ]
         });
         res.json(tasks);
@@ -390,6 +401,30 @@ app.post('/api/tasks/change-performer', async (req, res) => {
     } catch (error) {
         console.error('Ошибка при смене исполнителя:', error);
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
+// НОВЫЙ РОУТ ДЛЯ СОЗДАНИЯ БОЛЕЗНИ
+app.post('/api/disease/create', async (req, res) => {
+    const { name, description, spreadFactor, lethality } = req.body;
+
+    // Простая валидация
+    if (!name || !description || spreadFactor === undefined || lethality === undefined) {
+        return res.status(400).json({ message: 'Заполните все поля.' });
+    }
+
+    try {
+        const newDisease = new Disease({
+            name,
+            description,
+            spreadFactor,
+            lethality,
+        });
+        await newDisease.save();
+        res.status(201).json({ message: 'Болезнь успешно создана!' });
+    } catch (error) {
+        console.error('Ошибка при создании болезни:', error);
+        res.status(500).json({ message: 'Ошибка при создании болезни' });
     }
 });
 

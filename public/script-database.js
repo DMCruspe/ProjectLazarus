@@ -42,13 +42,21 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 diseases.forEach(disease => {
                     const diseaseCard = document.createElement('div');
-                    diseaseCard.classList.add('task-card'); // Используем те же стили
+                    diseaseCard.classList.add('task-card');
 
                     let deleteButtonHtml = '';
                     if (role === 'admin' || role === 'superadmin') {
                         deleteButtonHtml = `<button class="delete-btn" data-id="${disease._id}">Удалить</button>`;
                     }
+                    
+                    let vaccineButtonHtml = '';
+                    // Check if a vaccine name is associated with the disease
+                    if (disease.vaccine) {
+                        vaccineButtonHtml = `<button class="show-vaccine-btn" data-vaccine-name="${disease.vaccine}">Показать вакцину</button>`;
+                    }
 
+                    // *** CORRECTED LINE HERE ***
+                    // We need to add the vaccineButtonHtml to the innerHTML string.
                     diseaseCard.innerHTML = `
                         <h3>${disease.name} (${disease.type})</h3>
                         <p><strong>Симптомы:</strong> ${disease.symptoms}</p>
@@ -58,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p><strong>Лечение:</strong> ${disease.treatment}</p>
                         <p><strong>Вакцина:</strong> ${disease.vaccine || 'Нет'}</p>
                         ${deleteButtonHtml}
+                        ${vaccineButtonHtml}
                     `;
                     diseaseListContainer.appendChild(diseaseCard);
                 });
@@ -68,12 +77,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // *** CORRECTED BLOCK HERE ***
+    // We need to add an event listener for the new button.
     diseaseListContainer.addEventListener('click', async (e) => {
         if (e.target.classList.contains('delete-btn')) {
             const diseaseId = e.target.dataset.id;
             if (confirm('Вы уверены, что хотите удалить эту болезнь?')) {
                 await deleteDisease(diseaseId);
             }
+        }
+        
+        // Listen for clicks on the 'show-vaccine-btn' button
+        if (e.target.classList.contains('show-vaccine-btn')) {
+            const vaccineName = e.target.dataset.vaccineName;
+            await fetchAndDisplayVaccine(vaccineName);
         }
     });
 
@@ -88,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             if (response.ok) {
                 alert(result.message);
-                fetchAndDisplayDiseases(); // Обновляем список
+                fetchAndDisplayDiseases();
             } else {
                 alert('Ошибка: ' + result.message);
             }
@@ -98,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-      async function fetchAndDisplayVaccine(vaccineName) {
+    async function fetchAndDisplayVaccine(vaccineName) {
         try {
             const response = await fetch('/api/vaccine/info', {
                 method: 'POST',

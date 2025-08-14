@@ -69,14 +69,13 @@ const UnauthorizedUserSchema = new mongoose.Schema({
 });
 const UnauthorizedUser = mongoose.model('UnauthorizedUser', UnauthorizedUserSchema);
 
-// СХЕМА ДЛЯ ЗАДАНИЙ (ИСПРАВЛЕНО)
+// СХЕМА ДЛЯ ЗАДАНИЙ
 const TaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
     taskType: { type: String, required: true },
     description: { type: String, required: true },
     reward: { type: Number, required: true, min: 0 },
-    intendedPerformer: { type: String, required: true }, // Новое обязательное поле
-    performer: { type: String, required: false }, // Сделано необязательным
+    performer: { type: String, required: true },
     createdBy: { type: String, required: true },
     status: { type: String, enum: ['active', 'in_progress', 'completed'], default: 'active' },
     createdAt: { type: Date, default: Date.now }
@@ -339,7 +338,7 @@ app.post('/api/players/delete', async (req, res) => {
 
 // ОБЪЕДИНЕННЫЙ И ИСПРАВЛЕННЫЙ РОУТ ДЛЯ СОЗДАНИЯ НОВОГО ЗАДАНИЯ
 app.post('/api/tasks/create', async (req, res) => {
-    const { requesterUsername, title, taskType, description, reward, intendedPerformer } = req.body;
+    const { requesterUsername, title, taskType, description, reward, performer } = req.body;
     try {
         const requester = await User.findOne({ username: requesterUsername });
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
@@ -352,7 +351,7 @@ app.post('/api/tasks/create', async (req, res) => {
             taskType,
             description,
             reward,
-            intendedPerformer,
+            performer,
             createdBy: requesterUsername
         });
 
@@ -370,9 +369,9 @@ app.post('/api/tasks', async (req, res) => {
     try {
         const tasks = await Task.find({
             $or: [
-                { intendedPerformer: 'All', status: 'active' },
-                { intendedPerformer: username, status: 'active' },
-                { performer: username, status: 'in_progress' }
+                { status: 'active', performer: 'All' },
+                { performer: username },
+                { status: 'in_progress', performer: username }
             ]
         });
         res.json(tasks);
@@ -397,19 +396,16 @@ app.post('/api/tasks/list', async (req, res) => {
 });
 
 // Роут для принятия задания
+// Роут для принятия задания
 app.post('/api/tasks/accept', async (req, res) => {
     const { taskId, username } = req.body;
     try {
         const task = await Task.findById(taskId);
-        if (!task || task.status !== 'active' || (task.intendedPerformer !== 'All' && task.intendedPerformer !== username)) {
-            return res.status(400).json({ message: 'Задание недоступно для принятия' });
-        }
-        const acceptedTasksCount = await Task.countDocuments({ performer: username, status: 'in_progress' });
-        if (acceptedTasksCount >= 2) {
-            return res.status(400).json({ message: 'Вы не можете принять больше двух заданий.' });
-        }
-
-        if (task.taskType === 'Изучение болезни') {
+        //...
+        // ПРОВЕРКА И СОЗДАНИЕ БОЛЕЗНИ
+        // Если тип задания 'Болезнь', создаем новую запись в коллекции Disease
+        if (task.taskType === 'Болезнь') {
+            // Проверяем, существует ли болезнь с таким же именем, чтобы избежать дублирования
             const existingDisease = await Disease.findOne({ name: task.title });
             if (!existingDisease) {
                 const newDisease = new Disease({
@@ -425,12 +421,7 @@ app.post('/api/tasks/accept', async (req, res) => {
                 await newDisease.save();
             }
         }
-
-        task.performer = username;
-        task.status = 'in_progress';
-        await task.save();
-
-        res.status(200).json({ message: 'Задание успешно принято' });
+        //...
     } catch (error) {
         console.error('Ошибка при принятии задания:', error);
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
@@ -491,17 +482,9 @@ app.post('/api/tasks/change-performer', async (req, res) => {
         if (!task) {
             return res.status(404).json({ message: 'Задание не найдено' });
         }
-
-        const newPerformerUser = await User.findOne({ username: newPerformer });
-        if (!newPerformerUser) {
-            return res.status(404).json({ message: 'Новый исполнитель не найден.' });
-        }
-
         task.performer = newPerformer;
-        task.intendedPerformer = newPerformer; // Обновляем и intendedPerformer
-        task.status = 'in_progress'; // Устанавливаем статус как in_progress
+        task.status = 'active'; // Возвращаем статус в active
         await task.save();
-
         res.status(200).json({ message: `Исполнитель задания успешно изменен на ${newPerformer}.` });
     } catch (error) {
         console.error('Ошибка при смене исполнителя:', error);

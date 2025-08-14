@@ -45,85 +45,95 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadCreateTaskForm() {
-        try {
-            // Получаем список игроков для выпадающего списка
-            const response = await fetch('/api/players', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ requesterUsername: username })
-            });
-            const players = await response.json();
-            
-            // Формируем опции для выпадающего списка
-            let options = '<option value="All">Все</option>';
-            players.forEach(p => {
-                options += `<option value="${p.username}">${p.username}</option>`;
-            });
+    try {
+        const response = await fetch('/api/players', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ requesterUsername: username })
+        });
+        const players = await response.json();
+        
+        let options = '<option value="All">Все</option>';
+        players.forEach(p => {
+            options += `<option value="${p.username}">${p.username}</option>`;
+        });
 
-            // Форма создания задания с новым полем "Название задания"
-            mainPanel.innerHTML = `
-                <h2>Создание нового задания</h2>
-                <form id="create-task-form">
+        mainPanel.innerHTML = `
+            <h2>Создание нового задания</h2>
+            <form id="create-task-form">
+                <div class="form-row">
                     <label for="title">Название задания:</label>
                     <input type="text" id="title" name="title" required>
-                    
+                </div>
+                
+                <div class="form-row">
                     <label for="taskType">Вид задания:</label>
-                    <input type="text" id="taskType" name="taskType" required>
-                    
+                    <select id="taskType" name="taskType" required>
+                        <option value="изучение вируса">Изучение вируса</option>
+                        <option value="изучение территории">Изучение территории</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
                     <label for="description">Описание:</label>
                     <textarea id="description" name="description" required></textarea>
-                    
+                </div>
+                
+                <div class="form-row">
                     <label for="reward">Награда (R):</label>
                     <input type="number" id="reward" name="reward" min="0" required>
-                    
+                </div>
+                
+                <div class="form-row">
                     <label for="performer">Исполнитель:</label>
                     <select id="performer" name="performer">
                         ${options}
                     </select>
-                    
-                    <button type="submit" class="nav-button">Создать</button>
-                </form>
-            `;
-            
-            // Обработчик отправки формы
-            document.getElementById('create-task-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
+                </div>
                 
-                const formData = new FormData(e.target);
-                const taskData = {
-                    requesterUsername: username,
-                    title: formData.get('title'),
-                    taskType: formData.get('taskType'),
-                    description: formData.get('description'),
-                    reward: parseInt(formData.get('reward')),
-                    performer: formData.get('performer')
-                };
+                <button type="submit" class="nav-button">Создать</button>
+            </form>
+        `;
+        
+        document.getElementById('create-task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const taskData = {
+                requesterUsername: username,
+                title: formData.get('title'),
+                taskType: formData.get('taskType'),
+                description: formData.get('description'),
+                reward: parseInt(formData.get('reward')),
+                performer: formData.get('performer')
+            };
 
-                try {
-                    const res = await fetch('/api/tasks/create', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(taskData)
-                    });
-                    
-                    const result = await res.json();
-                    if (res.ok) {
-                        alert(result.message);
-                        e.target.reset(); // Очищаем форму
-                    } else {
-                        alert('Ошибка: ' + result.message);
-                    }
-                } catch (error) {
-                    console.error('Ошибка при создании задания:', error);
-                    alert('Произошла ошибка при создании задания.');
+            try {
+                const res = await fetch('/api/tasks/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(taskData)
+                });
+                
+                const result = await res.json();
+                if (res.ok) {
+                    alert(result.message);
+                    e.target.reset();
+                } else {
+                    alert('Ошибка: ' + result.message);
                 }
-            });
+            } catch (error) {
+                console.error('Ошибка при создании задания:', error);
+                alert('Произошла ошибка при создании задания.');
+            }
+        });
 
-        } catch (error) {
-            console.error('Ошибка при загрузке формы:', error);
-            mainPanel.innerHTML = '<p>Ошибка при загрузке формы. Попробуйте снова.</p>';
-        }
+    } catch (error) {
+        console.error('Ошибка при загрузке формы:', error);
+        mainPanel.innerHTML = '<p>Ошибка при загрузке формы. Попробуйте снова.</p>';
     }
+}
+
 
     function loadCreateDiseaseForm() {
         mainPanel.innerHTML = `

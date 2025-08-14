@@ -97,4 +97,30 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Произошла ошибка при удалении.');
         }
     }
+
+      async function fetchAndDisplayVaccine(vaccineName) {
+        try {
+            const response = await fetch('/api/vaccine/info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: vaccineName })
+            });
+
+            if (!response.ok) {
+                throw new Error('Вакцина не найдена или ошибка сервера.');
+            }
+
+            const vaccine = await response.json();
+            
+            alert(`Информация о вакцине "${vaccine.name}":\n\n` + 
+                  `Болезнь: ${vaccine.diseaseName}\n` +
+                  `Дозировка: ${vaccine.dosage}\n` +
+                  `Эффективность: ${vaccine.effectiveness}%\n` +
+                  `Побочные эффекты: ${vaccine.sideEffects || 'Нет'}`);
+
+        } catch (error) {
+            console.error('Ошибка при получении информации о вакцине:', error);
+            alert('Произошла ошибка при получении информации о вакцине.');
+        }
+    }
 });

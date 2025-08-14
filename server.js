@@ -495,5 +495,20 @@ app.post('/api/vaccine/create', async (req, res) => {
     }
 });
 
+// Роут для получения информации о вакцине по названию
+app.post('/api/vaccine/info', async (req, res) => {
+    const { name } = req.body;
+    try {
+        const vaccine = await Vaccine.findOne({ name: name });
+        if (!vaccine) {
+            return res.status(404).json({ message: 'Вакцина не найдена.' });
+        }
+        res.status(200).json(vaccine);
+    } catch (error) {
+        console.error('Ошибка при получении информации о вакцине:', error);
+        res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

@@ -34,3 +34,18 @@
 .delete-btn:hover {
     background-color: #c82333;
 }
+
+.show-vaccine-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+.show-vaccine-btn:hover {
+    background-color: #0056b3;
+}

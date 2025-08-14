@@ -610,5 +610,36 @@ app.post('/api/symptom/delete', async (req, res) => {
     }
 });
 
+app.get('/api/minigame/identify-type', (req, res) => {
+    // Данные для игры: названия болезней и соответствующие им изображения
+    const gameData = [
+        { name: 'Бактерия', image: 'image_e4b493.png' },
+        { name: 'Вирус', image: 'image_e26b78.png' },
+        { name: 'Грибок', image: 'image_e34d30.png' },
+        { name: 'Паразит', image: 'image_e4adf1.png' }
+    ];
+
+    // Выбираем случайную болезнь в качестве правильного ответа
+    const correctAnswerData = gameData[Math.floor(Math.random() * gameData.length)];
+    const correctAnswer = correctAnswerData.name;
+    const imageUrl = `/images/${correctAnswerData.image}`;
+
+    // Выбираем три случайных ложных ответа
+    const incorrectAnswers = gameData.filter(item => item.name !== correctAnswer)
+                                     .sort(() => 0.5 - Math.random())
+                                     .slice(0, 3)
+                                     .map(item => item.name);
+
+    // Объединяем все ответы и перемешиваем их
+    const allAnswers = [...incorrectAnswers, correctAnswer].sort(() => 0.5 - Math.random());
+
+    // Отправляем данные клиенту
+    res.json({
+        imageUrl: imageUrl,
+        answers: allAnswers,
+        correctAnswer: correctAnswer
+    });
+});
+
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

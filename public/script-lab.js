@@ -7,15 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Кнопки для запуска игр
     const showSymptomsGameBtn = document.getElementById('show-symptoms-game-btn');
     const showSpreadGameBtn = document.getElementById('show-spread-game-btn');
+    const showVulnerabilityGameBtn = document.getElementById('show-vulnerability-game-btn');
 
     // Контейнеры игр
     const symptomsGameCard = document.getElementById('symptoms-game-card');
     const spreadGameCard = document.getElementById('spread-game-card');
+    const vulnerabilityGameCard = document.getElementById('vulnerability-game-card');
 
     let allSymptoms = [];
     let correctSymptoms = [];
     let correctSpreadPath = '';
-    
+    let correctVulnerabilities = {};
+
     if (creditsElement) {
         creditsElement.textContent = `${credits} R`;
     }
@@ -30,7 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (showSymptomsGameBtn) {
         showSymptomsGameBtn.addEventListener('click', () => {
             symptomsGameCard.style.display = 'block';
-            spreadGameCard.style.display = 'none'; // Скрываем другую игру
+            spreadGameCard.style.display = 'none';
+            vulnerabilityGameCard.style.display = 'none';
             initializeSymptomsGameLogic();
         });
     }
@@ -38,11 +42,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (showSpreadGameBtn) {
         showSpreadGameBtn.addEventListener('click', () => {
             spreadGameCard.style.display = 'block';
-            symptomsGameCard.style.display = 'none'; // Скрываем другую игру
+            symptomsGameCard.style.display = 'none';
+            vulnerabilityGameCard.style.display = 'none';
             initializeSpreadGameLogic();
         });
     }
-
+    
+    if (showVulnerabilityGameBtn) {
+        showVulnerabilityGameBtn.addEventListener('click', () => {
+            vulnerabilityGameCard.style.display = 'block';
+            symptomsGameCard.style.display = 'none';
+            spreadGameCard.style.display = 'none';
+            initializeVulnerabilityGameLogic();
+        });
+    }
+    
+    // === ЛОГИКА ПЕРВОЙ ИГРЫ (СИМПТОМЫ) ===
     async function fetchAllSymptoms() {
         try {
             const response = await fetch('/api/symptoms/list');
@@ -54,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function initializeSymptomsGameLogic() {
         await fetchAllSymptoms();
-
+        // ... (весь код первой игры без изменений) ...
         const startResearchBtn = document.getElementById('start-research-btn');
         const researchResultsContainer = document.getElementById('research-results-container');
         const userInputSection = document.getElementById('user-input-section');
@@ -222,9 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Логика для второй мини-игры
+    // === ЛОГИКА ВТОРОЙ ИГРЫ (РАСПРОСТРАНЕНИЕ) ===
     async function initializeSpreadGameLogic() {
-        // Здесь можно было бы загрузить пути передачи, но для примера они захардкодены
+        // ... (весь код второй игры без изменений) ...
         const spreadPaths = ['воздушно-капельный', 'контактный', 'через-воду', 'через-пищу'];
         correctSpreadPath = spreadPaths[Math.floor(Math.random() * spreadPaths.length)];
 
@@ -236,14 +251,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const gameFeedbackSpread = document.getElementById('game-feedback-spread');
         const repeatSpreadResearchBtn = document.getElementById('repeat-spread-research-btn');
         
-        // Элемент для отображения правильного ответа
         const correctAnswerDisplay = document.createElement('div');
         correctAnswerDisplay.id = 'correct-answer-display-spread';
         correctAnswerDisplay.style.display = 'none';
         correctAnswerDisplay.style.marginTop = '20px';
         correctAnswerDisplay.style.borderTop = '1px solid #dee2e6';
         correctAnswerDisplay.style.paddingTop = '20px';
-        spreadPathConfirmation.parentNode.insertBefore(correctAnswerDisplay, spreadPathConfirmation.nextSibling);
+        if (spreadPathConfirmation) {
+            spreadPathConfirmation.parentNode.insertBefore(correctAnswerDisplay, spreadPathConfirmation.nextSibling);
+        }
 
         if (role === 'superadmin') {
             correctAnswerDisplay.style.display = 'block';
@@ -294,10 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         function generatePercentage(isCorrect) {
             if (isCorrect) {
-                // Высокий процент (70-99%)
                 return Math.floor(Math.random() * (99 - 70 + 1)) + 70;
             } else {
-                // Низкий процент (10-30%)
                 return Math.floor(Math.random() * (30 - 10 + 1)) + 10;
             }
         }
@@ -318,6 +332,121 @@ document.addEventListener('DOMContentLoaded', () => {
                 correctAnswerDisplay.innerHTML = `
                     <h4>Правильный путь (только для Superadmin):</h4>
                     <p>${correctSpreadPath}</p>
+                `;
+            }
+        }
+    }
+
+    // === ЛОГИКА ТРЕТЬЕЙ ИГРЫ (УЯЗВИМОСТИ) ===
+    async function initializeVulnerabilityGameLogic() {
+        const factors = ['влажность', 'свет', 'радиация', 'температура'];
+        const vulnerabilityGameControls = document.getElementById('vulnerability-game-controls');
+        const vulnerabilityFactorSelect = document.getElementById('vulnerability-factor-select');
+        const startVulnerabilityResearchBtn = document.getElementById('start-vulnerability-research-btn');
+        const vulnerabilityResearchResultsContainer = document.getElementById('vulnerability-research-results-container');
+        const vulnerabilityUserInputSection = document.getElementById('vulnerability-user-input-section');
+        const vulnerableFactorsInput = document.getElementById('vulnerable-factors');
+        const resistantFactorsInput = document.getElementById('resistant-factors');
+        const checkVulnerabilityBtn = document.getElementById('check-vulnerability-btn');
+        const gameFeedback = document.getElementById('game-feedback-vulnerability');
+        const repeatVulnerabilityResearchBtn = document.getElementById('repeat-vulnerability-research-btn');
+        
+        const correctAnswerDisplay = document.createElement('div');
+        correctAnswerDisplay.id = 'correct-answer-display-vulnerability';
+        correctAnswerDisplay.style.display = 'none';
+        correctAnswerDisplay.style.marginTop = '20px';
+        correctAnswerDisplay.style.borderTop = '1px solid #dee2e6';
+        correctAnswerDisplay.style.paddingTop = '20px';
+        if (vulnerabilityUserInputSection) {
+            vulnerabilityUserInputSection.parentNode.insertBefore(correctAnswerDisplay, vulnerabilityUserInputSection.nextSibling);
+        }
+
+        function generateCorrectVulnerabilities() {
+            const vulnerableCount = Math.floor(Math.random() * 2) + 1; // 1-2 уязвимых
+            const resistantCount = 3 - vulnerableCount; // Остальные устойчивые
+
+            const shuffledFactors = factors.sort(() => 0.5 - Math.random());
+            const vulnerable = shuffledFactors.slice(0, vulnerableCount);
+            const resistant = shuffledFactors.slice(vulnerableCount, vulnerableCount + resistantCount);
+
+            correctVulnerabilities = {
+                vulnerable: vulnerable,
+                resistant: resistant
+            };
+        }
+        
+        generateCorrectVulnerabilities();
+        if (role === 'superadmin') {
+            displayCorrectAnswerVulnerability();
+        }
+
+        if (startVulnerabilityResearchBtn) {
+            startVulnerabilityResearchBtn.addEventListener('click', () => {
+                const selectedFactor = vulnerabilityFactorSelect.value;
+                const isVulnerable = correctVulnerabilities.vulnerable.includes(selectedFactor);
+                const isResistant = correctVulnerabilities.resistant.includes(selectedFactor);
+                
+                let resultPercentage;
+                if (isVulnerable) {
+                    resultPercentage = Math.floor(Math.random() * 10) + 1; // 1-10%
+                } else if (isResistant) {
+                    resultPercentage = Math.floor(Math.random() * 11) + 90; // 90-100%
+                } else {
+                    resultPercentage = Math.floor(Math.random() * (90 - 10 + 1)) + 10; // 10-90%
+                }
+
+                vulnerabilityResearchResultsContainer.innerHTML = `
+                    <h4>Результат для "${selectedFactor}":</h4>
+                    <p>Процент выживших бактерий: <strong>${resultPercentage}%</strong></p>
+                `;
+                vulnerabilityUserInputSection.style.display = 'block';
+            });
+        }
+        
+        if (checkVulnerabilityBtn) {
+            checkVulnerabilityBtn.addEventListener('click', () => {
+                const userVulnerable = vulnerableFactorsInput.value.split(',').map(f => f.trim()).filter(f => f);
+                const userResistant = resistantFactorsInput.value.split(',').map(f => f.trim()).filter(f => f);
+
+                const isVulnerableCorrect = userVulnerable.length === correctVulnerabilities.vulnerable.length &&
+                                            userVulnerable.every(f => correctVulnerabilities.vulnerable.includes(f));
+
+                const isResistantCorrect = userResistant.length === correctVulnerabilities.resistant.length &&
+                                           userResistant.every(f => correctVulnerabilities.resistant.includes(f));
+                
+                if (isVulnerableCorrect && isResistantCorrect) {
+                    gameFeedback.innerHTML = `<p style="color:green;">Верно! Вы правильно определили уязвимые и устойчивые факторы.</p>`;
+                } else {
+                    gameFeedback.innerHTML = `<p style="color:red;">Неверно. Попробуйте еще раз.</p>`;
+                }
+                
+                repeatVulnerabilityResearchBtn.style.display = 'block';
+            });
+        }
+
+        if (repeatVulnerabilityResearchBtn) {
+            repeatVulnerabilityResearchBtn.addEventListener('click', () => {
+                vulnerabilityResearchResultsContainer.innerHTML = '';
+                vulnerabilityUserInputSection.style.display = 'none';
+                gameFeedback.innerHTML = '';
+                repeatVulnerabilityResearchBtn.style.display = 'none';
+                vulnerableFactorsInput.value = '';
+                resistantFactorsInput.value = '';
+                generateCorrectVulnerabilities();
+                 if (role === 'superadmin') {
+                    displayCorrectAnswerVulnerability();
+                } else {
+                    correctAnswerDisplay.style.display = 'none';
+                }
+            });
+        }
+        
+        function displayCorrectAnswerVulnerability() {
+            if (correctAnswerDisplay) {
+                correctAnswerDisplay.innerHTML = `
+                    <h4>Правильные факторы (только для Superadmin):</h4>
+                    <p><strong>Уязвимые:</strong> ${correctVulnerabilities.vulnerable.join(', ')}</p>
+                    <p><strong>Устойчивые:</strong> ${correctVulnerabilities.resistant.join(', ')}</p>
                 `;
             }
         }

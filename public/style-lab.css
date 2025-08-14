@@ -190,3 +190,46 @@
     margin-bottom: 5px;
     border-radius: 4px;
 }
+
+/* ... (существующие стили для .game-card, .nav-button и т.д.) ... */
+
+#vulnerability-game-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#vulnerability-game-controls select,
+#vulnerability-game-controls input[type="number"] {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+
+#vulnerability-user-input-section {
+    margin-top: 20px;
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+}
+
+#vulnerability-input-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#vulnerability-input-fields label {
+    font-weight: bold;
+}
+
+#vulnerability-input-fields input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box;
+}

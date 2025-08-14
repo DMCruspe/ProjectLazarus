@@ -408,10 +408,8 @@ app.post('/api/tasks/accept', async (req, res) => {
             return res.status(400).json({ message: 'Вы не можете принять больше двух заданий.' });
         }
 
-        // ПРОВЕРКА И СОЗДАНИЕ БОЛЕЗНИ
-        // Если тип задания 'Болезнь', создаем новую запись в коллекции Disease
-        if (task.taskType === 'Болезнь') {
-            // Проверяем, существует ли болезнь с таким же именем, чтобы избежать дублирования
+        // ИСПРАВЛЕНО: Теперь условие проверяет 'Изучение болезни'
+        if (task.taskType === 'Изучение болезни') {
             const existingDisease = await Disease.findOne({ name: task.title });
             if (!existingDisease) {
                 const newDisease = new Disease({

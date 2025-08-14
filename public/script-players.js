@@ -3,8 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const role = localStorage.getItem('role');
     const credits = localStorage.getItem('credits');
     const creditsElement = document.getElementById('credits');
-    const tableBody = document.querySelector('#players-table tbody');
-    const playersPanel = document.querySelector('.players-panel');
+    const playersTable = document.getElementById('players-table');
+    const tableBody = playersTable.querySelector('tbody');
+    const panelTitle = document.getElementById('panel-title');
 
     if (creditsElement) {
         creditsElement.textContent = `${credits} R`;
@@ -17,22 +18,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const authorizedAccountsBtn = document.getElementById('authorized-accounts-btn');
+    const unauthorizedAccountsBtn = document.getElementById('unauthorized-accounts-btn');
+    
+    // Добавляем обработчики для новых кнопок
+    if (authorizedAccountsBtn) {
+        authorizedAccountsBtn.addEventListener('click', () => {
+            panelTitle.textContent = 'Авторизованные аккаунты';
+            fetchAuthorizedPlayers();
+        });
+    }
+
+    if (unauthorizedAccountsBtn) {
+        unauthorizedAccountsBtn.addEventListener('click', () => {
+            panelTitle.textContent = 'Не авторизованные аккаунты';
+            fetchUnauthorizedPlayers();
+        });
+    }
+
     if (role === 'admin' || role === 'superadmin') {
-        fetchPlayers();
+        fetchAuthorizedPlayers(); // Загружаем авторизованные аккаунты по умолчанию
     } else {
         alert('Доступ запрещён.');
         window.location.href = 'site2.html';
     }
 
-    async function fetchPlayers() {
+    async function fetchAuthorizedPlayers() {
         try {
-            // Отправляем GET-запрос на сервер для получения списка игроков
-            // В теле запроса передаем имя текущего пользователя для проверки роли на сервере
+            // Обновляем заголовок таблицы
+            playersTable.querySelector('thead').innerHTML = `
+                <tr>
+                    <th>Логин</th>
+                    <th>Роль</th>
+                    <th>Баланс (R)</th>
+                    <th>Действия</th>
+                </tr>
+            `;
+
             const response = await fetch('/api/players', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ requesterUsername: username })
             });
 
@@ -56,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const actionsCell = row.insertCell(3);
 
-                // Кнопка для изменения кредитов
                 const addCreditsBtn = document.createElement('button');
                 addCreditsBtn.textContent = 'Добавить R';
                 addCreditsBtn.classList.add('action-btn');
@@ -69,14 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 actionsCell.appendChild(addCreditsBtn);
 
                 if (role === 'superadmin') {
-                    // Кнопка для изменения роли
                     const toggleRoleBtn = document.createElement('button');
                     toggleRoleBtn.textContent = 'Сменить роль';
                     toggleRoleBtn.classList.add('action-btn');
                     toggleRoleBtn.addEventListener('click', () => toggleRole(player.username, player.role));
                     actionsCell.appendChild(toggleRoleBtn);
 
-                    // Кнопка для удаления аккаунта
                     const deleteBtn = document.createElement('button');
                     deleteBtn.textContent = 'Удалить';
                     deleteBtn.classList.add('action-btn', 'delete-btn');
@@ -89,25 +111,76 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Ошибка при загрузке данных: ' + error.message);
         }
     }
-    
-    // Функции для взаимодействия с API
-    async function updateCredits(targetUsername, amount) {
+
+    // Новая функция для получения и отображения НЕ АВТОРИЗОВАННЫХ аккаунтов
+    async function fetchUnauthorizedPlayers() {
         try {
-            const response = await fetch('/api/players/update-credits', {
+            // Обновляем заголовок таблицы для неавторизованных аккаунтов
+            playersTable.querySelector('thead').innerHTML = `
+                <tr>
+                    <th>Дата запроса</th>
+                    <th>Логин</th>
+                    <th>Действия</th>
+                </tr>
+            `;
+
+            const response = await fetch('/api/unauthorized-players', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ requesterUsername: username, targetUsername, amount })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requesterUsername: username })
             });
 
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message);
             }
+
+            const unauthorizedPlayers = await response.json();
             
+            tableBody.innerHTML = '';
+            
+            if (unauthorizedPlayers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3">Список не авторизованных аккаунтов пуст.</td></tr>';
+            } else {
+                unauthorizedPlayers.forEach(player => {
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).textContent = new Date(player.requestDate).toLocaleString(); // Отображаем дату в читаемом формате
+                    row.insertCell(1).textContent = player.username;
+                    
+                    const actionsCell = row.insertCell(2);
+
+                    const authorizeBtn = document.createElement('button');
+                    authorizeBtn.textContent = 'Авторизовать';
+                    authorizeBtn.classList.add('action-btn');
+                    authorizeBtn.addEventListener('click', () => authorizeAccount(player.username));
+                    actionsCell.appendChild(authorizeBtn);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Удалить';
+                    deleteBtn.classList.add('action-btn', 'delete-btn');
+                    deleteBtn.addEventListener('click', () => deleteUnauthorizedAccount(player.username));
+                    actionsCell.appendChild(deleteBtn);
+                });
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке неавторизованных аккаунтов:', error);
+            alert('Ошибка при загрузке данных: ' + error.message);
+        }
+    }
+    
+    async function updateCredits(targetUsername, amount) {
+        try {
+            const response = await fetch('/api/players/update-credits', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requesterUsername: username, targetUsername, amount })
+            });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message);
+            }
             alert(`Баланс пользователя ${targetUsername} успешно обновлен.`);
-            fetchPlayers(); // Перезагружаем список игроков для отображения изменений
+            fetchAuthorizedPlayers();
         } catch (error) {
             console.error('Ошибка при обновлении баланса:', error);
             alert('Ошибка: ' + error.message);
@@ -124,19 +197,15 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch('/api/players/toggle-role', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ requesterUsername: username, targetUsername, newRole })
                 });
-
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.message);
                 }
-
                 alert(`Роль пользователя ${targetUsername} успешно изменена на "${newRole}".`);
-                fetchPlayers(); // Перезагружаем список
+                fetchAuthorizedPlayers();
             } catch (error) {
                 console.error('Ошибка при смене роли:', error);
                 alert('Ошибка: ' + error.message);
@@ -153,21 +222,64 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch('/api/players/delete', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ requesterUsername: username, targetUsername })
                 });
-                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+                alert(`Аккаунт ${targetUsername} успешно удалён.`);
+                fetchAuthorizedPlayers();
+            } catch (error) {
+                console.error('Ошибка при удалении аккаунта:', error);
+                alert('Ошибка: ' + error.message);
+            }
+        }
+    }
+
+    // Новые функции для управления неавторизованными аккаунтами
+    async function authorizeAccount(targetUsername) {
+        if (confirm(`Вы уверены, что хотите авторизовать аккаунт ${targetUsername}?`)) {
+            try {
+                const response = await fetch('/api/authorize-account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requesterUsername: username, targetUsername })
+                });
+
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.message);
                 }
 
-                alert(`Аккаунт ${targetUsername} успешно удалён.`);
-                fetchPlayers(); // Перезагружаем список
+                alert(`Аккаунт ${targetUsername} успешно авторизован.`);
+                fetchUnauthorizedPlayers(); // Перезагружаем список
             } catch (error) {
-                console.error('Ошибка при удалении аккаунта:', error);
+                console.error('Ошибка при авторизации аккаунта:', error);
+                alert('Ошибка: ' + error.message);
+            }
+        }
+    }
+
+    async function deleteUnauthorizedAccount(targetUsername) {
+        if (confirm(`Вы уверены, что хотите удалить запрос на авторизацию для аккаунта ${targetUsername}?`)) {
+            try {
+                const response = await fetch('/api/delete-unauthorized-account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requesterUsername: username, targetUsername })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                alert(`Запрос на авторизацию для аккаунта ${targetUsername} успешно удалён.`);
+                fetchUnauthorizedPlayers(); // Перезагружаем список
+            } catch (error) {
+                console.error('Ошибка при удалении запроса на авторизацию:', error);
                 alert('Ошибка: ' + error.message);
             }
         }

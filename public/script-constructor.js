@@ -7,32 +7,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const createTaskBtn = document.getElementById('create-task-btn');
     const createVaccineBtn = document.getElementById('create-vaccine-btn');
     const symptomsBtn = document.getElementById('symptoms-btn');
-    const createDiseaseBtn = document.getElementById('create-disease-btn'); // Новая кнопка
-    
+    const createDiseaseBtn = document.getElementById('create-disease-btn');
+    const backButton = document.getElementById('back-to-main');
+
     if (creditsElement) {
         creditsElement.textContent = `${credits} R`;
     }
-
-    const backButton = document.getElementById('back-to-main');
+    
+    // Проверка прав доступа
+    if (role !== 'admin' && role !== 'superadmin') {
+        alert('Доступ запрещён.');
+        window.location.href = 'site2.html';
+        return;
+    }
+    
+    // Все обработчики кнопок должны быть внутри DOMContentLoaded
     if (backButton) {
         backButton.addEventListener('click', () => {
             window.location.href = 'site2.html';
         });
     }
 
+    if (createTaskBtn) {
+        createTaskBtn.addEventListener('click', loadCreateTaskForm);
+    }
+    
     if (createVaccineBtn) {
         createVaccineBtn.addEventListener('click', loadCreateVaccineForm);
     }
 
     if (symptomsBtn) {
-        symptomsBtn.addEventListener('click', loadSymptomsPanel); // НОВЫЙ ОБРАБОТЧИК
+        symptomsBtn.addEventListener('click', loadSymptomsPanel);
     }
-
-    // Проверка прав доступа
-    if (role !== 'admin' && role !== 'superadmin') {
-        alert('Доступ запрещён.');
-        window.location.href = 'site2.html';
-        return;
+    
+    if (createDiseaseBtn) {
+        createDiseaseBtn.addEventListener('click', loadCreateDiseaseForm);
     }
 
     async function loadCreateTaskForm() {
@@ -116,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Новая функция для создания формы болезни
     function loadCreateDiseaseForm() {
         mainPanel.innerHTML = `
             <h2>Создание новой болезни</h2>
@@ -161,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resistance: formData.get('resistance'),
                 vulnerabilities: formData.get('vulnerabilities'),
                 treatment: formData.get('treatment'),
-                vaccine: formData.get('vaccine') // Добавлено новое поле
+                vaccine: formData.get('vaccine')
             };
 
             try {
@@ -186,60 +194,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadCreateVaccineForm() {
-            mainPanel.innerHTML = `
-                <h2>Создание новой вакцины</h2>
-                <form id="create-vaccine-form">
-                    <label for="name">Название:</label>
-                    <input type="text" id="name" name="name" required>
-                    
-                    <label for="diseaseName">Название Болезни:</label>
-                    <input type="text" id="diseaseName" name="diseaseName" required>
-                    
-                    <label for="dosage">Дозировка:</label>
-                    <input type="text" id="dosage" name="dosage" required>
-                    
-                    <label for="effectiveness">Эффективность (%):</label>
-                    <input type="number" id="effectiveness" name="effectiveness" min="0" max="100" required>
-                    
-                    <label for="sideEffects">Побочные эффекты:</label>
-                    <textarea id="sideEffects" name="sideEffects"></textarea>
-                    
-                    <button type="submit" class="nav-button">Создать</button>
-                </form>
-            `;
-
-            document.getElementById('create-vaccine-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
+        mainPanel.innerHTML = `
+            <h2>Создание новой вакцины</h2>
+            <form id="create-vaccine-form">
+                <label for="name">Название:</label>
+                <input type="text" id="name" name="name" required>
                 
-                const formData = new FormData(e.target);
-                const vaccineData = {
-                    name: formData.get('name'),
-                    diseaseName: formData.get('diseaseName'),
-                    dosage: formData.get('dosage'),
-                    effectiveness: formData.get('effectiveness'),
-                    sideEffects: formData.get('sideEffects')
-                };
+                <label for="diseaseName">Название Болезни:</label>
+                <input type="text" id="diseaseName" name="diseaseName" required>
+                
+                <label for="dosage">Дозировка:</label>
+                <input type="text" id="dosage" name="dosage" required>
+                
+                <label for="effectiveness">Эффективность (%):</label>
+                <input type="number" id="effectiveness" name="effectiveness" min="0" max="100" required>
+                
+                <label for="sideEffects">Побочные эффекты:</label>
+                <textarea id="sideEffects" name="sideEffects"></textarea>
+                
+                <button type="submit" class="nav-button">Создать</button>
+            </form>
+        `;
 
-                try {
-                    const res = await fetch('/api/vaccine/create', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(vaccineData)
-                    });
-                    
-                    const result = await res.json();
-                    if (res.ok) {
-                        alert(result.message);
-                        e.target.reset();
-                    } else {
-                        alert('Ошибка: ' + result.message);
-                    }
-                } catch (error) {
-                    console.error('Ошибка при создании вакцины:', error);
-                    alert('Произошла ошибка при создании вакцины.');
+        document.getElementById('create-vaccine-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const vaccineData = {
+                name: formData.get('name'),
+                diseaseName: formData.get('diseaseName'),
+                dosage: formData.get('dosage'),
+                effectiveness: formData.get('effectiveness'),
+                sideEffects: formData.get('sideEffects')
+            };
+
+            try {
+                const res = await fetch('/api/vaccine/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(vaccineData)
+                });
+                
+                const result = await res.json();
+                if (res.ok) {
+                    alert(result.message);
+                    e.target.reset();
+                } else {
+                    alert('Ошибка: ' + result.message);
                 }
-            });
-        }
+            } catch (error) {
+                console.error('Ошибка при создании вакцины:', error);
+                alert('Произошла ошибка при создании вакцины.');
+            }
+        });
+    }
+
     async function loadSymptomsPanel() {
         mainPanel.innerHTML = `
             <h2>Управление симптомами</h2>
@@ -336,19 +345,5 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Ошибка при загрузке списка симптомов:', error);
             symptomsListContainer.innerHTML = '<p>Ошибка при загрузке списка симптомов.</p>';
         }
-    }
-});
-
-    if (createTaskBtn) {
-        createTaskBtn.addEventListener('click', loadCreateTaskForm);
-    }
-    
-    if (createVaccineBtn) {
-        createVaccineBtn.addEventListener('click', loadCreateVaccineForm);
-    }
-
-    // Добавляем обработчик для новой кнопки
-    if (createDiseaseBtn) {
-        createDiseaseBtn.addEventListener('click', loadCreateDiseaseForm);
     }
 });

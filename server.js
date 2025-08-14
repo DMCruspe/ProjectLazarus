@@ -69,13 +69,14 @@ const UnauthorizedUserSchema = new mongoose.Schema({
 });
 const UnauthorizedUser = mongoose.model('UnauthorizedUser', UnauthorizedUserSchema);
 
-// СХЕМА ДЛЯ ЗАДАНИЙ
+// СХЕМА ДЛЯ ЗАДАНИЙ (ИСПРАВЛЕНО)
 const TaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
     taskType: { type: String, required: true },
     description: { type: String, required: true },
     reward: { type: Number, required: true, min: 0 },
-    performer: { type: String, required: true },
+    intendedPerformer: { type: String, required: true }, // Новое обязательное поле
+    performer: { type: String, required: false }, // Сделано необязательным
     createdBy: { type: String, required: true },
     status: { type: String, enum: ['active', 'in_progress', 'completed'], default: 'active' },
     createdAt: { type: Date, default: Date.now }
@@ -345,14 +346,14 @@ app.post('/api/tasks/create', async (req, res) => {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
         
+        // Создание нового задания
         const newTask = new Task({
             title,
             taskType,
             description,
             reward,
-            intendedPerformer, // Use the new field
-            createdBy: requesterUsername,
-            status: 'active'
+            intendedPerformer,
+            createdBy: requesterUsername
         });
 
         await newTask.save();
@@ -490,9 +491,17 @@ app.post('/api/tasks/change-performer', async (req, res) => {
         if (!task) {
             return res.status(404).json({ message: 'Задание не найдено' });
         }
+
+        const newPerformerUser = await User.findOne({ username: newPerformer });
+        if (!newPerformerUser) {
+            return res.status(404).json({ message: 'Новый исполнитель не найден.' });
+        }
+
         task.performer = newPerformer;
-        task.status = 'active'; // Возвращаем статус в active
+        task.intendedPerformer = newPerformer; // Обновляем и intendedPerformer
+        task.status = 'in_progress'; // Устанавливаем статус как in_progress
         await task.save();
+
         res.status(200).json({ message: `Исполнитель задания успешно изменен на ${newPerformer}.` });
     } catch (error) {
         console.error('Ошибка при смене исполнителя:', error);

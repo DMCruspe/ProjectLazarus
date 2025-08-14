@@ -21,6 +21,7 @@
                 <button id="show-symptoms-game-btn" class="nav-button">Узнать симптомы</button>
                 <button id="show-spread-game-btn" class="nav-button">Моделирование распространения</button>
                 <button id="show-vulnerability-game-btn" class="nav-button">Поиск уязвимостей</button>
+                <button id="show-vaccine-game-btn" class="nav-button">Создать вакцину</button>
                 <button id="back-to-main" class="nav-button">Назад</button>
             </nav>
         </aside>
@@ -69,7 +70,7 @@
                 <button id="repeat-spread-research-btn" class="nav-button" style="display: none;">Повторить исследование</button>
             </div>
 
-<div id="vulnerability-game-card" class="game-card" style="display: none;">
+            <div id="vulnerability-game-card" class="game-card" style="display: none;">
                 <h3>Мини-игра: Поиск уязвимостей</h3>
                 <p>Выберите фактор и укажите его процентное значение, чтобы определить, к чему вирус уязвим или устойчив.</p>
                 
@@ -106,6 +107,33 @@
                     </div>
                 <button id="repeat-vulnerability-research-btn" class="nav-button" style="display: none;">Повторить</button>
             </div>
+
+            <div id="vaccine-game-card" class="game-card" style="display: none;">
+                <h3>Мини-игра: Создание вакцины</h3>
+                <p>Выберите два препарата из списка, чтобы объединить их. Ваша цель — создать вакцину, которая полностью уничтожит вирус, при этом её побочные эффекты и доза не должны быть слишком высокими.</p>
+                
+                <div id="vaccine-game-controls">
+                    <h4>Доступные препараты:</h4>
+                    <div id="compound-list-container" class="compound-list">
+                        </div>
+                    
+                    <div id="compound-selection-area">
+                        <h4>Объединить:</h4>
+                        <div id="selected-compounds">
+                            <span id="selected-compound-1">Препарат 1</span> + <span id="selected-compound-2">Препарат 2</span>
+                        </div>
+                        <button id="combine-compounds-btn" class="nav-button">Объединить</button>
+                    </div>
+                </div>
+
+                <div id="vaccine-research-results-container">
+                    </div>
+                
+                <div id="game-feedback-vaccine">
+                    </div>
+                <button id="repeat-vaccine-research-btn" class="nav-button" style="display: none;">Начать заново</button>
+            </div>
+
         </main>
     </div>
 

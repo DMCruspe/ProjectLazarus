@@ -8,11 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const showSymptomsGameBtn = document.getElementById('show-symptoms-game-btn');
     const showSpreadGameBtn = document.getElementById('show-spread-game-btn');
     const showVulnerabilityGameBtn = document.getElementById('show-vulnerability-game-btn');
+    const showVaccineGameBtn = document.getElementById('show-vaccine-game-btn');
 
     // Контейнеры игр
     const symptomsGameCard = document.getElementById('symptoms-game-card');
     const spreadGameCard = document.getElementById('spread-game-card');
     const vulnerabilityGameCard = document.getElementById('vulnerability-game-card');
+    const vaccineGameCard = document.getElementById('vaccine-game-card');
 
     let allSymptoms = [];
     let correctSymptoms = [];
@@ -35,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             symptomsGameCard.style.display = 'block';
             spreadGameCard.style.display = 'none';
             vulnerabilityGameCard.style.display = 'none';
+            vaccineGameCard.style.display = 'none';
             initializeSymptomsGameLogic();
         });
     }
@@ -44,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             spreadGameCard.style.display = 'block';
             symptomsGameCard.style.display = 'none';
             vulnerabilityGameCard.style.display = 'none';
+            vaccineGameCard.style.display = 'none';
             initializeSpreadGameLogic();
         });
     }
@@ -53,7 +57,18 @@ document.addEventListener('DOMContentLoaded', () => {
             vulnerabilityGameCard.style.display = 'block';
             symptomsGameCard.style.display = 'none';
             spreadGameCard.style.display = 'none';
+            vaccineGameCard.style.display = 'none';
             initializeVulnerabilityGameLogic();
+        });
+    }
+
+    if (showVaccineGameBtn) {
+        showVaccineGameBtn.addEventListener('click', () => {
+            vaccineGameCard.style.display = 'block';
+            symptomsGameCard.style.display = 'none';
+            spreadGameCard.style.display = 'none';
+            vulnerabilityGameCard.style.display = 'none';
+            initializeVaccineGameLogic();
         });
     }
     
@@ -360,11 +375,10 @@ document.addEventListener('DOMContentLoaded', () => {
             vulnerabilityUserInputSection.parentNode.insertBefore(correctAnswerDisplay, vulnerabilityUserInputSection.nextSibling);
         }
 
-        // Объект для хранения пороговых значений (смертельная доза) для уязвимых факторов
         let thresholds = {};
 
         function generateCorrectVulnerabilities() {
-            const vulnerableCount = Math.floor(Math.random() * 2) + 1; // 1-2 уязвимых
+            const vulnerableCount = Math.floor(Math.random() * 2) + 1;
             const shuffledFactors = factors.sort(() => 0.5 - Math.random());
             
             correctVulnerabilities = {
@@ -372,7 +386,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 resistant: shuffledFactors.slice(vulnerableCount)
             };
             
-            // Генерируем случайный порог для каждого уязвимого фактора
             correctVulnerabilities.vulnerable.forEach(factor => {
                 thresholds[factor] = Math.floor(Math.random() * (70 - 40 + 1)) + 40;
             });
@@ -384,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
             displayCorrectAnswerVulnerability();
         }
 
-        // Показываем/скрываем поле ввода процента в зависимости от выбора фактора
         vulnerabilityFactorSelect.addEventListener('change', () => {
             concentrationInput.style.display = 'block';
         });
@@ -399,15 +411,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 let resultPercentage;
                 if (isVulnerable) {
                     if (factorPercentage >= thresholds[selectedFactor]) {
-                        resultPercentage = 0; // Полностью погибает
+                        resultPercentage = 0;
                     } else {
-                        // Выживаемость линейно уменьшается
                         resultPercentage = 100 - (factorPercentage / thresholds[selectedFactor]) * 100;
-                        if (resultPercentage < 10) resultPercentage = 10; // Минимальная выживаемость, чтобы не выдавать 0% случайно
+                        if (resultPercentage < 10) resultPercentage = 10;
                     }
                     resultPercentage = Math.round(resultPercentage);
-                } else { // Устойчивый фактор
-                    resultPercentage = Math.floor(Math.random() * (100 - 90 + 1)) + 90; // Высокая выживаемость 90-100%
+                } else {
+                    resultPercentage = Math.floor(Math.random() * (100 - 90 + 1)) + 90;
                 }
 
                 vulnerabilityResearchResultsContainer.innerHTML = `
@@ -468,5 +479,155 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }
         }
+    }
+
+    // === ЛОГИКА ЧЕТВЁРТОЙ ИГРЫ (ВАКЦИНА) ===
+    let availableCompounds = [];
+    let selectedCompounds = [];
+    let idealCombination = [];
+
+    const compoundsData = [
+        { name: 'Амрицилин', sideEffects: 10, dose: 20 },
+        { name: 'Вакцинал', sideEffects: 15, dose: 15 },
+        { name: 'Дезвирион', sideEffects: 20, dose: 25 },
+        { name: 'Митокс', sideEffects: 5, dose: 30 },
+        { name: 'Ревертокс', sideEffects: 8, dose: 18 },
+        { name: 'Синтостатин', sideEffects: 12, dose: 22 },
+        { name: 'Фенирион', sideEffects: 25, dose: 10 },
+        { name: 'Эстромицин', sideEffects: 18, dose: 28 },
+    ];
+
+    function initializeVaccineGameLogic() {
+        const compoundListContainer = document.getElementById('compound-list-container');
+        const selectedCompound1 = document.getElementById('selected-compound-1');
+        const selectedCompound2 = document.getElementById('selected-compound-2');
+        const combineCompoundsBtn = document.getElementById('combine-compounds-btn');
+        const vaccineResearchResultsContainer = document.getElementById('vaccine-research-results-container');
+        const gameFeedbackVaccine = document.getElementById('game-feedback-vaccine');
+        const repeatVaccineResearchBtn = document.getElementById('repeat-vaccine-research-btn');
+        
+        const correctAnswerDisplay = document.createElement('div');
+        correctAnswerDisplay.id = 'correct-answer-display-vaccine';
+        correctAnswerDisplay.style.display = 'none';
+        correctAnswerDisplay.style.marginTop = '20px';
+        correctAnswerDisplay.style.borderTop = '1px solid #dee2e6';
+        correctAnswerDisplay.style.paddingTop = '20px';
+        if (gameFeedbackVaccine) {
+            gameFeedbackVaccine.parentNode.insertBefore(correctAnswerDisplay, gameFeedbackVaccine.nextSibling);
+        }
+
+        function startGame() {
+            availableCompounds = [...compoundsData].sort(() => 0.5 - Math.random()).slice(0, 5);
+            selectedCompounds = [];
+            compoundListContainer.innerHTML = '';
+            vaccineResearchResultsContainer.innerHTML = '';
+            gameFeedbackVaccine.innerHTML = '';
+            repeatVaccineResearchBtn.style.display = 'none';
+            selectedCompound1.textContent = 'Препарат 1';
+            selectedCompound2.textContent = 'Препарат 2';
+            combineCompoundsBtn.disabled = true;
+
+            const ideal1Index = Math.floor(Math.random() * availableCompounds.length);
+            let ideal2Index = Math.floor(Math.random() * availableCompounds.length);
+            while (ideal2Index === ideal1Index) {
+                ideal2Index = Math.floor(Math.random() * availableCompounds.length);
+            }
+            
+            idealCombination = [availableCompounds[ideal1Index].name, availableCompounds[ideal2Index].name];
+
+            availableCompounds.forEach(compound => {
+                const compoundCard = document.createElement('div');
+                compoundCard.classList.add('compound-card');
+                compoundCard.innerHTML = `
+                    <p><strong>${compound.name}</strong></p>
+                    <p>Побочные эффекты: ${compound.sideEffects}</p>
+                    <p>Доза: ${compound.dose}</p>
+                `;
+                compoundCard.addEventListener('click', () => selectCompound(compound, compoundCard));
+                compoundListContainer.appendChild(compoundCard);
+            });
+            
+            if (role === 'superadmin') {
+                displayCorrectAnswerVaccine();
+            } else {
+                 correctAnswerDisplay.style.display = 'none';
+            }
+        }
+
+        function selectCompound(compound, card) {
+            if (selectedCompounds.length < 2 && !selectedCompounds.includes(compound)) {
+                selectedCompounds.push(compound);
+                card.classList.add('selected');
+
+                if (selectedCompounds.length === 1) {
+                    selectedCompound1.textContent = compound.name;
+                } else if (selectedCompounds.length === 2) {
+                    selectedCompound2.textContent = compound.name;
+                    combineCompoundsBtn.disabled = false;
+                }
+            } else if (selectedCompounds.includes(compound)) {
+                selectedCompounds = selectedCompounds.filter(c => c !== compound);
+                card.classList.remove('selected');
+                
+                if (selectedCompounds.length === 1) {
+                    selectedCompound1.textContent = selectedCompounds[0].name;
+                    selectedCompound2.textContent = 'Препарат 2';
+                } else if (selectedCompounds.length === 0) {
+                    selectedCompound1.textContent = 'Препарат 1';
+                    selectedCompound2.textContent = 'Препарат 2';
+                }
+                combineCompoundsBtn.disabled = true;
+            }
+        }
+        
+        if (combineCompoundsBtn) {
+            combineCompoundsBtn.addEventListener('click', () => {
+                if (selectedCompounds.length !== 2) {
+                    gameFeedbackVaccine.innerHTML = `<p style="color:red;">Выберите ровно два препарата!</p>`;
+                    return;
+                }
+
+                const compound1 = selectedCompounds[0];
+                const compound2 = selectedCompounds[1];
+
+                const combinedDose = (compound1.dose + compound2.dose) / 2;
+                const combinedSideEffects = compound1.sideEffects + compound2.sideEffects;
+
+                vaccineResearchResultsContainer.innerHTML = `
+                    <h4>Результаты нового соединения:</h4>
+                    <p><strong>Средняя доза:</strong> ${combinedDose.toFixed(1)}</p>
+                    <p><strong>Суммарные побочные эффекты:</strong> ${combinedSideEffects}</p>
+                `;
+
+                // Условия победы
+                const victoryDose = 25; // Пример: доза, необходимая для уничтожения вируса
+                const maxSideEffect = 30; // Пример: максимальный допустимый побочный эффект
+
+                if (combinedDose >= victoryDose && combinedSideEffects <= maxSideEffect) {
+                    gameFeedbackVaccine.innerHTML = `<p style="color:green;">Поздравляем! Вы создали эффективную вакцину, которая уничтожит вирус без сильных побочных эффектов.</p>`;
+                } else if (combinedDose >= victoryDose && combinedSideEffects > maxSideEffect) {
+                    gameFeedbackVaccine.innerHTML = `<p style="color:orange;">Вакцина эффективна, но имеет слишком сильные побочные эффекты. Попробуйте найти другую комбинацию.</p>`;
+                } else {
+                    gameFeedbackVaccine.innerHTML = `<p style="color:red;">Эта комбинация неэффективна. Доза слишком мала, чтобы уничтожить вирус. Попробуйте еще раз.</p>`;
+                }
+
+                repeatVaccineResearchBtn.style.display = 'block';
+            });
+        }
+        
+        if (repeatVaccineResearchBtn) {
+            repeatVaccineResearchBtn.addEventListener('click', startGame);
+        }
+
+        function displayCorrectAnswerVaccine() {
+            if (correctAnswerDisplay) {
+                correctAnswerDisplay.innerHTML = `
+                    <h4>Правильная комбинация (только для Superadmin):</h4>
+                    <p>${idealCombination.join(' + ')}</p>
+                `;
+            }
+        }
+        
+        startGame();
     }
 });

@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    async function fetchAndDisplaySymptoms() {
+        async function fetchAndDisplaySymptoms() {
         const symptomsListContainer = document.getElementById('symptoms-list-container');
         try {
             const response = await fetch('/api/symptoms/list');
@@ -409,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         symptomCard.classList.add('symptom-card');
                         symptomCard.innerHTML = `
                             <h4>${symptom.name}</h4>
-                            <p>Подгруппа: ${symptom.subgroup}</p>
                             <button class="delete-symptom-btn" data-id="${symptom._id}">Удалить</button>
                         `;
                         symptomsListContainer.appendChild(symptomCard);

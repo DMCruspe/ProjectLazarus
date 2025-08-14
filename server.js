@@ -422,9 +422,31 @@ app.post('/api/tasks/accept', async (req, res) => {
         if (acceptedTasksCount >= 2) {
             return res.status(400).json({ message: 'Вы не можете принять больше двух заданий.' });
         }
+
+        // ПРОВЕРКА И СОЗДАНИЕ БОЛЕЗНИ
+        // Если тип задания 'Болезнь', создаем новую запись в коллекции Disease
+        if (task.taskType === 'Болезнь') {
+            // Проверяем, существует ли болезнь с таким же именем, чтобы избежать дублирования
+            const existingDisease = await Disease.findOne({ name: task.title });
+            if (!existingDisease) {
+                const newDisease = new Disease({
+                    name: task.title,
+                    type: 'Неизвестно',
+                    symptoms: 'Неизвестно',
+                    spread: 'Неизвестно',
+                    resistance: 'Неизвестно',
+                    vulnerabilities: 'Неизвестно',
+                    treatment: 'Неизвестно',
+                    vaccine: 'Нет'
+                });
+                await newDisease.save();
+            }
+        }
+
         task.performer = username;
         task.status = 'in_progress';
         await task.save();
+
         res.status(200).json({ message: 'Задание успешно принято' });
     } catch (error) {
         console.error('Ошибка при принятии задания:', error);

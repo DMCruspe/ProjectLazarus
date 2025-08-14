@@ -51,6 +51,24 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
+// НОВАЯ СХЕМА ДЛЯ НЕАВТОРИЗОВАННЫХ АККАУНТОВ
+const UnauthorizedUserSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    requestDate: {
+        type: Date,
+        default: Date.now
+    }
+});
+const UnauthorizedUser = mongoose.model('UnauthorizedUser', UnauthorizedUserSchema);
+
 // Новая схема для заданий с полем title и createdAt
 const TaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
@@ -73,7 +91,7 @@ const diseaseSchema = new mongoose.Schema({
     resistance: { type: String, required: true },
     vulnerabilities: { type: String, required: true },
     treatment: { type: String, required: true },
-    vaccine: { type: String }, // Добавлено новое поле
+    vaccine: { type: String },
     createdAt: { type: Date, default: Date.now }
 });
 const Disease = mongoose.model('Disease', diseaseSchema);
@@ -110,7 +128,7 @@ app.get('/api/version', (req, res) => {
     res.json({ version: appVersion });
 });
 
-// Роут для регистрации
+// ОБНОВЛЁННЫЙ РОУТ ДЛЯ РЕГИСТРАЦИИ
 app.post('/api/register', authLimiter, async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -119,22 +137,28 @@ app.post('/api/register', authLimiter, async (req, res) => {
             return res.status(400).json({ message: 'Необходимо ввести логин и пароль' });
         }
 
+        // Проверяем наличие пользователя в обеих коллекциях
         const existingUser = await User.findOne({ username });
-        if (existingUser) {
+        const existingUnauthorizedUser = await UnauthorizedUser.findOne({ username });
+
+        if (existingUser || existingUnauthorizedUser) {
             return res.status(409).json({ message: 'Пользователь с таким именем уже существует' });
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, password: passwordHash });
-        await newUser.save();
-        res.status(201).json({ message: 'Регистрация прошла успешно' });
+        
+        // По умолчанию создаем аккаунт в коллекции неавторизованных пользователей
+        const newUnauthorizedUser = new UnauthorizedUser({ username, password: passwordHash });
+        await newUnauthorizedUser.save();
+        
+        res.status(201).json({ message: 'Запрос на регистрацию отправлен. Дождитесь авторизации администратором.' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Произошла ошибка при регистрации.' });
     }
 });
 
-// Роут для авторизации
+// ОБНОВЛЁННЫЙ РОУТ ДЛЯ АВТОРИЗАЦИИ
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -142,6 +166,11 @@ app.post('/api/login', async (req, res) => {
         const user = await User.findOne({ username });
 
         if (!user) {
+            // Если не найден среди авторизованных, проверяем в неавторизованных
+            const unauthorizedUser = await UnauthorizedUser.findOne({ username });
+            if (unauthorizedUser) {
+                return res.status(401).json({ message: 'Ваш аккаунт ожидает авторизации администратором.' });
+            }
             return res.status(401).json({ message: 'Неверный логин или пароль' });
         }
 
@@ -160,6 +189,72 @@ app.post('/api/login', async (req, res) => {
     } catch (error) {
         console.error('Ошибка входа:', error);
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    }
+});
+
+// НОВЫЙ РОУТ ДЛЯ ПОЛУЧЕНИЯ СПИСКА НЕАВТОРИЗОВАННЫХ ПОЛЬЗОВАТЕЛЕЙ
+app.post('/api/unauthorized-players', async (req, res) => {
+    const { requesterUsername } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        
+        const unauthorizedUsers = await UnauthorizedUser.find({}, 'username requestDate');
+        res.status(200).json(unauthorizedUsers);
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка получения списка неавторизованных игроков' });
+    }
+});
+
+// НОВЫЙ РОУТ ДЛЯ АВТОРИЗАЦИИ ПОЛЬЗОВАТЕЛЯ
+app.post('/api/authorize-account', async (req, res) => {
+    const { requesterUsername, targetUsername } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+        
+        const unauthorizedUser = await UnauthorizedUser.findOne({ username: targetUsername });
+        if (!unauthorizedUser) {
+            return res.status(404).json({ message: 'Пользователь не найден в списке на авторизацию' });
+        }
+
+        const newUser = new User({
+            username: unauthorizedUser.username,
+            password: unauthorizedUser.password,
+            role: 'user',
+            credits: 100
+        });
+
+        await newUser.save();
+        await UnauthorizedUser.deleteOne({ username: targetUsername });
+
+        res.status(200).json({ message: `Аккаунт ${targetUsername} успешно авторизован.` });
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при авторизации аккаунта' });
+    }
+});
+
+// НОВЫЙ РОУТ ДЛЯ УДАЛЕНИЯ НЕАВТОРИЗОВАННОГО АККАУНТА
+app.post('/api/delete-unauthorized-account', async (req, res) => {
+    const { requesterUsername, targetUsername } = req.body;
+    try {
+        const requester = await User.findOne({ username: requesterUsername });
+        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещён' });
+        }
+
+        const result = await UnauthorizedUser.deleteOne({ username: targetUsername });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'Пользователь не найден в списке на авторизацию' });
+        }
+
+        res.status(200).json({ message: `Запрос на регистрацию для аккаунта ${targetUsername} успешно удалён.` });
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при удалении запроса' });
     }
 });
 
@@ -300,7 +395,7 @@ app.post('/api/tasks/create', async (req, res) => {
 app.post('/api/tasks', async (req, res) => {
     const { username } = req.body;
     try {
-        const tasks = await Task.find({ 
+        const tasks = await Task.find({
             $or: [
                 { status: 'active', performer: 'All' },
                 { performer: username },
@@ -338,12 +433,10 @@ app.post('/api/tasks/accept', async (req, res) => {
             return res.status(400).json({ message: 'Задание недоступно для принятия' });
         }
         
-        // --- ДОБАВЛЕНА НОВАЯ ПРОВЕРКА ---
         const acceptedTasksCount = await Task.countDocuments({ performer: username, status: 'in_progress' });
         if (acceptedTasksCount >= 2) {
             return res.status(400).json({ message: 'Вы не можете принять больше двух заданий.' });
         }
-        // -------------------------------
         
         task.performer = username;
         task.status = 'in_progress';
@@ -428,7 +521,6 @@ app.post('/api/tasks/change-performer', async (req, res) => {
 app.post('/api/disease/create', async (req, res) => {
     const { name, type, symptoms, spread, resistance, vulnerabilities, treatment, vaccine } = req.body;
 
-    // Простая валидация (vaccine не обязателен)
     if (!name || !type || !symptoms || !spread || !resistance || !vulnerabilities || !treatment) {
         return res.status(400).json({ message: 'Заполните все обязательные поля.' });
     }
@@ -442,7 +534,7 @@ app.post('/api/disease/create', async (req, res) => {
             resistance,
             vulnerabilities,
             treatment,
-            vaccine // Сохраняем новое поле
+            vaccine
         });
         await newDisease.save();
         res.status(201).json({ message: 'Болезнь успешно создана!' });
@@ -481,7 +573,6 @@ app.post('/api/disease/delete', async (req, res) => {
 app.post('/api/vaccine/create', async (req, res) => {
     const { name, diseaseName, dosage, effectiveness, sideEffects } = req.body;
 
-    // Простая валидация
     if (!name || !diseaseName || !dosage || effectiveness === undefined) {
         return res.status(400).json({ message: 'Заполните все обязательные поля.' });
     }

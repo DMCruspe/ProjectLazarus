@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -19,7 +18,7 @@
         <aside class="left-panel">
             <h2>Навигация</h2>
             <nav>
-                <button class="nav-button">Узнать симптомы</button>
+                <button id="show-symptoms-game-btn" class="nav-button">Узнать симптомы</button>
                 <button class="nav-button">Моделирование распространения</button>
                 <button class="nav-button">Поиск уязвимостей</button>
                 <button id="back-to-main" class="nav-button">Назад</button>
@@ -28,7 +27,7 @@
         <main class="center-panel lab-panel">
             <h2 id="lab-welcome-message"></h2>
 
-            <div class="game-card">
+            <div id="symptoms-game-card" class="game-card" style="display: none;">
                 <h3>Мини-игра: Исследование симптомов</h3>
                 <p>Нажмите "Начать исследование", чтобы провести серию исследований. Ваша задача — найти повторяющиеся симптомы. Их может быть от 2 до 3.</p>
                 
@@ -37,7 +36,7 @@
                 </div>
 
                 <div id="research-results-container">
-                    </div>
+                </div>
                 
                 <div id="user-input-section" style="display: none;">
                     <h4>Введите найденные симптомы:</h4>
@@ -48,13 +47,13 @@
                     </div>
                     <button id="check-symptoms-btn" class="nav-button">Проверить</button>
                 </div>
-    
-    <div id="game-feedback">
-        </div>
+                
+                <div id="game-feedback">
+                </div>
 
-    <button id="repeat-research-btn" class="nav-button" style="display: none;">Повторить исследование</button>
-</div>
-            </main>
+                <button id="repeat-research-btn" class="nav-button" style="display: none;">Повторить исследование</button>
+            </div>
+        </main>
     </div>
 
     <div class="footer">

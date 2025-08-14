@@ -127,22 +127,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function getCorrectSymptoms() {
-        if (allSymptoms.length === 0) {
-            return [];
+     function getCorrectSymptoms() {
+        if (allSymptoms.length < 2) {
+            // Если в базе меньше 2 симптомов, вернуть всё, что есть
+            return allSymptoms;
         }
         
         const subgroups = [...new Set(allSymptoms.map(s => s.subgroup))];
-        if (subgroups.length === 0) {
-            return [];
+        let correctSymptoms = [];
+        let attempts = 0;
+        const maxAttempts = 10; // Ограничение попыток, чтобы избежать бесконечного цикла
+
+        while (correctSymptoms.length < 2 && attempts < maxAttempts) {
+            const randomSubgroup = subgroups[Math.floor(Math.random() * subgroups.length)];
+            const symptomsInSubgroup = allSymptoms.filter(s => s.subgroup === randomSubgroup);
+
+            if (symptomsInSubgroup.length >= 2) {
+                // Если в подгруппе 2 или больше симптомов, то выбираем от 2 до 3
+                const count = (symptomsInSubgroup.length >= 3 && Math.random() < 0.5) ? 3 : 2;
+                const shuffled = symptomsInSubgroup.sort(() => 0.5 - Math.random());
+                correctSymptoms = shuffled.slice(0, count);
+            }
+            attempts++;
         }
 
-        const randomSubgroup = subgroups[Math.floor(Math.random() * subgroups.length)];
-        const symptomsInSubgroup = allSymptoms.filter(s => s.subgroup === randomSubgroup);
-        
-        const count = Math.random() < 0.5 && symptomsInSubgroup.length >= 2 ? 2 : 3;
-        const shuffled = symptomsInSubgroup.sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count);
+        // Если после всех попыток не удалось найти подходящую подгруппу,
+        // просто возвращаем первые 2 симптома из общего списка
+        if (correctSymptoms.length < 2) {
+            const shuffledAll = allSymptoms.sort(() => 0.5 - Math.random());
+            return shuffledAll.slice(0, 2);
+        }
+
+        return correctSymptoms;
     }
 
     function generateSymptomsForResearch() {

@@ -51,7 +51,7 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
-// НОВАЯ СХЕМА ДЛЯ НЕАВТОРИЗОВАННЫХ АККАУНТОВ
+// СХЕМА ДЛЯ НЕАВТОРИЗОВАННЫХ АККАУНТОВ
 const UnauthorizedUserSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -69,7 +69,7 @@ const UnauthorizedUserSchema = new mongoose.Schema({
 });
 const UnauthorizedUser = mongoose.model('UnauthorizedUser', UnauthorizedUserSchema);
 
-// Новая схема для заданий с полем title и createdAt
+// СХЕМА ДЛЯ ЗАДАНИЙ
 const TaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
     taskType: { type: String, required: true },
@@ -82,7 +82,7 @@ const TaskSchema = new mongoose.Schema({
 });
 const Task = mongoose.model('Task', TaskSchema);
 
-// НОВАЯ СХЕМА ДЛЯ БОЛЕЗНЕЙ
+// СХЕМА ДЛЯ БОЛЕЗНЕЙ
 const diseaseSchema = new mongoose.Schema({
     name: { type: String, required: true },
     type: { type: String, required: true },
@@ -96,6 +96,7 @@ const diseaseSchema = new mongoose.Schema({
 });
 const Disease = mongoose.model('Disease', diseaseSchema);
 
+// СХЕМА ДЛЯ ВАКЦИН
 const vaccineSchema = new mongoose.Schema({
     name: { type: String, required: true },
     diseaseName: { type: String, required: true },
@@ -106,6 +107,7 @@ const vaccineSchema = new mongoose.Schema({
 });
 const Vaccine = mongoose.model('Vaccine', vaccineSchema);
 
+// СХЕМА ДЛЯ СИМПТОМОВ
 const symptomSchema = new mongoose.Schema({
     name: { type: String, required: true },
     subgroup: { type: String, required: true },
@@ -128,29 +130,21 @@ app.get('/api/version', (req, res) => {
     res.json({ version: appVersion });
 });
 
-// ОБНОВЛЁННЫЙ РОУТ ДЛЯ РЕГИСТРАЦИИ
+// РОУТ ДЛЯ РЕГИСТРАЦИИ
 app.post('/api/register', authLimiter, async (req, res) => {
     try {
         const { username, password } = req.body;
-
         if (!username || !password) {
             return res.status(400).json({ message: 'Необходимо ввести логин и пароль' });
         }
-
-        // Проверяем наличие пользователя в обеих коллекциях
         const existingUser = await User.findOne({ username });
         const existingUnauthorizedUser = await UnauthorizedUser.findOne({ username });
-
         if (existingUser || existingUnauthorizedUser) {
             return res.status(409).json({ message: 'Пользователь с таким именем уже существует' });
         }
-
         const passwordHash = await bcrypt.hash(password, 10);
-        
-        // По умолчанию создаем аккаунт в коллекции неавторизованных пользователей
         const newUnauthorizedUser = new UnauthorizedUser({ username, password: passwordHash });
         await newUnauthorizedUser.save();
-        
         res.status(201).json({ message: 'Запрос на регистрацию отправлен. Дождитесь авторизации администратором.' });
     } catch (err) {
         console.error(err);
@@ -158,24 +152,19 @@ app.post('/api/register', authLimiter, async (req, res) => {
     }
 });
 
-// ОБНОВЛЁННЫЙ РОУТ ДЛЯ АВТОРИЗАЦИИ
+// РОУТ ДЛЯ АВТОРИЗАЦИИ
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-
     try {
         const user = await User.findOne({ username });
-
         if (!user) {
-            // Если не найден среди авторизованных, проверяем в неавторизованных
             const unauthorizedUser = await UnauthorizedUser.findOne({ username });
             if (unauthorizedUser) {
                 return res.status(401).json({ message: 'Ваш аккаунт ожидает авторизации администратором.' });
             }
             return res.status(401).json({ message: 'Неверный логин или пароль' });
         }
-
         const isPasswordValid = await bcrypt.compare(password, user.password);
-
         if (isPasswordValid) {
             res.status(200).json({
                 message: 'Вход выполнен успешно',
@@ -192,7 +181,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// НОВЫЙ РОУТ ДЛЯ ПОЛУЧЕНИЯ СПИСКА НЕАВТОРИЗОВАННЫХ ПОЛЬЗОВАТЕЛЕЙ
+// РОУТ ДЛЯ ПОЛУЧЕНИЯ СПИСКА НЕАВТОРИЗОВАННЫХ ПОЛЬЗОВАТЕЛЕЙ
 app.post('/api/unauthorized-players', async (req, res) => {
     const { requesterUsername } = req.body;
     try {
@@ -200,7 +189,6 @@ app.post('/api/unauthorized-players', async (req, res) => {
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-        
         const unauthorizedUsers = await UnauthorizedUser.find({}, 'username requestDate');
         res.status(200).json(unauthorizedUsers);
     } catch (error) {
@@ -208,7 +196,7 @@ app.post('/api/unauthorized-players', async (req, res) => {
     }
 });
 
-// НОВЫЙ РОУТ ДЛЯ АВТОРИЗАЦИИ ПОЛЬЗОВАТЕЛЯ
+// РОУТ ДЛЯ АВТОРИЗАЦИИ ПОЛЬЗОВАТЕЛЯ
 app.post('/api/authorize-account', async (req, res) => {
     const { requesterUsername, targetUsername } = req.body;
     try {
@@ -216,29 +204,25 @@ app.post('/api/authorize-account', async (req, res) => {
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-        
         const unauthorizedUser = await UnauthorizedUser.findOne({ username: targetUsername });
         if (!unauthorizedUser) {
             return res.status(404).json({ message: 'Пользователь не найден в списке на авторизацию' });
         }
-
         const newUser = new User({
             username: unauthorizedUser.username,
             password: unauthorizedUser.password,
             role: 'user',
             credits: 100
         });
-
         await newUser.save();
         await UnauthorizedUser.deleteOne({ username: targetUsername });
-
         res.status(200).json({ message: `Аккаунт ${targetUsername} успешно авторизован.` });
     } catch (error) {
         res.status(500).json({ message: 'Ошибка при авторизации аккаунта' });
     }
 });
 
-// НОВЫЙ РОУТ ДЛЯ УДАЛЕНИЯ НЕАВТОРИЗОВАННОГО АККАУНТА
+// РОУТ ДЛЯ УДАЛЕНИЯ НЕАВТОРИЗОВАННОГО АККАУНТА
 app.post('/api/delete-unauthorized-account', async (req, res) => {
     const { requesterUsername, targetUsername } = req.body;
     try {
@@ -246,12 +230,10 @@ app.post('/api/delete-unauthorized-account', async (req, res) => {
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-
         const result = await UnauthorizedUser.deleteOne({ username: targetUsername });
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: 'Пользователь не найден в списке на авторизацию' });
         }
-
         res.status(200).json({ message: `Запрос на регистрацию для аккаунта ${targetUsername} успешно удалён.` });
     } catch (error) {
         res.status(500).json({ message: 'Ошибка при удалении запроса' });
@@ -261,16 +243,13 @@ app.post('/api/delete-unauthorized-account', async (req, res) => {
 // Роут для добавления кредитов себе (доступен только для superadmin)
 app.post('/api/add-credits', async (req, res) => {
     const { username, amount } = req.body;
-
     try {
         const superAdminUser = await User.findOne({ username });
         if (!superAdminUser || superAdminUser.role !== 'superadmin') {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-
         superAdminUser.credits += amount;
         await superAdminUser.save();
-
         res.status(200).json({ message: `Ваш баланс обновлен. Новый баланс: ${superAdminUser.credits}`, newCredits: superAdminUser.credits });
     } catch (error) {
         console.error('Ошибка добавления кредитов:', error);
@@ -286,7 +265,6 @@ app.post('/api/players', async (req, res) => {
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-        
         const users = await User.find({}, 'username role credits');
         res.status(200).json(users);
     } catch (error) {
@@ -302,12 +280,10 @@ app.post('/api/players/update-credits', async (req, res) => {
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-
         const targetUser = await User.findOne({ username: targetUsername });
         if (!targetUser) {
             return res.status(404).json({ message: 'Пользователь не найден' });
         }
-
         targetUser.credits += amount;
         await targetUser.save();
         res.status(200).json({ message: `Баланс пользователя ${targetUsername} обновлен.`, newCredits: targetUser.credits });
@@ -324,16 +300,13 @@ app.post('/api/players/toggle-role', async (req, res) => {
         if (!requester || requester.role !== 'superadmin') {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-
         if (requesterUsername === targetUsername) {
             return res.status(403).json({ message: 'Вы не можете изменить свою собственную роль' });
         }
-        
         const targetUser = await User.findOne({ username: targetUsername });
         if (!targetUser) {
             return res.status(404).json({ message: 'Пользователь не найден' });
         }
-        
         targetUser.role = newRole;
         await targetUser.save();
         res.status(200).json({ message: `Роль пользователя ${targetUsername} изменена на ${newRole}.`, newRole: targetUser.role });
@@ -350,23 +323,20 @@ app.post('/api/players/delete', async (req, res) => {
         if (!requester || requester.role !== 'superadmin') {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-
         if (requesterUsername === targetUsername) {
             return res.status(403).json({ message: 'Вы не можете удалить свой собственный аккаунт' });
         }
-
         const result = await User.deleteOne({ username: targetUsername });
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: 'Пользователь не найден' });
         }
-        
         res.status(200).json({ message: `Аккаунт ${targetUsername} успешно удалён.` });
     } catch (error) {
         res.status(500).json({ message: 'Ошибка при удалении аккаунта' });
     }
 });
 
-// Роут для создания нового задания (доступен только для admin и superadmin)
+// ОБЪЕДИНЕННЫЙ И ИСПРАВЛЕННЫЙ РОУТ ДЛЯ СОЗДАНИЯ НОВОГО ЗАДАНИЯ
 app.post('/api/tasks/create', async (req, res) => {
     const { requesterUsername, title, taskType, description, reward, performer } = req.body;
     try {
@@ -375,6 +345,7 @@ app.post('/api/tasks/create', async (req, res) => {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
         
+        // Создание нового задания
         const newTask = new Task({
             title,
             taskType,
@@ -383,6 +354,22 @@ app.post('/api/tasks/create', async (req, res) => {
             performer,
             createdBy: requesterUsername
         });
+
+        // НОВАЯ ЛОГИКА: если тип задания - "исследование болезни", создать новую болезнь
+        if (taskType === 'Болезнь') {
+            const newDisease = new Disease({
+                name: title,
+                type: 'Неизвестно', 
+                symptoms: 'Неизвестно',
+                spread: 'Неизвестно',
+                resistance: 'Неизвестно',
+                vulnerabilities: 'Неизвестно',
+                treatment: 'Неизвестно',
+                vaccine: 'Нет'
+            });
+            await newDisease.save();
+        }
+
         await newTask.save();
         res.status(201).json({ message: 'Задание успешно создано.' });
     } catch (error) {
@@ -428,20 +415,16 @@ app.post('/api/tasks/accept', async (req, res) => {
     const { taskId, username } = req.body;
     try {
         const task = await Task.findById(taskId);
-
         if (!task || task.status !== 'active' || (task.performer !== 'All' && task.performer !== username)) {
             return res.status(400).json({ message: 'Задание недоступно для принятия' });
         }
-        
         const acceptedTasksCount = await Task.countDocuments({ performer: username, status: 'in_progress' });
         if (acceptedTasksCount >= 2) {
             return res.status(400).json({ message: 'Вы не можете принять больше двух заданий.' });
         }
-        
         task.performer = username;
         task.status = 'in_progress';
         await task.save();
-        
         res.status(200).json({ message: 'Задание успешно принято' });
     } catch (error) {
         console.error('Ошибка при принятии задания:', error);
@@ -457,21 +440,17 @@ app.post('/api/tasks/complete', async (req, res) => {
         if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
             return res.status(403).json({ message: 'Доступ запрещён' });
         }
-        
         const task = await Task.findById(taskId);
         if (!task) {
             return res.status(404).json({ message: 'Задание не найдено' });
         }
-        
         const performer = await User.findOne({ username: task.performer });
         if (!performer) {
             return res.status(404).json({ message: 'Исполнитель не найден' });
         }
-        
         performer.credits += task.reward;
         await performer.save();
         await Task.deleteOne({ _id: taskId });
-        
         res.status(200).json({ message: `Задание выполнено. ${task.reward} R начислено пользователю ${performer.username}.` });
     } catch (error) {
         console.error('Ошибка при выполнении задания:', error);
@@ -517,14 +496,12 @@ app.post('/api/tasks/change-performer', async (req, res) => {
     }
 });
 
-// НОВЫЙ РОУТ ДЛЯ СОЗДАНИЯ БОЛЕЗНИ
+// РОУТ ДЛЯ СОЗДАНИЯ БОЛЕЗНИ
 app.post('/api/disease/create', async (req, res) => {
     const { name, type, symptoms, spread, resistance, vulnerabilities, treatment, vaccine } = req.body;
-
     if (!name || !type || !symptoms || !spread || !resistance || !vulnerabilities || !treatment) {
         return res.status(400).json({ message: 'Заполните все обязательные поля.' });
     }
-
     try {
         const newDisease = new Disease({
             name,
@@ -555,6 +532,7 @@ app.post('/api/diseases/list', async (req, res) => {
     }
 });
 
+// Роут для удаления болезни
 app.post('/api/disease/delete', async (req, res) => {
     const { diseaseId, requesterUsername } = req.body;
     try {
@@ -570,13 +548,12 @@ app.post('/api/disease/delete', async (req, res) => {
     }
 });
 
+// Роут для создания вакцины
 app.post('/api/vaccine/create', async (req, res) => {
     const { name, diseaseName, dosage, effectiveness, sideEffects } = req.body;
-
     if (!name || !diseaseName || !dosage || effectiveness === undefined) {
         return res.status(400).json({ message: 'Заполните все обязательные поля.' });
     }
-
     try {
         const newVaccine = new Vaccine({
             name,
@@ -608,6 +585,7 @@ app.post('/api/vaccine/info', async (req, res) => {
     }
 });
 
+// Роут для получения списка всех симптомов
 app.get('/api/symptoms/list', async (req, res) => {
     try {
         const symptoms = await Symptom.find({});
@@ -618,6 +596,7 @@ app.get('/api/symptoms/list', async (req, res) => {
     }
 });
 
+// Роут для добавления симптома
 app.post('/api/symptom/add', async (req, res) => {
     const { name, subgroup } = req.body;
     if (!name || !subgroup) {
@@ -633,6 +612,7 @@ app.post('/api/symptom/add', async (req, res) => {
     }
 });
 
+// Роут для удаления симптома
 app.post('/api/symptom/delete', async (req, res) => {
     const { id } = req.body;
     try {
@@ -643,48 +623,6 @@ app.post('/api/symptom/delete', async (req, res) => {
         res.status(500).json({ message: 'Ошибка при удалении симптома' });
     }
 });
-
-app.post('/api/tasks/create', async (req, res) => {
-    const { requesterUsername, title, taskType, description, reward, performer } = req.body;
-    try {
-        const requester = await User.findOne({ username: requesterUsername });
-        if (!requester || (requester.role !== 'admin' && requester.role !== 'superadmin')) {
-            return res.status(403).json({ message: 'Доступ запрещён' });
-        }
-        
-        // Создание нового задания
-        const newTask = new Task({
-            title,
-            taskType,
-            description,
-            reward,
-            performer,
-            createdBy: requesterUsername
-        });
-
-        // НОВАЯ ЛОГИКА: если тип задания - "исследование болезни", создать новую болезнь
-        if (taskType === 'Болезнь') {
-            const newDisease = new Disease({
-                name: title,
-                type: 'Неизвестно', 
-                symptoms: 'Неизвестно',
-                spread: 'Неизвестно',
-                resistance: 'Неизвестно',
-                vulnerabilities: 'Неизвестно',
-                treatment: 'Неизвестно',
-                vaccine: 'Нет'
-            });
-            await newDisease.save();
-        }
-
-        await newTask.save();
-        res.status(201).json({ message: 'Задание успешно создано.' });
-    } catch (error) {
-        console.error('Ошибка при создании задания:', error);
-        res.status(500).json({ message: 'Ошибка при создании задания' });
-    }
-});
-
 
 // Отдача статических файлов (HTML, CSS, JS) из папки 'public'
 app.use(express.static(path.join(__dirname, 'public')));

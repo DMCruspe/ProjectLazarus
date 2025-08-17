@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const vaccineSchema = new mongoose.Schema({
     name: { type: String, required: true },
     diseaseName: { type: String, required: true },

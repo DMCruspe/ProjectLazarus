@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const symptomSchema = new mongoose.Schema({
     name: { type: String, required: true },
     subgroup: { type: String, required: true },

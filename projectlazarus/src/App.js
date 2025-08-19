@@ -35,15 +35,11 @@ function App() {
     };
 
     return (
-        <div className="App page-container active">
-            {renderPage()}
-        </div>
-
-        <div className="App">
-            <h1>Hello, World!</h1> {/* Временная строка */}
-            {renderPage()}
-        </div>
-    );
-}
+    <div className="App">
+        {/* Все ваши JSX-элементы должны быть внутри этого div */}
+        <h1>Hello, World!</h1>
+        {renderPage()}
+    </div>
+);
 
 export default App;

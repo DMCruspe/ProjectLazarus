@@ -1,5 +1,6 @@
+// src/components/MainPage.js
 import React from 'react';
-import '../App.css'; // Верно, уже было в вашем коде
+import '../App.css'; 
 
 const MainPage = ({ onNavigate }) => {
     return (

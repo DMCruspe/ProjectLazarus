@@ -1,6 +1,6 @@
-// src/components/LoginPage.js
 import React, { useState } from 'react';
-import axios from 'axios'; // Рекомендуется использовать axios
+import axios from 'axios';
+import '../App.css'; // Верно, уже было в вашем коде
 
 const LoginPage = ({ onNavigate, onLoginSuccess }) => {
     const [username, setUsername] = useState('');
@@ -20,7 +20,7 @@ const LoginPage = ({ onNavigate, onLoginSuccess }) => {
             localStorage.setItem('role', response.data.role);
             localStorage.setItem('credits', response.data.credits);
             
-            onLoginSuccess(); // Вызываем пропс для перехода на другую страницу
+            onLoginSuccess();
         } catch (error) {
             const errorMessage = error.response ? error.response.data.message : 'Ошибка при входе. Попробуйте ещё раз.';
             setMessage({ text: errorMessage, isError: true });

@@ -1,6 +1,6 @@
-// src/components/RegisterPage.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import '../App.css'; // **ДОБАВЛЕН ЭТОТ ИМПОРТ**
 
 const RegisterPage = ({ onNavigate, onRegisterSuccess }) => {
     const [username, setUsername] = useState('');

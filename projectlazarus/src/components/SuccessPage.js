@@ -1,9 +1,9 @@
-// src/components/SuccessPage.js
 import React from 'react';
+import '../App.css'; // **ДОБАВЛЕН ЭТОТ ИМПОРТ**
 
 const SuccessPage = ({ onNavigate }) => {
     return (
-        <div id="success-page" className="page-container active">
+        <div id="success-page" className="page-container">
             <div className="content-box">
                 <h2>Вы успешно зарегистрировались!</h2>
                 <p>Теперь войдите в систему.</p>

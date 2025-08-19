@@ -21,7 +21,6 @@ body {
     transform: translate(-50%, -50%);
     width: 100%;
     max-width: 400px;
-    display: none; /* Скрывает все страницы по умолчанию */
     text-align: center;
 }
 

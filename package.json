@@ -10,6 +10,7 @@
     "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^4.17.1",
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",

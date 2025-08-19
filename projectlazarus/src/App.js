@@ -4,7 +4,6 @@ import MainPage from './components/MainPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import SuccessPage from './components/SuccessPage';
-import './App.css'; // Импортируем стили
 
 function App() {
     const [currentPage, setCurrentPage] = useState('main');

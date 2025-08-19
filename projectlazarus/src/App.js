@@ -1,16 +1,16 @@
-// src/App.js
 import React, { useState } from 'react';
 import MainPage from './components/MainPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import SuccessPage from './components/SuccessPage';
+import DashboardPage from './components/DashboardPage'; // ИМПОРТ НОВОГО КОМПОНЕНТА
+import './App.css';
 
 function App() {
     const [currentPage, setCurrentPage] = useState('main');
 
     const handleLoginSuccess = () => {
-        // При успешном входе перенаправляем на "основную страницу" (или другой URL, если нужно)
-        window.location.href = '/site2.html';
+        setCurrentPage('dashboard'); // МЕНЯЕМ СОСТОЯНИЕ НА "DASHBOARD"
     };
 
     const handleRegisterSuccess = () => {
@@ -27,6 +27,8 @@ function App() {
                 return <RegisterPage onNavigate={setCurrentPage} onRegisterSuccess={handleRegisterSuccess} />;
             case 'success':
                 return <SuccessPage onNavigate={setCurrentPage} />;
+            case 'dashboard': // НОВЫЙ CASE
+                return <DashboardPage onNavigate={setCurrentPage} />;
             default:
                 return <MainPage onNavigate={setCurrentPage} />;
         }

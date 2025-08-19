@@ -26,7 +26,7 @@ app.use(express.json());
 // В продакшене лучше указать конкретный домен
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? 'https://ваш-домен-реакта.com' 
+        ? 'https://projectlazarus.herokuapp.com' 
         : '*'
 }));
 

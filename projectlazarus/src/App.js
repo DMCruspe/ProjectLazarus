@@ -35,7 +35,12 @@ function App() {
     };
 
     return (
+        <div className="App page-container active">
+            {renderPage()}
+        </div>
+
         <div className="App">
+            <h1>Hello, World!</h1> {/* Временная строка */}
             {renderPage()}
         </div>
     );

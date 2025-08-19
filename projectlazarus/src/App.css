@@ -8,6 +8,11 @@ body {
     margin: 0;
 }
 
+#root, .App {
+  /* Убедитесь, что эти элементы не скрыты */
+  display: block;
+  min-height: 100vh;
+}
 /* Обновленный стиль для контейнера страниц */
 .page-container {
     position: absolute;

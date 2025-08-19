@@ -40,6 +40,6 @@ function App() {
         <h1>Hello, World!</h1>
         {renderPage()}
     </div>
-);
-
+    );
+};
 export default App;

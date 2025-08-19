@@ -36,8 +36,6 @@ function App() {
 
     return (
     <div className="App">
-        {/* Все ваши JSX-элементы должны быть внутри этого div */}
-        <h1>Hello, World!</h1>
         {renderPage()}
     </div>
     );

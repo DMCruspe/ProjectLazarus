@@ -1,3 +1,5 @@
+// controllers/playerController.js
+
 const User = require('../models/User');
 
 exports.getPlayers = async (req, res) => {
@@ -88,5 +90,32 @@ exports.deletePlayer = async (req, res) => {
         res.status(200).json({ message: `Аккаунт ${targetUsername} успешно удалён.` });
     } catch (error) {
         res.status(500).json({ message: 'Ошибка при удалении аккаунта' });
+    }
+};
+
+// НОВАЯ ФУНКЦИЯ: Получение списка неавторизованных игроков
+exports.getUnauthorizedPlayers = async (req, res) => {
+    const { requesterUsername } = req.body;
+    
+    // Проверка, является ли пользователь администратором
+    try {
+        const requesterUser = await User.findOne({ username: requesterUsername });
+        if (!requesterUser || (requesterUser.role !== 'admin' && requesterUser.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещен.' });
+        }
+
+        // Найдите всех пользователей с ролью 'unauthorized'
+        const unauthorizedPlayers = await User.find({ role: 'unauthorized' });
+
+        // Отправьте только логины и даты запросов
+        const responseData = unauthorizedPlayers.map(player => ({
+            username: player.username,
+            requestDate: player.requestDate
+        }));
+
+        res.json(responseData);
+    } catch (error) {
+        console.error('Ошибка при получении списка неавторизованных игроков:', error);
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 };

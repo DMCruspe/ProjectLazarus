@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import '../App.css';
 import VersionInfo from './VersionInfo';
-import { useNavigate } from 'react-router-dom';
 
 const ConstructorPage = ({ onNavigate }) => {
     const [user, setUser] = useState(null);
     const [activeForm, setActiveForm] = useState(null);
     const [players, setPlayers] = useState([]);
     const [symptoms, setSymptoms] = useState([]);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const username = localStorage.getItem('username');
@@ -22,8 +20,14 @@ const ConstructorPage = ({ onNavigate }) => {
         }
 
         setUser({ username, role, credits });
-        fetchPlayers();
     }, [onNavigate]);
+
+    useEffect(() => {
+        if (user) {
+            fetchPlayers();
+        }
+        // eslint-disable-next-line
+    }, [user]);
 
     const fetchPlayers = async () => {
         try {
@@ -61,7 +65,7 @@ const ConstructorPage = ({ onNavigate }) => {
             if (res.ok) {
                 alert(result.message);
                 if (endpoint.includes('symptom')) {
-                    fetchSymptoms(); // Обновляем список симптомов
+                    fetchSymptoms();
                 }
             } else {
                 alert('Ошибка: ' + result.message);
@@ -149,7 +153,6 @@ const ConstructorPage = ({ onNavigate }) => {
                         vaccine: e.target.vaccine.value,
                     })}>
                         <h2>Создание новой болезни</h2>
-                        {/* ... (поля формы для болезни) ... */}
                         <div className="form-row"><label>Название:</label><input type="text" name="name" required /></div>
                         <div className="form-row"><label>Тип:</label><select name="type"><option value="">-- Выберите тип --</option><option value="вирус">Вирус</option><option value="бактерия">Бактерия</option><option value="грибок">Грибок</option><option value="паразит">Паразит</option><option value="прион">Прион</option></select></div>
                         <div className="form-row"><label>Симптомы:</label><textarea name="symptoms"></textarea></div>
@@ -171,7 +174,6 @@ const ConstructorPage = ({ onNavigate }) => {
                         sideEffects: e.target.sideEffects.value,
                     })}>
                         <h2>Создание новой вакцины</h2>
-                        {/* ... (поля формы для вакцины) ... */}
                         <div className="form-row"><label>Название:</label><input type="text" name="name" required /></div>
                         <div className="form-row"><label>Название Болезни:</label><input type="text" name="diseaseName" required /></div>
                         <div className="form-row"><label>Дозировка:</label><input type="text" name="dosage" required /></div>
@@ -275,3 +277,4 @@ const ConstructorPage = ({ onNavigate }) => {
 };
 
 export default ConstructorPage;
+// ...existing code...

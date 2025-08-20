@@ -6,7 +6,8 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import SuccessPage from './components/SuccessPage';
 import DashboardPage from './components/DashboardPage';
-import ConstructorPage from './components/ConstructorPage'; // <-- Убедитесь, что импорт есть
+import ConstructorPage from './components/ConstructorPage';
+import PlayersPage from './components/PlayersPage'; // <-- Импортируем новый компонент
 import './App.css';
 
 function App() {
@@ -33,13 +34,15 @@ function App() {
             case 'dashboard':
                 return <DashboardPage onNavigate={setCurrentPage} />;
             case 'constructor':
-                return <ConstructorPage onNavigate={setCurrentPage} />; // <-- Этот блок нужно добавить
+                return <ConstructorPage onNavigate={setCurrentPage} />;
+            case 'players': // <-- Добавляем новый case для страницы игроков
+                return <PlayersPage onNavigate={setCurrentPage} />;
             default:
                 return <MainPage onNavigate={setCurrentPage} />;
         }
     };
 
-    const layoutClass = currentPage === 'dashboard' || currentPage === 'constructor' ? 'dashboard-layout' : 'centered-layout';
+    const layoutClass = currentPage === 'dashboard' || currentPage === 'constructor' || currentPage === 'players' ? 'dashboard-layout' : 'centered-layout';
 
     return (
         <div className={layoutClass}>

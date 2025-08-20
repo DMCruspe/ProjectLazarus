@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import '../App.css';
-import './PlayersPage.css'; // Create this file for your CSS
+import './PlayersPage.css';
 import VersionInfo from './VersionInfo';
 
 const PlayersPage = ({ onNavigate }) => {
@@ -24,17 +24,19 @@ const PlayersPage = ({ onNavigate }) => {
     }, [onNavigate]);
 
     useEffect(() => {
-        if (user && (user.role === 'admin' || user.role === 'superadmin')) {
-            if (isAuthorizedView) {
-                fetchAuthorizedPlayers();
+        if (user) {
+            if (user.role === 'admin' || user.role === 'superadmin') {
+                if (isAuthorizedView) {
+                    fetchAuthorizedPlayers();
+                } else {
+                    fetchUnauthorizedPlayers();
+                }
             } else {
-                fetchUnauthorizedPlayers();
+                alert('Доступ запрещён.');
+                onNavigate('dashboard');
             }
-        } else if (user) {
-            alert('Доступ запрещён.');
-            onNavigate('dashboard');
         }
-    }, [user, isAuthorizedView]);
+    }, [user, isAuthorizedView, onNavigate]);
 
     const fetchAuthorizedPlayers = async () => {
         try {
@@ -77,7 +79,7 @@ const PlayersPage = ({ onNavigate }) => {
             setPlayers([]);
         }
     };
-    
+
     const handleAddCredits = async (targetUsername) => {
         const amount = prompt('Введите количество кредитов для добавления:', 100);
         if (amount && !isNaN(amount)) {

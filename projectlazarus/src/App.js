@@ -34,8 +34,11 @@ function App() {
         }
     };
 
+    // Применяем класс, соответствующий текущей странице
+    const layoutClass = currentPage === 'dashboard' ? 'dashboard-layout' : 'centered-layout';
+
     return (
-        <div className="App">
+        <div className={layoutClass}>
             {renderPage()}
         </div>
     );

@@ -1,4 +1,8 @@
-body {
+/* =======================================
+   СТИЛИ ДЛЯ ЦЕНТРИРОВАННЫХ СТРАНИЦ
+   (MainPage, LoginPage, RegisterPage, SuccessPage)
+   ======================================= */
+.centered-layout {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
     display: flex;
@@ -8,25 +12,10 @@ body {
     margin: 0;
 }
 
-#root, .App {
-  /* Убедитесь, что эти элементы не скрыты */
-  display: block;
-  min-height: 100vh;
-}
-/* Обновленный стиль для контейнера страниц */
 .page-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     width: 100%;
     max-width: 400px;
     text-align: center;
-}
-
-/* Этот класс будет отображать только одну страницу */
-.page-container.active {
-    display: block;
 }
 
 .site-title {
@@ -126,20 +115,19 @@ body {
     font-weight: bold;
 }
 
-/* Dashboard */
-body {
+/* =======================================
+   СТИЛИ ДЛЯ МАКЕТА ДАШБОРДА
+   (DashboardPage)
+   ======================================= */
+.dashboard-layout {
     font-family: Arial, sans-serif;
     margin: 0;
     background-color: #f0f2f5;
-}
-
-.dashboard-container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-/* СТИЛИ ШАПКИ */
 .header {
     display: flex;
     justify-content: space-between;
@@ -186,7 +174,6 @@ body {
     align-items: center;
 }
 
-/* ОСНОВНОЙ КОНТЕЙНЕР КОНТЕНТА */
 .content-container {
     display: flex;
     flex: 1;
@@ -194,7 +181,6 @@ body {
     gap: 20px;
 }
 
-/* СТИЛИ ЛЕВОЙ ПАНЕЛИ */
 .left-panel {
     background-color: #fff;
     border: 1px solid #ccc;
@@ -238,7 +224,6 @@ body {
     border-top: 1px solid #eee;
 }
 
-/* СТИЛИ ОСНОВНОГО КОНТЕНТА (ОБЪЕДИНЕННАЯ ПАНЕЛЬ) */
 .main-content-panel {
     background-color: #fff;
     border: 1px solid #ccc;
@@ -283,7 +268,7 @@ body {
 #tasks-list-container {
     height: 100%;
     overflow-y: auto;
-    padding-right: 10px; /* Добавляем отступ для полосы прокрутки */
+    padding-right: 10px;
 }
 
 .task-card {

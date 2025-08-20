@@ -40,7 +40,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 app.get('/api/version', (req, res) => {
-    res.json({ version: '0500' });
+    res.json({ version: 'build 0620' });
 });
 
 app.use('/api/auth', authRoutes);

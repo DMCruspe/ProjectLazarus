@@ -1,10 +1,12 @@
+// src/App.js
+
 import React, { useState } from 'react';
 import MainPage from './components/MainPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import SuccessPage from './components/SuccessPage';
 import DashboardPage from './components/DashboardPage';
-import ConstructorPage from './components/ConstructorPage'; // <-- Импортируем новый компонент
+import ConstructorPage from './components/ConstructorPage'; // <-- Убедитесь, что импорт есть
 import './App.css';
 
 function App() {
@@ -30,8 +32,8 @@ function App() {
                 return <SuccessPage onNavigate={setCurrentPage} />;
             case 'dashboard':
                 return <DashboardPage onNavigate={setCurrentPage} />;
-            case 'constructor': // <-- Новый кейс для конструктора
-                return <ConstructorPage onNavigate={setCurrentPage} />;
+            case 'constructor':
+                return <ConstructorPage onNavigate={setCurrentPage} />; // <-- Этот блок нужно добавить
             default:
                 return <MainPage onNavigate={setCurrentPage} />;
         }

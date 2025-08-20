@@ -89,13 +89,15 @@ const DashboardPage = ({ onNavigate }) => {
                     <nav>
                         {['admin', 'superadmin'].includes(user.role) && (
                             <>
-                                <button className="nav-button">Конструктор</button>
-                                <button className="nav-button">Игроки</button>
-                                <button className="nav-button">Список заданий</button>
+                                {/* Добавлены обработчики onClick */}
+                                <button onClick={() => onNavigate('constructor')} className="nav-button">Конструктор</button>
+                                <button onClick={() => onNavigate('players')} className="nav-button">Игроки</button>
+                                <button onClick={() => onNavigate('tasks_list')} className="nav-button">Список заданий</button>
                             </>
                         )}
-                        <button className="nav-button">Лаборатория</button>
-                        <button className="nav-button">База данных</button>
+                        {/* Добавлены обработчики onClick */}
+                        <button onClick={() => onNavigate('lab')} className="nav-button">Лаборатория</button>
+                        <button onClick={() => onNavigate('database')} className="nav-button">База данных</button>
                         <button className="nav-button" onClick={handleLogout}>Выйти</button>
                     </nav>
                     <div className="version-info-container">

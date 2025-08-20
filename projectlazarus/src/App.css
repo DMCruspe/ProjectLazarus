@@ -117,7 +117,7 @@
 
 /* =======================================
    СТИЛИ ДЛЯ МАКЕТА ДАШБОРДА
-   (DashboardPage)
+   (DashboardPage, PlayersPage, ConstructorPage)
    ======================================= */
 .dashboard-layout {
     font-family: Arial, sans-serif;
@@ -411,5 +411,56 @@
 }
 
 .delete-symptom-btn:hover {
+    background-color: #c82333;
+}
+
+/* =======================================
+   СТИЛИ ДЛЯ СТРАНИЦЫ ИГРОКОВ
+   ======================================= */
+.players-panel {
+    overflow-x: auto;
+    width: 100%;
+}
+
+#players-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#players-table th, #players-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#players-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+/* Стили для кнопок действий */
+.action-btn {
+    padding: 5px 10px;
+    margin-right: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.action-btn:hover {
+    background-color: #ddd;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.delete-btn:hover {
     background-color: #c82333;
 }

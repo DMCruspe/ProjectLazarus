@@ -1,5 +1,14 @@
-const User = require('../models/User');
+// controllers/playerController.js
 
+const User = require('../models/User'); // Подключаем модель пользователя
+const UnauthorizedUser = require('../models/UnauthorizedUser'); // Подключаем модель для неавторизованных пользователей
+const bcrypt = require('bcryptjs'); // Используем bcrypt для хеширования паролей
+
+
+/**
+ * @description Получение списка авторизованных игроков.
+ * @route POST /api/players
+ */
 exports.getPlayers = async (req, res) => {
     const { requesterUsername } = req.body;
     try {
@@ -14,6 +23,33 @@ exports.getPlayers = async (req, res) => {
     }
 };
 
+/**
+ * @description Получение списка неавторизованных игроков.
+ * @route POST /api/players/unauthorized-players
+ */
+exports.getUnauthorizedPlayers = async (req, res) => {
+    const { requesterUsername } = req.body;
+    try {
+        const requesterUser = await User.findOne({ username: requesterUsername });
+        if (!requesterUser || (requesterUser.role !== 'admin' && requesterUser.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Доступ запрещен.' });
+        }
+        const unauthorizedPlayers = await UnauthorizedUser.find({}); // Запрос к UnauthorizedUser
+        const responseData = unauthorizedPlayers.map(player => ({
+            username: player.username,
+            requestDate: player.requestDate
+        }));
+        res.json(responseData);
+    } catch (error) {
+        console.error('Ошибка при получении списка неавторизованных игроков:', error);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
+};
+
+/**
+ * @description Добавление кредитов игроку. Доступно только суперадмину.
+ * @route POST /api/players/add-credits
+ */
 exports.addCredits = async (req, res) => {
     const { username, amount } = req.body;
     try {
@@ -30,6 +66,10 @@ exports.addCredits = async (req, res) => {
     }
 };
 
+/**
+ * @description Обновление кредитов конкретного игрока.
+ * @route POST /api/players/update-credits
+ */
 exports.updatePlayerCredits = async (req, res) => {
     const { requesterUsername, targetUsername, amount } = req.body;
     try {
@@ -49,6 +89,10 @@ exports.updatePlayerCredits = async (req, res) => {
     }
 };
 
+/**
+ * @description Переключение роли игрока. Доступно только суперадмину.
+ * @route POST /api/players/toggle-role
+ */
 exports.togglePlayerRole = async (req, res) => {
     const { requesterUsername, targetUsername, newRole } = req.body;
     try {
@@ -71,6 +115,10 @@ exports.togglePlayerRole = async (req, res) => {
     }
 };
 
+/**
+ * @description Удаление аккаунта игрока. Доступно только суперадмину.
+ * @route POST /api/players/delete
+ */
 exports.deletePlayer = async (req, res) => {
     const { requesterUsername, targetUsername } = req.body;
     try {

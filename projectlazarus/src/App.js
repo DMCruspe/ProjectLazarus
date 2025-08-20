@@ -1,45 +1,55 @@
-// src/App.js
-
 import React, { useState } from 'react';
+import './App.css';
 import MainPage from './components/MainPage';
+import DashboardPage from './components/DashboardPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import SuccessPage from './components/SuccessPage';
-import DashboardPage from './components/DashboardPage';
-import ConstructorPage from './components/ConstructorPage'; // <-- Убедитесь, что импорт есть
-import './App.css';
+import PlayersPage from './components/PlayersPage';
+import ConstructorPage from './components/ConstructorPage';
 
 function App() {
-    const [currentPage, setCurrentPage] = useState('main');
+    const [page, setPage] = useState('main');
+    const [user, setUser] = useState(null);
+    const [message, setMessage] = useState('');
+    const [layoutClass, setLayoutClass] = useState('centered-layout');
 
-    const handleLoginSuccess = () => {
-        setCurrentPage('dashboard');
+    const handleLogin = (userData) => {
+        setUser(userData);
+        setPage('dashboard');
+        setLayoutClass('dashboard-layout');
     };
 
-    const handleRegisterSuccess = () => {
-        setCurrentPage('success');
+    const handleLogout = () => {
+        setUser(null);
+        setPage('main');
+        setLayoutClass('centered-layout');
+    };
+
+    const handleNavigate = (targetPage) => {
+        setPage(targetPage);
     };
 
     const renderPage = () => {
-        switch (currentPage) {
+        switch (page) {
             case 'main':
-                return <MainPage onNavigate={setCurrentPage} />;
+                return <MainPage onNavigate={handleNavigate} />;
             case 'login':
-                return <LoginPage onNavigate={setCurrentPage} onLoginSuccess={handleLoginSuccess} />;
+                return <LoginPage onLogin={handleLogin} onNavigate={handleNavigate} />;
             case 'register':
-                return <RegisterPage onNavigate={setCurrentPage} onRegisterSuccess={handleRegisterSuccess} />;
+                return <RegisterPage onNavigate={handleNavigate} />;
             case 'success':
-                return <SuccessPage onNavigate={setCurrentPage} />;
+                return <SuccessPage onNavigate={handleNavigate} message={message} />;
             case 'dashboard':
-                return <DashboardPage onNavigate={setCurrentPage} />;
+                return <DashboardPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
+            case 'players':
+                return <PlayersPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
             case 'constructor':
-                return <ConstructorPage onNavigate={setCurrentPage} />; // <-- Этот блок нужно добавить
+                return <ConstructorPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
             default:
-                return <MainPage onNavigate={setCurrentPage} />;
+                return <MainPage onNavigate={handleNavigate} />;
         }
     };
-
-    const layoutClass = currentPage === 'dashboard' || currentPage === 'constructor' ? 'dashboard-layout' : 'centered-layout';
 
     return (
         <div className={layoutClass}>

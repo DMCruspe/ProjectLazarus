@@ -1,9 +1,3 @@
-/* Добавляем эти правила в самый верх вашего App.css */
-html, body, #root, .App {
-    height: 100%;
-    margin: 0;
-}
-
 /* =======================================
    СТИЛИ ДЛЯ ЦЕНТРИРОВАННЫХ СТРАНИЦ
    (MainPage, LoginPage, RegisterPage, SuccessPage)
@@ -244,8 +238,7 @@ html, body, #root, .App {
     flex: 1;
     display: flex;
     flex-direction: column;
-    /* КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Заставляем секции занимать всю высоту */
-    height: 100%; 
+    height: 100%;
 }
 
 #accepted-tasks-container {
@@ -298,4 +291,125 @@ html, body, #root, .App {
     border-radius: 5px;
     padding: 8px 15px;
     cursor: pointer;
+}
+
+/* =======================================
+   СТИЛИ ДЛЯ СТРАНИЦЫ КОНСТРУКТОРА
+   ======================================= */
+.constructor-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.constructor-container {
+    display: flex;
+    flex: 1;
+    padding: 20px;
+    gap: 20px;
+}
+
+.constructor-panel {
+    flex-grow: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.constructor-panel h2 {
+    margin-top: 0;
+}
+
+/* Стили для формы создания */
+.constructor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-row label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    color: #333;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-row textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.constructor-form button {
+    margin-top: 10px;
+    align-self: flex-start;
+}
+
+/* Стили для списка симптомов */
+#symptoms-list-container h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+}
+
+.symptom-card {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.symptom-card h4 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.symptom-card p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.delete-symptom-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.delete-symptom-btn:hover {
+    background-color: #c82333;
 }

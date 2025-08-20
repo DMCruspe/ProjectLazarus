@@ -4,6 +4,7 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import SuccessPage from './components/SuccessPage';
 import DashboardPage from './components/DashboardPage';
+import ConstructorPage from './components/ConstructorPage'; // <-- Импортируем новый компонент
 import './App.css';
 
 function App() {
@@ -29,13 +30,14 @@ function App() {
                 return <SuccessPage onNavigate={setCurrentPage} />;
             case 'dashboard':
                 return <DashboardPage onNavigate={setCurrentPage} />;
+            case 'constructor': // <-- Новый кейс для конструктора
+                return <ConstructorPage onNavigate={setCurrentPage} />;
             default:
                 return <MainPage onNavigate={setCurrentPage} />;
         }
     };
 
-    // Применяем класс, соответствующий текущей странице
-    const layoutClass = currentPage === 'dashboard' ? 'dashboard-layout' : 'centered-layout';
+    const layoutClass = currentPage === 'dashboard' || currentPage === 'constructor' ? 'dashboard-layout' : 'centered-layout';
 
     return (
         <div className={layoutClass}>

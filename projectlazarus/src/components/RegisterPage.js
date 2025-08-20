@@ -52,7 +52,7 @@ const RegisterPage = ({ onNavigate, onRegisterSuccess }) => {
             </div>
             <div className="footer">
                 <p>Powered by Follow Me</p>
-                <p className="app-version">Version alpha ...</p>
+                <VersionInfo />
             </div>
         </div>
     );

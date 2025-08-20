@@ -20,7 +20,7 @@ const VersionInfo = () => {
 
     return (
         <p className="app-version">
-            Version alpha {version}
+            Build {version}
         </p>
     );
 };

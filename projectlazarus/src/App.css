@@ -1,3 +1,8 @@
+/* Добавляем эти правила в самый верх вашего App.css */
+html, body, #root, .App {
+    height: 100%;
+    margin: 0;
+
 /* =======================================
    СТИЛИ ДЛЯ ЦЕНТРИРОВАННЫХ СТРАНИЦ
    (MainPage, LoginPage, RegisterPage, SuccessPage)

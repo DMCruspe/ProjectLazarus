@@ -19,7 +19,7 @@ const LoginPage = ({ onNavigate, onLoginSuccess }) => {
         }
 
         try {
-            const response = await axios.post('/api/login', { username, password });
+            const response = await axios.post('/api/auth/login', { username, password });
             
             // On successful login, save user data and navigate
             localStorage.setItem('username', response.data.username);

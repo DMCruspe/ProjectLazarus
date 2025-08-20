@@ -1,5 +1,6 @@
 import React from 'react';
 import '../App.css'; // **ДОБАВЛЕН ЭТОТ ИМПОРТ**
+import VersionInfo from './VersionInfo';
 
 const SuccessPage = ({ onNavigate }) => {
     return (

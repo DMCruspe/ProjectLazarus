@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../App.css'; // Верно, уже было в вашем коде
+import VersionInfo from './VersionInfo';
 
 const LoginPage = ({ onNavigate, onLoginSuccess }) => {
     const [username, setUsername] = useState('');

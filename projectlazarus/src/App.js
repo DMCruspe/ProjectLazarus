@@ -7,6 +7,7 @@ import RegisterPage from './components/RegisterPage';
 import SuccessPage from './components/SuccessPage';
 import PlayersPage from './components/PlayersPage';
 import ConstructorPage from './components/ConstructorPage';
+import DatabasePage from './components/DatabasePage'; // Импорт нового компонента
 
 function App() {
     const [page, setPage] = useState('main');
@@ -46,6 +47,8 @@ function App() {
                 return <PlayersPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
             case 'constructor':
                 return <ConstructorPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
+            case 'database':
+                return <DatabasePage user={user} onNavigate={handleNavigate} />;
             default:
                 return <MainPage onNavigate={handleNavigate} />;
         }

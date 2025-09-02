@@ -1,7 +1,7 @@
 /* =======================================
-   СТИЛИ ДЛЯ ЦЕНТРИРОВАННЫХ СТРАНИЦ
-   (MainPage, LoginPage, RegisterPage, SuccessPage)
-   ======================================= */
+    СТИЛИ ДЛЯ ЦЕНТРИРОВАННЫХ СТРАНИЦ
+    (MainPage, LoginPage, RegisterPage, SuccessPage)
+    ======================================= */
 .centered-layout {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
@@ -116,9 +116,9 @@
 }
 
 /* =======================================
-   СТИЛИ ДЛЯ МАКЕТА ДАШБОРДА
-   (DashboardPage, PlayersPage, ConstructorPage)
-   ======================================= */
+    СТИЛИ ДЛЯ МАКЕТА ДАШБОРДА
+    (DashboardPage, PlayersPage, ConstructorPage)
+    ======================================= */
 .dashboard-layout {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -294,8 +294,8 @@
 }
 
 /* =======================================
-   СТИЛИ ДЛЯ СТРАНИЦЫ КОНСТРУКТОРА
-   ======================================= */
+    СТИЛИ ДЛЯ СТРАНИЦЫ КОНСТРУКТОРА
+    ======================================= */
 .constructor-page {
     display: flex;
     flex-direction: column;
@@ -415,8 +415,8 @@
 }
 
 /* =======================================
-   СТИЛИ ДЛЯ СТРАНИЦЫ ИГРОКОВ
-   ======================================= */
+    СТИЛИ ДЛЯ СТРАНИЦЫ ИГРОКОВ
+    ======================================= */
 .players-panel {
     overflow-x: auto;
     width: 100%;
@@ -455,6 +455,10 @@
     background-color: #ddd;
 }
 
+/*
+    Стили для кнопок удаления
+    (универсальный стиль для всех страниц)
+*/
 .delete-btn {
     background-color: #dc3545;
     color: white;
@@ -463,4 +467,48 @@
 
 .delete-btn:hover {
     background-color: #c82333;
+}
+
+/* =======================================
+    НОВЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ БАЗЫ ДАННЫХ
+    ======================================= */
+.list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    overflow-y: auto;
+}
+
+/*
+    Универсальный стиль для карточек
+    (используется на разных страницах, поэтому не меняем)
+*/
+.task-card {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    margin-bottom: 0; /* Отменяем предыдущий стиль */
+}
+
+.task-card h3 {
+    margin-top: 0;
+}
+
+.show-vaccine-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+.show-vaccine-btn:hover {
+    background-color: #0056b3;
 }

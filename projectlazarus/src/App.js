@@ -35,7 +35,7 @@ function App() {
             case 'main':
                 return <MainPage onNavigate={handleNavigate} />;
             case 'login':
-                return <LoginPage onLogin={handleLogin} onNavigate={handleNavigate} />;
+                return <LoginPage onLoginSuccess={handleLogin} onNavigate={handleNavigate} />;
             case 'register':
                 return <RegisterPage onNavigate={handleNavigate} />;
             case 'success':

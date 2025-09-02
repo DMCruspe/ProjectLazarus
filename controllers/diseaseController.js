@@ -1,6 +1,8 @@
 const Disease = require('../models/Disease');
-const User = require('../models/User');
+const User = require('../models/User'); // Assumed User model exists
+const Vaccine = require('../models/Vaccine'); // Assumed Vaccine model exists
 
+// Handles creating a new disease
 exports.createDisease = async (req, res) => {
     const { name, type, symptoms, spread, resistance, vulnerabilities, treatment, vaccine } = req.body;
 
@@ -27,7 +29,7 @@ exports.createDisease = async (req, res) => {
     }
 };
 
-// Новый контроллер для публичного доступа к списку болезней
+// Publicly accessible list of all diseases
 exports.listPublicDiseases = async (req, res) => {
     try {
         const diseases = await Disease.find({});
@@ -38,6 +40,7 @@ exports.listPublicDiseases = async (req, res) => {
     }
 };
 
+// Handles deleting a disease (requires admin/superadmin role)
 exports.deleteDisease = async (req, res) => {
     const { diseaseId, requesterUsername } = req.body;
     try {
@@ -53,5 +56,18 @@ exports.deleteDisease = async (req, res) => {
     }
 };
 
-// Вам нужно будет также обновить файл, где вы используете эти контроллеры, чтобы связать
-// listPublicDiseases с новым публичным маршрутом, например, с помощью express.Router().get('/list-public', listPublicDiseases)
+// **NEW** - Handles fetching information about a vaccine
+// Assumed to be publicly accessible or with a check as needed
+exports.getVaccineInfo = async (req, res) => {
+    const { name } = req.body;
+    try {
+        const vaccine = await Vaccine.findOne({ name });
+        if (!vaccine) {
+            return res.status(404).json({ message: 'Вакцина не найдена.' });
+        }
+        res.status(200).json(vaccine);
+    } catch (error) {
+        console.error('Ошибка при получении информации о вакцине:', error);
+        res.status(500).json({ message: 'Ошибка на сервере при поиске вакцины.' });
+    }
+};

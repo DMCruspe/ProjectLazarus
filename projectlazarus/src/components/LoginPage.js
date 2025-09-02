@@ -10,7 +10,6 @@ const LoginPage = ({ onNavigate, onLoginSuccess }) => {
     const [message, setMessage] = useState({ text: '', isError: false });
 
     const handleLogin = async (e) => {
-        // Prevent the default form submission behavior
         e.preventDefault();
 
         if (!username || !password) {
@@ -21,15 +20,20 @@ const LoginPage = ({ onNavigate, onLoginSuccess }) => {
         try {
             const response = await axios.post('/api/auth/login', { username, password });
             
-            // On successful login, save user data and navigate
             localStorage.setItem('username', response.data.username);
             localStorage.setItem('role', response.data.role);
             localStorage.setItem('credits', response.data.credits);
             
+            // Успешный вход. Устанавливаем сообщение и вызываем перенаправление.
             setMessage({ text: 'Вход успешен!', isError: false });
+            // onLoginSuccess() должен перенаправить вас на нужную страницу.
             onLoginSuccess();
+            
         } catch (error) {
-            const errorMessage = error.response ? error.response.data.message : 'Ошибка при входе. Попробуйте ещё раз.';
+            // Если запрос не успешен, обрабатываем ошибку.
+            const errorMessage = error.response && error.response.data && error.response.data.message
+                ? error.response.data.message
+                : 'Ошибка при входе. Попробуйте ещё раз.';
             setMessage({ text: errorMessage, isError: true });
         }
     };
@@ -37,9 +41,12 @@ const LoginPage = ({ onNavigate, onLoginSuccess }) => {
     return (
         <div id="login-page" className="page-container">
             <h1 className="site-title">Войти в систему</h1>
-            {/* Add onSubmit to the form and remove onClick from the button */}
             <form onSubmit={handleLogin} className="content-box">
-                <p className="message-area" style={{ color: message.isError ? 'red' : 'green' }}>{message.text}</p>
+                {message.text && (
+                    <p className="message-area" style={{ color: message.isError ? 'red' : 'green' }}>
+                        {message.text}
+                    </p>
+                )}
                 <div className="form-group">
                     <label htmlFor="login-username">Логин</label>
                     <input
@@ -62,7 +69,6 @@ const LoginPage = ({ onNavigate, onLoginSuccess }) => {
                         required
                     />
                 </div>
-                {/* The button's type is "submit", so it will trigger the form's onSubmit handler */}
                 <button type="submit" className="btn-primary">Авторизоваться</button>
                 <button type="button" className="btn-back" onClick={() => onNavigate('main')}>Назад</button>
             </form>

@@ -8,6 +8,13 @@ const DatabasePage = ({ onNavigate, user }) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        // Проверяем, существует ли пользователь и его имя, прежде чем делать запрос
+        if (!user || !user.username) {
+            setError('Необходима авторизация для доступа к базе данных.');
+            setLoading(false);
+            return;
+        }
+
         const fetchAndDisplayDiseases = async () => {
             try {
                 const response = await axios.post('/api/diseases/list', { requesterUsername: user.username });
@@ -24,7 +31,7 @@ const DatabasePage = ({ onNavigate, user }) => {
         };
 
         fetchAndDisplayDiseases();
-    }, [user.username]);
+    }, [user]); // Зависимость теперь от всего объекта user, а не только от имени пользователя.
 
     const handleDeleteDisease = async (diseaseId) => {
         if (window.confirm('Вы уверены, что хотите удалить эту болезнь?')) {
@@ -70,7 +77,7 @@ const DatabasePage = ({ onNavigate, user }) => {
 
         return diseases.map(disease => (
             <div key={disease._id} className="task-card">
-                {['admin', 'superadmin'].includes(user.role) && (
+                {user && ['admin', 'superadmin'].includes(user.role) && (
                     <button className="delete-btn" onClick={() => handleDeleteDisease(disease._id)}>
                         Удалить
                     </button>

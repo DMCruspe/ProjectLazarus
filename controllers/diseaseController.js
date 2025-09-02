@@ -1,10 +1,9 @@
 const Disease = require('../models/Disease');
-const User = require('../models/User'); // Предполагается, что модель User существует
+const User = require('../models/User');
 
 exports.createDisease = async (req, res) => {
     const { name, type, symptoms, spread, resistance, vulnerabilities, treatment, vaccine } = req.body;
 
-    // Проверка обязательного поля 'name'
     if (!name) {
         return res.status(400).json({ message: 'Поле "name" является обязательным.' });
     }
@@ -28,7 +27,8 @@ exports.createDisease = async (req, res) => {
     }
 };
 
-exports.getDiseasesList = async (req, res) => {
+// Новый контроллер для публичного доступа к списку болезней
+exports.listPublicDiseases = async (req, res) => {
     try {
         const diseases = await Disease.find({});
         res.status(200).json(diseases);
@@ -52,3 +52,6 @@ exports.deleteDisease = async (req, res) => {
         res.status(500).json({ message: 'Произошла ошибка на сервере' });
     }
 };
+
+// Вам нужно будет также обновить файл, где вы используете эти контроллеры, чтобы связать
+// listPublicDiseases с новым публичным маршрутом, например, с помощью express.Router().get('/list-public', listPublicDiseases)

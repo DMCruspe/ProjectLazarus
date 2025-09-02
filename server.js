@@ -11,6 +11,7 @@ const authRoutes = require('./routes/authRoutes');
 const playerRoutes = require('./routes/playerRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const minigameRoutes = require('./routes/minigameRoutes');
+const diseaseRoutes = require('./routes/diseaseRoutes'); // <-- Добавьте импорт нового маршрута
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -47,6 +48,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/minigame', minigameRoutes);
+app.use('/api/diseases', diseaseRoutes); // <-- Добавьте эту строку для использования нового маршрута
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, 'projectlazarus/build')));

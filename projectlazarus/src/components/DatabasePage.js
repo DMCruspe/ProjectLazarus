@@ -8,32 +8,29 @@ const DatabasePage = ({ onNavigate, user }) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // Проверяем, существует ли пользователь и его имя, прежде чем делать запрос
-        if (!user || !user.username) {
-            setError('Необходима авторизация для доступа к базе данных.');
-            setLoading(false);
-            return;
-        }
-
         const fetchAndDisplayDiseases = async () => {
             try {
-                const response = await axios.post('/api/diseases/list', { requesterUsername: user.username });
+                // Теперь используем GET-запрос к новому публичному эндпоинту
+                const response = await axios.get('/api/diseases/list-public');
                 setDiseases(response.data);
                 setLoading(false);
+                setError(null);
             } catch (err) {
-                if (err.response && err.response.status === 403) {
-                    setError('Доступ запрещён.');
-                } else {
-                    setError('Ошибка при загрузке базы данных.');
-                }
+                console.error('Ошибка при загрузке базы данных:', err);
+                setError('Ошибка при загрузке базы данных.');
                 setLoading(false);
             }
         };
 
         fetchAndDisplayDiseases();
-    }, [user]); // Зависимость теперь от всего объекта user, а не только от имени пользователя.
+    }, []); // Зависимости нет, так как запрос не зависит от пропсов пользователя.
 
     const handleDeleteDisease = async (diseaseId) => {
+        if (!user || !user.username) {
+             alert('Для удаления болезни необходимо войти в систему.');
+             return;
+        }
+
         if (window.confirm('Вы уверены, что хотите удалить эту болезнь?')) {
             try {
                 const response = await axios.post('/api/disease/delete', {
@@ -77,6 +74,7 @@ const DatabasePage = ({ onNavigate, user }) => {
 
         return diseases.map(disease => (
             <div key={disease._id} className="task-card">
+                {/* Кнопка "Удалить" отображается только если user существует и его роль 'admin' или 'superadmin' */}
                 {user && ['admin', 'superadmin'].includes(user.role) && (
                     <button className="delete-btn" onClick={() => handleDeleteDisease(disease._id)}>
                         Удалить

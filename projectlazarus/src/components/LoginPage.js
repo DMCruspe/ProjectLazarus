@@ -1,13 +1,14 @@
-// src/components/LoginPage.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
 import VersionInfo from './VersionInfo';
 
-const LoginPage = ({ onNavigate, onLoginSuccess }) => {
+const LoginPage = ({ onLoginSuccess }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState({ text: '', isError: false });
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -27,7 +28,7 @@ const LoginPage = ({ onNavigate, onLoginSuccess }) => {
             // Успешный вход. Устанавливаем сообщение и вызываем перенаправление.
             setMessage({ text: 'Вход успешен!', isError: false });
             // onLoginSuccess() должен перенаправить вас на нужную страницу.
-            onLoginSuccess();
+            onLoginSuccess(response.data);
             
         } catch (error) {
             // Если запрос не успешен, обрабатываем ошибку.
@@ -70,7 +71,7 @@ const LoginPage = ({ onNavigate, onLoginSuccess }) => {
                     />
                 </div>
                 <button type="submit" className="btn-primary">Авторизоваться</button>
-                <button type="button" className="btn-back" onClick={() => onNavigate('main')}>Назад</button>
+                <button type="button" className="btn-back" onClick={() => navigate('/')}>Назад</button>
             </form>
             <div className="footer">
                 <p>Powered by Follow Me</p>

@@ -1,33 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import VersionInfo from './VersionInfo';
 
-const ConstructorPage = ({ onNavigate }) => {
-    const [user, setUser] = useState(null);
+const ConstructorPage = ({ user }) => {
+    const navigate = useNavigate();
     const [activeForm, setActiveForm] = useState(null);
     const [players, setPlayers] = useState([]);
     const [symptoms, setSymptoms] = useState([]);
 
     useEffect(() => {
-        const username = localStorage.getItem('username');
-        const role = localStorage.getItem('role');
-        const credits = localStorage.getItem('credits');
-
-        if (!username || (role !== 'admin' && role !== 'superadmin')) {
+        // Проверка прав доступа
+        if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) {
             alert('Доступ запрещён.');
-            onNavigate('dashboard');
+            navigate('/dashboard'); // Используем navigate для перенаправления
             return;
         }
 
-        setUser({ username, role, credits });
-    }, [onNavigate]);
-
-    useEffect(() => {
-        if (user) {
-            fetchPlayers();
-        }
-        // eslint-disable-next-line
-    }, [user]);
+        // Загрузка игроков
+        fetchPlayers();
+    }, [user, navigate]); // Зависимости обновлены
 
     const fetchPlayers = async () => {
         try {
@@ -262,7 +254,7 @@ const ConstructorPage = ({ onNavigate }) => {
                         <button className="nav-button" onClick={() => setActiveForm('create-disease')}>Создать болезнь</button>
                         <button className="nav-button" onClick={() => setActiveForm('create-vaccine')}>Создать вакцину</button>
                         <button className="nav-button" onClick={() => { setActiveForm('symptoms'); fetchSymptoms(); }}>Симптомы</button>
-                        <button className="nav-button" onClick={() => onNavigate('dashboard')}>Назад</button>
+                        <button className="nav-button" onClick={() => navigate('/dashboard')}>Назад</button>
                     </nav>
                     <div className="version-info-container">
                         <VersionInfo />
@@ -277,4 +269,3 @@ const ConstructorPage = ({ onNavigate }) => {
 };
 
 export default ConstructorPage;
-// ...existing code...

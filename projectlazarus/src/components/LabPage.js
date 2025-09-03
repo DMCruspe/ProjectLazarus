@@ -1,186 +1,125 @@
-import React, { useState } from 'react';
-import './style-lab.css';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import '../App.css';
 
-const LabPage = () => {
-  const [activeGame, setActiveGame] = useState('');
-  const [labWelcome, setLabWelcome] = useState('Добро пожаловать в лабораторию!');
-  // Пример состояний для мини-игр
-  const [symptoms, setSymptoms] = useState(['', '', '']);
-  const [spreadPath, setSpreadPath] = useState('воздушно-капельный');
-  const [factor, setFactor] = useState('влажность');
-  const [percentage, setPercentage] = useState(50);
+const DatabasePage = ({ user }) => {
+    const [diseases, setDiseases] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
-  return (
-    <div>
-      <div className="header">
-        <h1 className="page-title">Лаборатория</h1>
-        <div className="header-credits">
-          <span id="credits">...</span>
+    useEffect(() => {
+        const fetchAndDisplayDiseases = async () => {
+            try {
+                // Используем GET-запрос к новому публичному эндпоинту
+                const response = await axios.get('/api/diseases/list-public');
+                setDiseases(response.data);
+                setLoading(false);
+                setError(null);
+            } catch (err) {
+                console.error('Ошибка при загрузке базы данных:', err);
+                setError('Ошибка при загрузке базы данных.');
+                setLoading(false);
+            }
+        };
+
+        fetchAndDisplayDiseases();
+    }, []);
+
+    const handleDeleteDisease = async (diseaseId) => {
+        if (!user || !user.username) {
+            alert('Для удаления болезни необходимо войти в систему.');
+            return;
+        }
+
+        if (window.confirm('Вы уверены, что хотите удалить эту болезнь?')) {
+            try {
+                const response = await axios.post('/api/disease/delete', {
+                    diseaseId: diseaseId,
+                    requesterUsername: user.username,
+                });
+                alert(response.data.message);
+                setDiseases(diseases.filter(d => d._id !== diseaseId));
+            } catch (err) {
+                const errorMessage = err.response?.data?.message || 'Произошла ошибка при удалении.';
+                alert(`Ошибка: ${errorMessage}`);
+            }
+        }
+    };
+
+    const handleShowVaccine = async (vaccineName) => {
+        try {
+            const response = await axios.post('/api/vaccine/info', { name: vaccineName });
+            const vaccine = response.data;
+            alert(`Информация о вакцине "${vaccine.name}":\n\n` +
+                `Болезнь: ${vaccine.diseaseName}\n` +
+                `Дозировка: ${vaccine.dosage}\n` +
+                `Эффективность: ${vaccine.effectiveness}%\n` +
+                `Побочные эффекты: ${vaccine.sideEffects || 'Нет'}`);
+        } catch (err) {
+            const errorMessage = err.response?.data?.message || 'Произошла ошибка при получении информации о вакцине.';
+            alert(`Ошибка: ${errorMessage}`);
+        }
+    };
+
+    const renderDiseaseList = () => {
+        if (loading) {
+            return <p>Загрузка...</p>;
+        }
+        if (error) {
+            return <p>{error}</p>;
+        }
+        if (diseases.length === 0) {
+            return <p>База данных болезней пуста.</p>;
+        }
+
+        return diseases.map(disease => (
+            <div key={disease._id} className="task-card">
+                {user && ['admin', 'superadmin'].includes(user.role) && (
+                    <button className="delete-btn" onClick={() => handleDeleteDisease(disease._id)}>
+                        Удалить
+                    </button>
+                )}
+                <h3>{disease.name} ({disease.type})</h3>
+                <p><strong>Симптомы:</strong> {disease.symptoms}</p>
+                <p><strong>Распространение:</strong> {disease.spread}</p>
+                <p><strong>Устойчивость:</strong> {disease.resistance}</p>
+                <p><strong>Уязвимости:</strong> {disease.vulnerabilities}</p>
+                <p><strong>Лечение:</strong> {disease.treatment}</p>
+                <p><strong>Вакцина:</strong> {disease.vaccine || 'Нет'}</p>
+                {disease.vaccine && (
+                    <button className="show-vaccine-btn" onClick={() => handleShowVaccine(disease.vaccine)}>
+                        Показать вакцину
+                    </button>
+                )}
+            </div>
+        ));
+    };
+
+    return (
+        <div className="page-container">
+            <div className="header">
+                <h1 className="page-title">База данных болезней</h1>
+                <div className="header-credits">
+                    <span id="credits">{user?.credits} R</span>
+                </div>
+            </div>
+            <div className="container">
+                <aside className="left-panel">
+                    <h2>Навигация</h2>
+                    <nav>
+                        <button className="nav-button" onClick={() => navigate('/dashboard')}>Назад</button>
+                    </nav>
+                </aside>
+                <main className="center-panel">
+                    <div id="disease-list-container" className="list-container">
+                        {renderDiseaseList()}
+                    </div>
+                </main>
+            </div>
         </div>
-      </div>
-      <div className="container">
-        <aside className="left-panel">
-          <h2>Навигация</h2>
-          <nav>
-            <button onClick={() => setActiveGame('symptoms')} className="nav-button">Узнать симптомы</button>
-            <button onClick={() => setActiveGame('spread')} className="nav-button">Моделирование распространения</button>
-            <button onClick={() => setActiveGame('vulnerability')} className="nav-button">Поиск уязвимостей</button>
-            <button onClick={() => setActiveGame('vaccine')} className="nav-button">Создать вакцину</button>
-            <button onClick={() => setActiveGame('identify')} className="nav-button">Определить тип</button>
-            <button onClick={() => window.location.href = '/'} className="nav-button">Назад</button>
-          </nav>
-        </aside>
-        <main className="center-panel lab-panel">
-          <h2 id="lab-welcome-message">{labWelcome}</h2>
-
-          {/* Мини-игра: Исследование симптомов */}
-          {activeGame === 'symptoms' && (
-            <div className="game-card">
-              <h3>Мини-игра: Исследование симптомов</h3>
-              <p>Нажмите "Начать исследование", чтобы провести серию исследований. Ваша задача — найти повторяющиеся симптомы. Их может быть от 2 до 3.</p>
-              <div>
-                <button className="nav-button">Начать исследование</button>
-              </div>
-              <div>
-                <h4>Введите найденные симптомы:</h4>
-                <div>
-                  {symptoms.map((s, i) => (
-                    <input
-                      key={i}
-                      type="text"
-                      className="symptom-input"
-                      placeholder={`Симптом ${i + 1}`}
-                      value={s}
-                      onChange={e => {
-                        const arr = [...symptoms];
-                        arr[i] = e.target.value;
-                        setSymptoms(arr);
-                      }}
-                    />
-                  ))}
-                </div>
-                <button className="nav-button">Проверить</button>
-              </div>
-              <div></div>
-              <button className="nav-button" style={{ display: 'none' }}>Повторить исследование</button>
-            </div>
-          )}
-
-          {/* Мини-игра: Моделирование распространения */}
-          {activeGame === 'spread' && (
-            <div className="game-card">
-              <h3>Мини-игра: Моделирование распространения</h3>
-              <p>Исследуйте различные пути передачи, чтобы найти основной способ распространения болезни.</p>
-              <div>
-                <label htmlFor="spread-path-select">Выберите путь передачи:</label>
-                <select
-                  id="spread-path-select"
-                  value={spreadPath}
-                  onChange={e => setSpreadPath(e.target.value)}
-                >
-                  <option value="воздушно-капельный">Воздушно-капельный</option>
-                  <option value="контактный">Контактный</option>
-                  <option value="через-воду">Через воду</option>
-                  <option value="через-пищу">Через пищу</option>
-                </select>
-                <button className="nav-button">Исследовать</button>
-              </div>
-              <div></div>
-              <div style={{ display: 'none' }}>
-                <h4>Подтвердите основной путь передачи:</h4>
-                <button className="nav-button">Подтвердить</button>
-              </div>
-              <div></div>
-              <button className="nav-button" style={{ display: 'none' }}>Повторить исследование</button>
-            </div>
-          )}
-
-          {/* Мини-игра: Поиск уязвимостей */}
-          {activeGame === 'vulnerability' && (
-            <div className="game-card">
-              <h3>Мини-игра: Поиск уязвимостей</h3>
-              <p>Выберите фактор и укажите его процентное значение, чтобы определить, к чему вирус уязвим или устойчив.</p>
-              <div>
-                <label htmlFor="vulnerability-factor-select">Выберите фактор для исследования:</label>
-                <select
-                  id="vulnerability-factor-select"
-                  value={factor}
-                  onChange={e => setFactor(e.target.value)}
-                >
-                  <option value="влажность">Реакция на влажность</option>
-                  <option value="свет">Реакция на свет</option>
-                  <option value="радиация">Реакция на радиацию</option>
-                  <option value="температура">Реакция на температуру</option>
-                </select>
-                <div>
-                  <label htmlFor="factor-percentage">Укажите процент фактора (от 1 до 100):</label>
-                  <input
-                    type="number"
-                    id="factor-percentage"
-                    min="1"
-                    max="100"
-                    value={percentage}
-                    onChange={e => setPercentage(e.target.value)}
-                  />
-                </div>
-                <button className="nav-button">Исследовать</button>
-              </div>
-              <div></div>
-              <div style={{ display: 'none' }}>
-                <h4>Укажите уязвимые и устойчивые факторы:</h4>
-                <div>
-                  <label htmlFor="vulnerable-factors">Уязвимые факторы:</label>
-                  <input type="text" id="vulnerable-factors" placeholder="Введите через запятую" />
-                  <label htmlFor="resistant-factors">Устойчивые факторы:</label>
-                  <input type="text" id="resistant-factors" placeholder="Введите через запятую" />
-                </div>
-                <button className="nav-button">Проверить</button>
-              </div>
-              <div></div>
-              <button className="nav-button" style={{ display: 'none' }}>Повторить</button>
-            </div>
-          )}
-
-          {/* Мини-игра: Создание вакцины */}
-          {activeGame === 'vaccine' && (
-            <div className="game-card">
-              <h3>Мини-игра: Создание вакцины</h3>
-              <p>Выберите два препарата из списка, чтобы объединить их. Ваша цель — создать вакцину, которая полностью уничтожит вирус, при этом её побочные эффекты и доза не должны быть слишком высокими.</p>
-              <div>
-                <h4>Доступные препараты:</h4>
-                <div className="compound-list"></div>
-                <div>
-                  <h4>Объединить:</h4>
-                  <div>
-                    <span>Препарат 1</span> + <span>Препарат 2</span>
-                  </div>
-                  <button className="nav-button">Объединить</button>
-                </div>
-              </div>
-              <div></div>
-              <div></div>
-              <button className="nav-button" style={{ display: 'none' }}>Начать заново</button>
-            </div>
-          )}
-
-          {/* Мини-игра: Определи тип болезни */}
-          {activeGame === 'identify' && (
-            <div className="game-card">
-              <h2>Определи тип болезни</h2>
-              <div>
-                <p>Загрузка...</p>
-              </div>
-              <button className="nav-button" style={{ display: 'none' }}>Следующая игра</button>
-            </div>
-          )}
-        </main>
-      </div>
-      <div className="footer">
-        <p>Powered by Follow Me</p>
-        <p className="app-version">Version alpha ...</p>
-      </div>
-    </div>
-  );
+    );
 };
 
-export default LabPage;
+export default DatabasePage;

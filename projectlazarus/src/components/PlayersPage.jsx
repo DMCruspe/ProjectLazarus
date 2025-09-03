@@ -1,14 +1,14 @@
-// src/components/PlayersPage.jsx
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import VersionInfo from './VersionInfo';
 
-const PlayersPage = ({ onNavigate }) => {
+const PlayersPage = () => {
     const [user, setUser] = useState(null);
     const [players, setPlayers] = useState([]);
     const [isAuthorizedView, setIsAuthorizedView] = useState(true);
     const [pageTitle, setPageTitle] = useState('Авторизованные аккаунты');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const username = localStorage.getItem('username');
@@ -18,9 +18,9 @@ const PlayersPage = ({ onNavigate }) => {
         if (username) {
             setUser({ username, role, credits });
         } else {
-            onNavigate('login');
+            navigate('/login');
         }
-    }, [onNavigate]);
+    }, [navigate]);
 
     useEffect(() => {
         if (user) {
@@ -32,10 +32,10 @@ const PlayersPage = ({ onNavigate }) => {
                 }
             } else {
                 alert('Доступ запрещён.');
-                onNavigate('dashboard');
+                navigate('/dashboard');
             }
         }
-    }, [user, isAuthorizedView, onNavigate]);
+    }, [user, isAuthorizedView, navigate]);
 
     const fetchAuthorizedPlayers = async () => {
         try {
@@ -233,7 +233,7 @@ const PlayersPage = ({ onNavigate }) => {
                         <button
                             id="back-to-main"
                             className="nav-button"
-                            onClick={() => onNavigate('dashboard')}
+                            onClick={() => navigate('/dashboard')}
                         >
                             Назад
                         </button>

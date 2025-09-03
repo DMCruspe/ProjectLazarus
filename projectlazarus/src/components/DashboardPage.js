@@ -1,11 +1,12 @@
-// src/components/DashboardPage.js
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import VersionInfo from './VersionInfo';
 
-const DashboardPage = ({ onNavigate }) => {
+const DashboardPage = ({ onLogout }) => {
     const [user, setUser] = useState(null);
     const [tasks, setTasks] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const username = localStorage.getItem('username');
@@ -16,9 +17,9 @@ const DashboardPage = ({ onNavigate }) => {
             setUser({ username, role, credits });
             fetchAndDisplayTasks(username);
         } else {
-            onNavigate('login');
+            navigate('/login'); // Используем navigate для перенаправления
         }
-    }, [onNavigate]);
+    }, [navigate]); // Зависимости обновлены
 
     const fetchAndDisplayTasks = async (username) => {
         try {
@@ -59,7 +60,8 @@ const DashboardPage = ({ onNavigate }) => {
         localStorage.removeItem('username');
         localStorage.removeItem('role');
         localStorage.removeItem('credits');
-        onNavigate('main');
+        onLogout(); // Используем prop onLogout, так как он управляет состоянием родительского компонента
+        navigate('/');
     };
     
     if (!user) {
@@ -89,15 +91,13 @@ const DashboardPage = ({ onNavigate }) => {
                     <nav>
                         {['admin', 'superadmin'].includes(user.role) && (
                             <>
-                                {/* Добавлены обработчики onClick */}
-                                <button onClick={() => onNavigate('constructor')} className="nav-button">Конструктор</button>
-                                <button onClick={() => onNavigate('players')} className="nav-button">Игроки</button>
-                                <button onClick={() => onNavigate('tasks_list')} className="nav-button">Список заданий</button>
+                                <button onClick={() => navigate('/constructor')} className="nav-button">Конструктор</button>
+                                <button onClick={() => navigate('/players')} className="nav-button">Игроки</button>
+                                <button onClick={() => navigate('/tasks-list')} className="nav-button">Список заданий</button>
                             </>
                         )}
-                        {/* Добавлены обработчики onClick */}
-                        <button onClick={() => onNavigate('lab')} className="nav-button">Лаборатория</button>
-                        <button onClick={() => onNavigate('database')} className="nav-button">База данных</button>
+                        <button onClick={() => navigate('/lab')} className="nav-button">Лаборатория</button>
+                        <button onClick={() => navigate('/database')} className="nav-button">База данных</button>
                         <button className="nav-button" onClick={handleLogout}>Выйти</button>
                     </nav>
                     <div className="version-info-container">

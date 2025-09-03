@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../App.css'; // **ДОБАВЛЕН ЭТОТ ИМПОРТ**
+import '../App.css';
 import VersionInfo from './VersionInfo';
 
-const RegisterPage = ({ onNavigate, onRegisterSuccess }) => {
+const RegisterPage = ({ onRegisterSuccess }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState({ text: '', isError: false });
+    const navigate = useNavigate();
 
     const handleRegister = async () => {
         if (!username || !password) {
@@ -16,6 +18,8 @@ const RegisterPage = ({ onNavigate, onRegisterSuccess }) => {
 
         try {
             await axios.post('/api/register', { username, password });
+            setMessage({ text: 'Регистрация успешна! Ожидайте авторизации аккаунта администратором.', isError: false });
+            // onRegisterSuccess() should handle the navigation to the appropriate page, e.g., the main page or a login page.
             onRegisterSuccess();
         } catch (error) {
             const errorMessage = error.response ? error.response.data.message : 'Ошибка при регистрации. Попробуйте ещё раз.';
@@ -49,7 +53,7 @@ const RegisterPage = ({ onNavigate, onRegisterSuccess }) => {
                     />
                 </div>
                 <button className="btn-primary" onClick={handleRegister}>Присоединиться</button>
-                <button className="btn-back" onClick={() => onNavigate('main')}>Назад</button>
+                <button className="btn-back" onClick={() => navigate('/')}>Назад</button>
             </div>
             <div className="footer">
                 <p>Powered by Follow Me</p>

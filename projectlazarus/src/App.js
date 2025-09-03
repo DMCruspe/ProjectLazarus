@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import './App.css';
 import MainPage from './components/MainPage';
 import DashboardPage from './components/DashboardPage';
@@ -8,62 +9,57 @@ import SuccessPage from './components/SuccessPage';
 import PlayersPage from './components/PlayersPage';
 import ConstructorPage from './components/ConstructorPage';
 import DatabasePage from './components/DatabasePage';
-import LabPage from './components/LabPage'; // Новый импорт
-import TasksListPage from './components/TasksListPage'; // Новый импорт
+import LabPage from './components/LabPage';
+import TasksListPage from './components/TasksListPage';
 
 function App() {
-    const [page, setPage] = useState('main');
     const [user, setUser] = useState(null);
-    const [message, setMessage] = useState('');
-    const [layoutClass, setLayoutClass] = useState('centered-layout');
 
     const handleLogin = (userData) => {
         setUser(userData);
-        setPage('dashboard');
-        setLayoutClass('dashboard-layout');
     };
 
     const handleLogout = () => {
         setUser(null);
-        setPage('main');
-        setLayoutClass('centered-layout');
-    };
-
-    const handleNavigate = (targetPage) => {
-        setPage(targetPage);
-    };
-
-    const renderPage = () => {
-        switch (page) {
-            case 'main':
-                return <MainPage onNavigate={handleNavigate} />;
-            case 'login':
-                return <LoginPage onLoginSuccess={handleLogin} onNavigate={handleNavigate} />;
-            case 'register':
-                return <RegisterPage onNavigate={handleNavigate} />;
-            case 'success':
-                return <SuccessPage onNavigate={handleNavigate} message={message} />;
-            case 'dashboard':
-                return <DashboardPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
-            case 'players':
-                return <PlayersPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
-            case 'constructor':
-                return <ConstructorPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
-            case 'database':
-                return <DatabasePage user={user} onNavigate={handleNavigate} />;
-            case 'lab':
-                return <LabPage user={user} onNavigate={handleNavigate} />; // Добавлено
-            case 'tasks-list':
-                return <TasksListPage user={user} onNavigate={handleNavigate} />; // Добавлено
-            default:
-                return <MainPage onNavigate={handleNavigate} />;
-        }
     };
 
     return (
-        <div className={layoutClass}>
-            {renderPage()}
-        </div>
+        <Router>
+            <div className={user ? 'dashboard-layout' : 'centered-layout'}>
+                <Routes>
+                    <Route path="/" element={<MainPage />} />
+                    <Route path="/login" element={<LoginPage onLoginSuccess={handleLogin} />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/success" element={<SuccessPage />} />
+                    <Route 
+                        path="/dashboard" 
+                        element={user ? <DashboardPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />} 
+                    />
+                    <Route 
+                        path="/players" 
+                        element={user ? <PlayersPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />} 
+                    />
+                    <Route 
+                        path="/constructor" 
+                        element={user ? <ConstructorPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />} 
+                    />
+                    <Route 
+                        path="/database" 
+                        element={<DatabasePage user={user} />} 
+                    />
+                    <Route 
+                        path="/lab" 
+                        element={user ? <LabPage user={user} /> : <Navigate to="/login" replace />} 
+                    />
+                    <Route 
+                        path="/tasks-list" 
+                        element={user ? <TasksListPage user={user} /> : <Navigate to="/login" replace />} 
+                    />
+                    {/* Catch all other routes */}
+                    <Route path="*" element={<MainPage />} />
+                </Routes>
+            </div>
+        </Router>
     );
 }
 

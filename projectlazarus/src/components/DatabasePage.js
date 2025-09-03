@@ -1,16 +1,18 @@
-// src/components/DatabasePage.js
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import '../App.css';
 
-const DatabasePage = ({ onNavigate, user }) => {
+const DatabasePage = ({ user }) => {
     const [diseases, setDiseases] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchAndDisplayDiseases = async () => {
             try {
-                // Теперь используем GET-запрос к новому публичному эндпоинту
+                // Используем GET-запрос к новому публичному эндпоинту
                 const response = await axios.get('/api/diseases/list-public');
                 setDiseases(response.data);
                 setLoading(false);
@@ -23,12 +25,12 @@ const DatabasePage = ({ onNavigate, user }) => {
         };
 
         fetchAndDisplayDiseases();
-    }, []); // Зависимости нет, так как запрос не зависит от пропсов пользователя.
+    }, []);
 
     const handleDeleteDisease = async (diseaseId) => {
         if (!user || !user.username) {
-             alert('Для удаления болезни необходимо войти в систему.');
-             return;
+            alert('Для удаления болезни необходимо войти в систему.');
+            return;
         }
 
         if (window.confirm('Вы уверены, что хотите удалить эту болезнь?')) {
@@ -74,7 +76,6 @@ const DatabasePage = ({ onNavigate, user }) => {
 
         return diseases.map(disease => (
             <div key={disease._id} className="task-card">
-                {/* Кнопка "Удалить" отображается только если user существует и его роль 'admin' или 'superadmin' */}
                 {user && ['admin', 'superadmin'].includes(user.role) && (
                     <button className="delete-btn" onClick={() => handleDeleteDisease(disease._id)}>
                         Удалить
@@ -108,7 +109,7 @@ const DatabasePage = ({ onNavigate, user }) => {
                 <aside className="left-panel">
                     <h2>Навигация</h2>
                     <nav>
-                        <button className="nav-button" onClick={() => onNavigate('dashboard')}>Назад</button>
+                        <button className="nav-button" onClick={() => navigate('/dashboard')}>Назад</button>
                     </nav>
                 </aside>
                 <main className="center-panel">

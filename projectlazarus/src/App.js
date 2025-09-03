@@ -7,7 +7,9 @@ import RegisterPage from './components/RegisterPage';
 import SuccessPage from './components/SuccessPage';
 import PlayersPage from './components/PlayersPage';
 import ConstructorPage from './components/ConstructorPage';
-import DatabasePage from './components/DatabasePage'; // Импорт нового компонента
+import DatabasePage from './components/DatabasePage';
+import LabPage from './components/LabPage'; // Новый импорт
+import TasksListPage from './components/TasksListPage'; // Новый импорт
 
 function App() {
     const [page, setPage] = useState('main');
@@ -49,6 +51,10 @@ function App() {
                 return <ConstructorPage user={user} onLogout={handleLogout} onNavigate={handleNavigate} />;
             case 'database':
                 return <DatabasePage user={user} onNavigate={handleNavigate} />;
+            case 'lab':
+                return <LabPage user={user} onNavigate={handleNavigate} />; // Добавлено
+            case 'tasks-list':
+                return <TasksListPage user={user} onNavigate={handleNavigate} />; // Добавлено
             default:
                 return <MainPage onNavigate={handleNavigate} />;
         }

@@ -512,3 +512,109 @@
 .show-vaccine-btn:hover {
     background-color: #0056b3;
 }
+
+/* ...existing code... */
+
+/* ===== Стили для страницы лаборатории (LabPage) ===== */
+.header {
+  background: #222;
+  color: #fff;
+  padding: 16px;
+}
+.page-title {
+  margin: 0;
+}
+.header-credits {
+  font-size: 14px;
+}
+.container {
+  display: flex;
+  min-height: 80vh;
+}
+.left-panel {
+  width: 220px;
+  background: #f4f4f4;
+  padding: 16px;
+}
+.nav-button {
+  display: block;
+  margin: 8px 0;
+  padding: 8px 16px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.center-panel.lab-panel {
+  flex: 1;
+  padding: 24px;
+  background: #fff;
+}
+.game-card {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 16px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+.symptom-input {
+  margin: 4px;
+  padding: 4px;
+}
+.footer {
+  background: #222;
+  color: #fff;
+  text-align: center;
+  padding: 12px;
+}
+.app-version {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* ===== Стили для страницы списка задач (TasksListPage) ===== */
+.tasks-list-container {
+  background: #f7f7f7;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.tasks-list-header {
+  background: #1976d2;
+  color: #fff;
+  padding: 16px;
+  text-align: center;
+}
+.tasks-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px auto;
+  max-width: 600px;
+}
+.task-item {
+  background: #fff;
+  border: 1px solid #ddd;
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 8px;
+}
+.task-item.completed {
+  background: #e0ffe0;
+  border-color: #8bc34a;
+}
+.task-status {
+  font-weight: bold;
+  color: #1976d2;
+}
+.tasks-list-footer {
+  background: #222;
+  color: #fff;
+  text-align: center;
+  padding: 12px;
+  margin-top: auto;
+}
+.app-version {
+  font-size: 12px;
+  opacity: 0.7;
+}
